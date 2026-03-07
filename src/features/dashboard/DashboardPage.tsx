@@ -143,6 +143,9 @@ export function DashboardPage() {
             <Link to="/planner" style={secondaryLinkStyle}>
               Open planner
             </Link>
+            <Link to="/history" style={secondaryLinkStyle}>
+              View recent history
+            </Link>
             <Link to="/onboarding" style={secondaryLinkStyle}>
               Edit profile
             </Link>

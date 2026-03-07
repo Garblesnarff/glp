@@ -11,6 +11,9 @@ const DashboardPage = lazy(() =>
 const DailyLogPage = lazy(() =>
   import("../../features/daily-log/DailyLogPage").then((module) => ({ default: module.DailyLogPage })),
 );
+const HistoryPage = lazy(() =>
+  import("../../features/history/HistoryPage").then((module) => ({ default: module.HistoryPage })),
+);
 const GLP1MealPlanner = lazy(() =>
   import("../../features/meal-planner/GLP1MealPlanner").then((module) => ({ default: module.GLP1MealPlanner })),
 );
@@ -27,6 +30,7 @@ export function AppRoutes() {
       <Routes>
         <Route path="/" element={<DashboardPage />} />
         <Route path="/today" element={<DailyLogPage />} />
+        <Route path="/history" element={<HistoryPage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/planner" element={<GLP1MealPlanner initialTab="planner" />} />
         <Route path="/grocery" element={<GLP1MealPlanner initialTab="grocery" />} />

@@ -49,6 +49,9 @@ export function DailyLogPage() {
           <Link to="/" style={secondaryLinkStyle}>
             Back to dashboard
           </Link>
+          <Link to="/history" style={secondaryLinkStyle}>
+            View recent history
+          </Link>
           <Link to="/red-flags" style={redLinkStyle}>
             Red-flag help
           </Link>
@@ -125,6 +128,11 @@ export function DailyLogPage() {
             nauseaDays={trendSummary.nauseaDays}
             lowAppetiteDays={trendSummary.lowAppetiteDays}
           />
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
+            <Link to="/history" style={secondaryLinkStyle}>
+              Explore day-by-day history
+            </Link>
+          </div>
         </DashboardPanel>
       </div>
     </div>
