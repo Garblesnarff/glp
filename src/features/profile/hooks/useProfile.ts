@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createDefaultDailyLog, defaultUserProfile } from "../../../domain/defaults";
 import { calculateProteinTargetRange, isProfileComplete } from "../../../domain/utils";
-import type { DailyLog, UserProfile } from "../../../domain/types";
+import type { AppetiteLevel, DailyLog, Severity, SymptomType, UserProfile } from "../../../domain/types";
 import { useAppServices } from "../../../app/providers/AppServices";
 
 function todayIsoDate() {
@@ -44,6 +44,40 @@ export function useProfile() {
     await profileRepository.saveTodayLog(log);
   }
 
+  async function setHydration(amount: number) {
+    const nextLog = {
+      ...(todayLog ?? createDefaultDailyLog(todayIsoDate())),
+      hydrationOz: Math.max(0, amount),
+    };
+
+    await saveTodayLog(nextLog);
+  }
+
+  async function addHydration(amount: number) {
+    const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
+    await setHydration(currentLog.hydrationOz + amount);
+  }
+
+  async function setAppetiteLevel(appetiteLevel: AppetiteLevel) {
+    const nextLog = {
+      ...(todayLog ?? createDefaultDailyLog(todayIsoDate())),
+      appetiteLevel,
+    };
+
+    await saveTodayLog(nextLog);
+  }
+
+  async function setSymptomSeverity(symptom: SymptomType, severity: Severity) {
+    const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
+    await saveTodayLog({
+      ...currentLog,
+      symptoms: {
+        ...currentLog.symptoms,
+        [symptom]: severity,
+      },
+    });
+  }
+
   return {
     isLoading,
     profile: profile ?? defaultUserProfile,
@@ -52,5 +86,9 @@ export function useProfile() {
     todayLog: todayLog ?? createDefaultDailyLog(todayIsoDate()),
     saveProfile,
     saveTodayLog,
+    setHydration,
+    addHydration,
+    setAppetiteLevel,
+    setSymptomSeverity,
   };
 }
