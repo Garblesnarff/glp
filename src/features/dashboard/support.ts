@@ -74,21 +74,15 @@ export function getEmergencyFoods(profile: UserProfile, log: DailyLog, recipes: 
   return recipes
     .filter((recipe) => recipe.meal !== "dinner")
     .filter((recipe) => {
-      const haystack = `${recipe.name} ${recipe.notes ?? ""}`.toLowerCase();
-
-      if (shotDay) {
-        return /smoothie|yogurt|soup|cottage|oats/i.test(haystack);
+      if (shotDay && !recipe.glp1.shotDayFriendly) {
+        return false;
       }
 
-      if (appetite === "none") {
-        return /smoothie|yogurt|cottage/i.test(haystack);
+      if (!recipe.glp1.appetiteLevel.includes(appetite)) {
+        return false;
       }
 
-      if (appetite === "low") {
-        return /smoothie|yogurt|cottage|soup|bowl/i.test(haystack);
-      }
-
-      return recipe.tags.includes("quick") || recipe.tags.includes("no-cook");
+      return recipe.canBlendOrSip || recipe.glp1.nauseaFriendly || recipe.glp1.heaviness <= 2;
     })
     .sort((a, b) => b.protein - a.protein)
     .slice(0, 3);
@@ -101,23 +95,31 @@ export function getDashboardMealRecommendations(profile: UserProfile, log: Daily
   return recipes
     .filter((recipe) => recipe.tags.includes("high-protein"))
     .filter((recipe) => {
-      const haystack = `${recipe.name} ${recipe.notes ?? ""}`.toLowerCase();
+      if (!recipe.glp1.appetiteLevel.includes(appetite)) {
+        return false;
+      }
 
       if (shotDay) {
-        return /smoothie|yogurt|soup|cottage|oats|bowl/i.test(haystack);
+        return recipe.glp1.shotDayFriendly && recipe.glp1.heaviness <= 2;
       }
 
       if (appetite === "none") {
-        return /smoothie|yogurt|cottage/i.test(haystack);
+        return recipe.canBlendOrSip || recipe.glp1.nauseaFriendly;
       }
 
       if (appetite === "low") {
-        return recipe.tags.includes("quick") || /smoothie|yogurt|cottage|soup/i.test(haystack);
+        return recipe.glp1.heaviness <= 3;
       }
 
-      return recipe.meal !== "snack";
+      return recipe.meal !== "snack" && !recipe.glp1.avoidWhen.includes("severe reflux");
     })
-    .sort((a, b) => b.protein - a.protein)
+    .sort((a, b) => {
+      const heavinessDelta = a.glp1.heaviness - b.glp1.heaviness;
+      if (heavinessDelta !== 0) {
+        return heavinessDelta;
+      }
+      return b.protein - a.protein;
+    })
     .slice(0, 3);
 }
 

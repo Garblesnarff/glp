@@ -1,6 +1,7 @@
-import type { DailyTargets, Recipe } from "../types";
+import { enrichRecipe } from "./enrichRecipes";
+import type { DailyTargets, Recipe, RecipeSeed } from "../types";
 
-export const RECIPES: Recipe[] = [
+const RECIPE_SEEDS: RecipeSeed[] = [
   {
     id: "b1",
     name: "Greek Yogurt Power Bowl",
@@ -1708,6 +1709,8 @@ export const RECIPES: Recipe[] = [
     notes: "Comforting warm treat. Apples support gut health with pectin fiber.",
   },
 ];
+
+export const RECIPES: Recipe[] = RECIPE_SEEDS.map(enrichRecipe);
 
 export const MEAL_TYPES = ["breakfast", "lunch", "dinner", "snack"] as const;
 

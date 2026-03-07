@@ -91,6 +91,11 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - Recent history route with per-day symptom, hydration, appetite, food mood, and food-noise review
    - 7-day summaries for symptom frequency, hydration averages, nausea, constipation, and low-appetite days
 
+8. **Recipe schema enrichment foundation**
+   - All existing recipes now pass through an enrichment layer that attaches explicit GLP-1 metadata
+   - Structured fields now exist in code for shot-day friendliness, nausea/reflux handling, constipation support, appetite fit, portion flexibility, heaviness, texture, contraindications, leftover behavior, and sip/blend friendliness
+   - Dashboard recommendations now use structured recipe metadata instead of only name/notes heuristics
+
 ### What is still scaffolded vs complete
 
 - **Dashboard**: implemented as the default route with live daily-state interactions, but still heuristic-driven and not yet powered by enriched recipe metadata
@@ -98,7 +103,7 @@ The codebase has moved beyond the original single-screen artifact and now includ
 - **Hydration tracker**: tap-based increments and hydration-risk logic exist, but not yet full bottle/glass visualization, reminders, or notification logic
 - **Emergency support**: dashboard emergency card and standalone red-flag route now exist, but no partner notification flow yet
 - **Prep partner model**: database/domain scaffold exists, but no dedicated UI or invite flow yet
-- **Recommendation engine**: heuristic only, not yet driven by enriched recipe schema, symptom correlations, or longer-term longitudinal learning
+- **Recommendation engine**: now partially structured via enriched recipe metadata, but still not personalized by true symptom correlations, explicit tolerance learning, or longer-term longitudinal modeling
 - **History/trends**: recent history exists as a browsable view, but not yet charted or analyzed beyond summary logic
 
 ---
