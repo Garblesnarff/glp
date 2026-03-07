@@ -1,0 +1,443 @@
+# GLP-1 Companion App — Product Requirements Document
+
+## Vision
+
+**This is NOT a meal planner. It's a GLP-1 companion that happens to include meal planning.**
+
+The app supports users through their first 12 weeks on GLP-1 medication and beyond. The home screen should feel like opening a daily support system — not a recipe browser. Each account supports two linked users: the primary user (taking the medication) and a prep partner (the person cooking/prepping meals).
+
+---
+
+## User Model
+
+Each account has two roles authenticated via WorkOS:
+
+- **Primary user**: The person taking GLP-1 medication. Sets weight, dietary restrictions, medication schedule, and logs symptoms/intake.
+- **Prep partner**: The person handling cooking and meal prep. Gets their own dashboard focused on what to cook, when, and what to buy.
+
+Both users share the same meal plan, grocery list, and recipe database. Both can view symptom/hydration data (with primary user's consent).
+
+### Initial User Profile Setup (onboarding)
+
+- Current weight
+- Dietary restrictions (multi-select + custom: egg-free, gluten-free, dairy-free, no seafood, no sausage, etc.)
+- Medication name and start date
+- Shot day of week
+- Prep partner invite (email/link)
+
+---
+
+## Nutritional Targets (from PubMed research)
+
+| Macro | Daily Target | Source |
+|-------|-------------|--------|
+| Protein | 114–143g (1.2–1.5 g/kg) | doi:10.1016/j.obpill.2025.100209 |
+| Fiber | 25–30g (ramp gradually) | doi:10.3389/fnut.2025.1566498 |
+| Calories | ~1400–1800 (appetite-dependent) | Individualized |
+| Hydration | 64–80 oz water/day minimum | FDA labeling guidance |
+
+**Common deficiencies on GLP-1s to watch**: calcium, iron, magnesium, potassium, choline, vitamins A/C/D/E
+
+---
+
+## Existing v1 Features (already built)
+
+The current artifact has these working:
+1. **Recipe database** — 78 recipes, all allergen-compliant, searchable by name/ingredient/meal type/tag
+2. **Weekly meal planner** — assign recipes to day/meal slots, persists via storage
+3. **Auto-generated grocery list** — from weekly plan, with checkboxes and item counts
+4. **Nutrition tracker** — protein/fiber/calorie progress bars per day with weekly averages
+
+---
+
+## Architecture Notes
+
+- **Runtime**: Bun (for server, scripts, package management — use Bun everywhere possible)
+- **Stack**: React (Vite), TypeScript
+- **Auth**: WorkOS (2 users per account — primary + prep partner)
+- **Data**: Start with local state + IndexedDB; design schema for eventual Supabase migration
+- **Deployment target**: TBD (likely standalone domain)
+- **Future integrations**: Notion MCP (existing recipe database), Supabase backend
+
+---
+
+## Phase 1 — Critical First-Week Features
+
+These are needed immediately for a user who just took their first shot.
+
+### 1.1 Home Dashboard (replaces recipe browser as default view)
+
+The daily hub. Shows at a glance:
+
+- **Shot status**: Days since last injection, next shot day
+- **Quick check-in**: "How are you feeling?" (tap to log symptoms)
+- **Today's hydration progress**: Glass/bottle visual tracker
+- **Today's protein progress**: Bar toward personalized target
+- **Recommended meals for today**: Context-aware (shot day vs normal day, current symptoms)
+- **Appetite level indicator**: Set once in the morning, affects meal suggestions
+
+### 1.2 Shot-Day Mode
+
+Activates automatically on injection day + 1-3 days after (configurable).
+
+**Behavior changes:**
+- Meal suggestions switch to "gentle stomach" recipes (tagged)
+- Favor: smaller portions, lighter foods, lower-fat, soups, smoothies, yogurt bowls, soft/cold foods
+- De-prioritize: heavy, greasy, spicy, or large-volume meals
+- Show contextual prompts: "eat slowly", "try half portions", "cold foods may help"
+
+### 1.3 Symptom Tracker
+
+Daily log, quick-tap interface (not a form — should take <15 seconds):
+
+**Symptoms to track:**
+- Nausea (none / mild / moderate / severe)
+- Fullness / food aversion
+- Constipation
+- Diarrhea
+- Reflux / burping
+- Stomach pain
+- Fatigue
+- Injection-site reaction
+
+**Symptom → Recommendation mapping:**
+| Symptom | Recommendation |
+|---------|---------------|
+| Nausea | Cold/bland foods, smoothies, yogurt, smaller meals |
+| Constipation | Higher-fluid + gradual fiber + fruit/veg/lentils/chia prompts |
+| Diarrhea | Simpler foods, hydration emphasis, electrolyte prompt |
+| Reflux | Smaller meals, avoid late/heavy meals |
+| Food aversion | Liquid calories (smoothies, protein shakes), gentle snacks |
+
+### 1.4 Hydration Tracker
+
+More prominent than calorie tracking right now.
+
+- Daily water goal (default 64 oz, adjustable)
+- Bottle/glass-based visual tracker (tap to add 8oz, 12oz, 16oz, custom)
+- Electrolyte prompt on bad GI days (when nausea/vomiting/diarrhea logged)
+- Hydration warnings if vomiting or diarrhea are active
+- FDA labeling specifically calls out dehydration risk with GLP-1s
+
+### 1.5 Emergency "I Feel Awful" Button
+
+One-tap access from home screen. Shows:
+
+- 3 gentlest foods currently in the meal plan
+- Hydration reminder with current progress
+- Red-flag symptom checklist (see 1.6)
+- Option to notify prep partner (in-app notification) that it's a rough day
+- "Safe foods" quick list (always available, not dependent on weekly plan)
+
+### 1.6 Red-Flag Symptom Screen
+
+Simple, clear, not buried. Accessible from symptom tracker and emergency button.
+
+**"Contact your doctor or get help if you experience:"**
+- Severe or persistent abdominal pain
+- Pain that radiates to the back
+- Ongoing vomiting that won't stop
+- Signs of dehydration (dizziness, dark urine, dry mouth)
+- Possible gallbladder symptoms (upper abdominal pain, jaundice)
+
+These are reflected in FDA labeling for GLP-1 medications.
+
+---
+
+## Phase 2 — Weeks 2-4 Features
+
+### 2.1 Personalized Protein Target
+
+Replace the fixed `DAILY_TARGETS = { protein: 130 }` with:
+
+- Input: current weight (update periodically)
+- Optional: goal weight, clinician-recommended target
+- Calculate range, not single number
+- Show tiers: "minimum" / "good" / "great" protein days
+- Recalculate as weight changes
+
+### 2.2 Appetite Slider
+
+Morning check-in:
+- No appetite → suggest shakes, yogurt, cottage cheese, soft foods, small protein snacks
+- Low appetite → mini meals, half portions
+- Normal appetite → full meal options
+
+Directly filters recipe suggestions on home dashboard.
+
+### 2.3 Fiber Ramp System
+
+High fiber is the goal, but ramping too fast on a sensitive stomach backfires.
+
+- "Fiber tolerance" setting (weeks 1-2: gentle, weeks 3-4: moderate, weeks 5+: full target)
+- Gradual weekly ramp of daily fiber target
+- Separate soluble-fiber-friendly suggestions
+- "Today may be a low-fiber day" option when symptoms flare
+- Visual: show fiber target changing over time
+
+### 2.4 Portion Splitting & Leftover Logic
+
+GLP-1 users often can't eat a full meal in one sitting.
+
+- "Full portion / half portion / snack portion" toggle per meal
+- "Save the rest for later" — logs partial consumption
+- Macros automatically recalculate based on portion
+- This is critical for accurate tracking
+
+### 2.5 Dose + Escalation Timeline
+
+Log:
+- Medication name (semaglutide, tirzepatide, etc.)
+- Current dose
+- Shot day (weekly recurring)
+- Injection site (rotate tracker)
+- Dose increase dates
+- Missed/delayed doses
+
+Overlay with symptom data to find patterns (symptoms often spike around dose increases).
+
+### 2.6 Prep Partner View
+
+Dedicated dashboard for the prep partner role:
+
+- "What needs to be prepped today?"
+- Shot day tomorrow? → "Prep gentle foods tonight, here are 3 options"
+- Batch cooking suggestions for the week
+- Grocery run reminders
+- Symptom summary (so they know if it's a rough day without asking)
+
+---
+
+## Phase 3 — Weeks 4-12 Features
+
+### 3.1 Smart Recommendation Engine
+
+Uses symptom history + appetite + shot schedule to suggest:
+
+- Which meals are safest on shot day?
+- Which foods correlate with nausea/reflux?
+- Which days are hydration-risk days?
+- Is protein dropping during dose increases?
+
+### 3.2 "Can I Eat This Today?" Food Checker
+
+Tap any recipe and see:
+- High protein? High fiber?
+- Gentle or rough on stomach?
+- Better on shot day vs normal day?
+- Suggested portion size
+- Example: Chili → nutritious, but "normal day only" if nausea active
+
+### 3.3 Food Tolerance Trends
+
+Charts over time:
+- Symptom frequency by week
+- Protein intake trend
+- Hydration consistency
+- Correlation: dose changes → symptom spikes → food tolerance shifts
+
+### 3.4 Constipation Support Workflow
+
+Dedicated mini-system:
+- Last bowel movement tracker
+- Bristol stool scale (optional)
+- Water reminder bump when constipated
+- Movement/walk reminder
+- "Choose easier fiber today" suggestions
+- Escalation prompt if constipation persists >3 days
+
+### 3.5 "Food Noise" Tracker
+
+One of the most dramatic GLP-1 effects. Simple 1-5 scale:
+- "How much are you thinking about food today?"
+- Tracks the reduction in food obsession over time
+- Powerful motivational data in weeks 2-4 when scale may be slow
+
+### 3.6 Emotional Relationship with Food Check-in
+
+GLP-1s fundamentally change the food-as-comfort dynamic. Simple mood check:
+- Excited / Neutral / Anxious / Sad / Overwhelmed
+- About food specifically, not general mood
+- Catches the disorientation early when food stops being a reward
+
+### 3.7 Movement / Strength Prompts
+
+Simple tracking to preserve lean mass:
+- Walk after meals checkbox
+- 10-minute mobility
+- 2-3x/week strength sessions
+- Research shows protein + resistance training = best lean mass preservation
+
+### 3.8 Supplement Tracker
+
+Daily checklist:
+- Multivitamin
+- Vitamin D
+- Calcium
+- Magnesium
+- Protein supplement (pea/collagen)
+- Custom additions
+- Reminder notifications
+
+### 3.9 Social Eating Playbook
+
+"Dining out" mode:
+- Quick tips by cuisine type (Mexican, Chinese, burger joints, pizza places, etc.)
+- What to order when you can only eat a few bites
+- How to handle family gatherings and social pressure
+- "Doggy bag strategy" — order knowing you'll eat half
+
+### 3.10 Weight Tracking with Correct Framing
+
+NOT just pounds. Frame in context:
+- "At your protein intake, research suggests most of this loss is fat mass"
+- Celebrate consistency metrics (protein streaks, hydration streaks) MORE than the scale
+- Optional: waist measurement, how clothes fit (qualitative)
+- Never make the scale the hero metric
+
+### 3.11 Medication Companion Reminders
+
+- Shot day reminder
+- Refill date
+- Dose increase week prep ("your dose goes up next week, here's what to expect")
+- Rotate injection site
+- "Eat something light before bed if you tend to feel worse on an empty stomach"
+- "Prep safe foods the day before shot day"
+
+---
+
+## Recipe Schema Enhancement
+
+Current schema:
+```js
+{
+  id, name, meal, time, servings,
+  protein, fiber, calories,
+  ingredients, steps, tags, notes
+}
+```
+
+**Add these fields for symptom-aware filtering:**
+
+```js
+glp1: {
+  shotDayFriendly: true,        // safe on injection day
+  nauseaFriendly: true,         // gentle on stomach
+  refluxFriendly: false,        // avoid if reflux active
+  constipationSupport: "high",  // "none" | "low" | "medium" | "high"
+  appetiteLevel: ["low", "normal"],  // which appetite levels this works for
+  portionFlex: ["mini", "half", "full"],  // can this be split?
+  heaviness: 2,                 // 1-5 scale (1 = light, 5 = heavy)
+  texture: ["soft", "cold"],    // texture categories
+  avoidWhen: ["active vomiting", "severe reflux"]  // contra-indications
+},
+allergens: [],                  // explicit allergen list
+freezesWell: true,
+leftoverDays: 4,                // how long leftovers keep
+canBlendOrSip: false,           // can this be consumed as liquid?
+recommendedPortion: "half"      // default portion suggestion
+```
+
+**Tag all 78 existing recipes with these fields.** This is the key to making the recommendation engine work.
+
+---
+
+## "First 8 Weeks" Onboarding Journey
+
+Guided experience, not just a tool:
+
+- **Week 1**: "Here's what to expect. Nausea is normal. Eat what you can. Focus on hydration and protein."
+- **Week 2**: "Your body is adjusting. Track symptoms — patterns will emerge."
+- **Week 3-4**: "Dose may increase. Here's how to prep. Your food tolerance data is building."
+- **Week 5-6**: "Review your trends. Which meals worked? Which didn't? Adjust your plan."
+- **Week 8**: "Checkpoint. How's your protein? Fiber? Hydration? Let's optimize."
+
+Each week surfaces relevant features and tips contextually.
+
+---
+
+## Data Schema (for state management / eventual Supabase)
+
+```typescript
+interface UserProfile {
+  name: string;
+  currentWeight: number;  // lbs
+  goalWeight?: number;
+  proteinTarget: { min: number; max: number };  // auto-calculated
+  fiberTarget: number;  // ramps over time
+  hydrationGoal: number;  // oz
+  dietaryRestrictions: string[];
+  medicationStartDate: string;
+}
+
+interface MedicationLog {
+  id: string;
+  medication: string;
+  dose: string;
+  shotDay: string;  // day of week
+  injectionSite: string;
+  date: string;
+  notes?: string;
+}
+
+interface DailyLog {
+  date: string;
+  symptoms: Record<SymptomType, Severity>;
+  appetiteLevel: "none" | "low" | "normal";
+  hydrationOz: number;
+  foodNoiseLevel: number;  // 1-5
+  foodMood: "excited" | "neutral" | "anxious" | "sad" | "overwhelmed";
+  mealsConsumed: MealEntry[];
+  supplements: string[];
+  movement: string[];
+  bowelMovement?: boolean;
+  notes?: string;
+}
+
+interface MealEntry {
+  recipeId: string;
+  mealType: "breakfast" | "lunch" | "dinner" | "snack";
+  portion: "mini" | "half" | "full";
+  actualProtein: number;
+  actualFiber: number;
+  actualCalories: number;
+}
+
+type SymptomType = "nausea" | "fullness" | "constipation" | "diarrhea" | 
+                   "reflux" | "stomachPain" | "fatigue" | "injectionSite";
+type Severity = "none" | "mild" | "moderate" | "severe";
+```
+
+---
+
+## UI/UX Principles
+
+1. **15-second rule**: Any daily logging action should take <15 seconds
+2. **Tap, don't type**: Symptom and hydration tracking should be all taps, no keyboard
+3. **Context over content**: Show RELEVANT info based on today's state, not everything
+4. **Two users**: Prep partner cooks, primary user eats. Both need views.
+5. **Celebrate consistency**: Streaks, not perfection. "5 days hitting protein target!" matters more than "you ate 132g today"
+6. **Never shame**: No red warnings for missing targets on bad days. GLP-1 side effects are real.
+7. **Mobile-first**: This will be used on a phone at the kitchen counter and the couch
+
+---
+
+## Build Priority Summary
+
+| Priority | Feature | Why Now |
+|----------|---------|---------|
+| P0 | Home dashboard | First thing the user sees |
+| P0 | Shot-day mode | Needed from injection day 1 |
+| P0 | Emergency "I feel awful" button | Could need it the next morning |
+| P0 | Hydration tracker | Dehydration risk from day 1 |
+| P1 | Symptom tracker | Start collecting data immediately |
+| P1 | Personalized protein target | Current fixed target is a placeholder |
+| P1 | Red-flag symptom screen | Safety feature |
+| P2 | Appetite slider + meal filtering | Useful once appetite effects kick in |
+| P2 | Fiber ramp system | Prevent GI problems from fiber overload |
+| P2 | Portion splitting | Accurate tracking for smaller eaters |
+| P2 | Dose timeline | Pattern detection needs data |
+| P2 | Prep partner view | Prep partner needs planning visibility |
+| P3 | Smart recommendation engine | Needs symptom data history |
+| P3 | Food tolerance trends | Needs weeks of data |
+| P3 | All other Phase 3 features | Build once foundation is solid |

@@ -1,0 +1,35 @@
+:root {
+  font-family: "DM Sans", system-ui, sans-serif;
+  color: #1b1b1b;
+  background:
+    radial-gradient(circle at top, rgba(183, 228, 199, 0.35), transparent 30%),
+    linear-gradient(180deg, #f8f4ed 0%, #faf7f2 45%, #f3efe7 100%);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
