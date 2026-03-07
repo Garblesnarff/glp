@@ -48,6 +48,49 @@ The current artifact has these working:
 3. **Auto-generated grocery list** — from weekly plan, with checkboxes and item counts
 4. **Nutrition tracker** — protein/fiber/calorie progress bars per day with weekly averages
 
+## Current Implementation Status
+
+The codebase has moved beyond the original single-screen artifact and now includes:
+
+1. **Bun-first production scaffold**
+   - Bun package/runtime workflow
+   - TypeScript + Vite + ESLint + test setup
+   - Git-initialized repo and deploy-oriented structure
+
+2. **Feature-modular planner architecture**
+   - Planner state, UI, utils, and repositories are split into modules
+   - Local persistence is abstracted behind repository interfaces
+
+3. **WorkOS + Supabase integration foundation**
+   - WorkOS auth provider and gated app flow
+   - Supabase browser client wired to WorkOS access tokens
+   - Initial SQL migrations for planner state and core companion tables
+
+4. **Companion-first app shell**
+   - Dashboard is now the default route
+   - Planner/grocery/tracker/recipes live as routed sections
+   - Onboarding route exists for profile and medication setup
+
+5. **Core domain model scaffold**
+   - User profile, daily log, medication log, meal entry, account role types
+   - Local + Supabase repositories for profile and planner data
+
+6. **First P0 dashboard workflow**
+   - Tap-based appetite and symptom check-in
+   - Hydration increment logging
+   - Shot-day-aware contextual dashboard messaging
+   - Emergency support card with gentle-food suggestions
+   - Heuristic meal recommendations based on appetite and shot-day context
+
+### What is still scaffolded vs complete
+
+- **Dashboard**: partially implemented, not yet fully symptom-history aware
+- **Symptom tracker**: embedded quick check-in exists, but no dedicated log/history screen yet
+- **Hydration tracker**: daily increments implemented, but not yet full bottle/glass visualization or reminders
+- **Emergency support**: initial dashboard card exists, but not a standalone route/workflow
+- **Prep partner model**: database/domain scaffold exists, but no dedicated UI or invite flow yet
+- **Recommendation engine**: heuristic only, not yet driven by enriched recipe schema or longitudinal data
+
 ---
 
 ## Architecture Notes
@@ -55,8 +98,9 @@ The current artifact has these working:
 - **Runtime**: Bun (for server, scripts, package management — use Bun everywhere possible)
 - **Stack**: React (Vite), TypeScript
 - **Auth**: WorkOS (2 users per account — primary + prep partner)
-- **Data**: Start with local state + IndexedDB; design schema for eventual Supabase migration
-- **Deployment target**: TBD (likely standalone domain)
+- **Data**: Local repositories now exist alongside Supabase-backed repositories; app is moving toward Supabase as primary persistence
+- **Routing**: Dashboard-first routed application structure is in place
+- **Deployment target**: Hetzner-hosted deployment path assumed
 - **Future integrations**: Notion MCP (existing recipe database), Supabase backend
 
 ---
