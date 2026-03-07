@@ -70,10 +70,13 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - Dashboard is now the default route
    - Planner/grocery/tracker/recipes live as routed sections
    - Onboarding route exists for profile and medication setup
+   - Dedicated daily log, red-flag, and recent-history routes now exist
+   - Route-level code splitting is in place for major screens
 
 5. **Core domain model scaffold**
    - User profile, daily log, medication log, meal entry, account role types
    - Local + Supabase repositories for profile and planner data
+   - Recent daily-log loading is supported for trend/history views
 
 6. **First P0 dashboard workflow**
    - Tap-based appetite and symptom check-in
@@ -82,14 +85,21 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - Emergency support card with gentle-food suggestions
    - Heuristic meal recommendations based on appetite and shot-day context
 
+7. **Dedicated daily-support flows**
+   - Standalone daily log route for symptoms, appetite, hydration, and safety review
+   - Standalone red-flag guidance route
+   - Recent history route with per-day symptom, hydration, appetite, food mood, and food-noise review
+   - 7-day summaries for symptom frequency, hydration averages, nausea, constipation, and low-appetite days
+
 ### What is still scaffolded vs complete
 
-- **Dashboard**: partially implemented, not yet fully symptom-history aware
-- **Symptom tracker**: embedded quick check-in exists, but no dedicated log/history screen yet
-- **Hydration tracker**: daily increments implemented, but not yet full bottle/glass visualization or reminders
-- **Emergency support**: initial dashboard card exists, but not a standalone route/workflow
+- **Dashboard**: implemented as the default route with live daily-state interactions, but still heuristic-driven and not yet powered by enriched recipe metadata
+- **Symptom tracker**: dedicated daily log and history views now exist, but no charting, export, or clinician-style trend review yet
+- **Hydration tracker**: tap-based increments and hydration-risk logic exist, but not yet full bottle/glass visualization, reminders, or notification logic
+- **Emergency support**: dashboard emergency card and standalone red-flag route now exist, but no partner notification flow yet
 - **Prep partner model**: database/domain scaffold exists, but no dedicated UI or invite flow yet
-- **Recommendation engine**: heuristic only, not yet driven by enriched recipe schema or longitudinal data
+- **Recommendation engine**: heuristic only, not yet driven by enriched recipe schema, symptom correlations, or longer-term longitudinal learning
+- **History/trends**: recent history exists as a browsable view, but not yet charted or analyzed beyond summary logic
 
 ---
 
