@@ -5,16 +5,19 @@ import { useProfile } from "../profile/hooks/useProfile";
 import { DashboardPanel } from "../dashboard/components/DashboardPanel";
 import { HydrationCard } from "../dashboard/components/HydrationCard";
 import { QuickCheckInCard } from "../dashboard/components/QuickCheckInCard";
+import { RecentTrendsCard } from "./components/RecentTrendsCard";
 import {
   getActiveSymptoms,
   getDashboardMessages,
+  getHydrationRiskSummary,
   getHydrationStatus,
+  getRecentLogTrendSummary,
   hasRedFlagSymptoms,
   needsElectrolytePrompt,
 } from "../dashboard/support";
 
 export function DailyLogPage() {
-  const { profile, todayLog, isLoading, addHydration, setAppetiteLevel, setSymptomSeverity } = useProfile();
+  const { profile, todayLog, recentLogs, isLoading, addHydration, setAppetiteLevel, setSymptomSeverity } = useProfile();
 
   if (isLoading) {
     return <div style={{ padding: 24, fontFamily: sans }}>Loading daily log...</div>;
@@ -23,8 +26,10 @@ export function DailyLogPage() {
   const activeSymptoms = getActiveSymptoms(todayLog);
   const contextMessages = getDashboardMessages(profile, todayLog);
   const hydrationStatus = getHydrationStatus(profile, todayLog);
+  const hydrationRisk = getHydrationRiskSummary(profile, todayLog);
   const electrolytePrompt = needsElectrolytePrompt(todayLog);
   const redFlagActive = hasRedFlagSymptoms(todayLog);
+  const trendSummary = getRecentLogTrendSummary(recentLogs);
 
   return (
     <div style={{ maxWidth: 920, margin: "0 auto", padding: "24px 16px 80px" }}>
@@ -66,6 +71,9 @@ export function DailyLogPage() {
             statusMessage={hydrationStatus}
             onAddWater={(ounces) => void addHydration(ounces)}
           />
+          <div style={hydrationRiskBoxStyle(hydrationRisk.level)}>
+            {hydrationRisk.message}
+          </div>
           {electrolytePrompt ? (
             <div style={warningBoxStyle}>
               GI symptoms are active today. Consider adding electrolytes if tolerated and keep fluids steady.
@@ -105,6 +113,18 @@ export function DailyLogPage() {
               Open red-flag guidance
             </Link>
           </div>
+        </DashboardPanel>
+      </div>
+
+      <div style={{ marginTop: 16 }}>
+        <DashboardPanel title="Last 7 days">
+          <RecentTrendsCard
+            symptomDays={trendSummary.symptomDays}
+            avgHydrationOz={trendSummary.avgHydrationOz}
+            constipationDays={trendSummary.constipationDays}
+            nauseaDays={trendSummary.nauseaDays}
+            lowAppetiteDays={trendSummary.lowAppetiteDays}
+          />
         </DashboardPanel>
       </div>
     </div>
@@ -148,6 +168,45 @@ const warningBoxStyle: CSSProperties = {
   fontSize: 13,
   color: palette.text,
 };
+
+function hydrationRiskBoxStyle(level: "low" | "moderate" | "high"): CSSProperties {
+  if (level === "high") {
+    return {
+      marginTop: 14,
+      borderRadius: 14,
+      padding: "12px 14px",
+      background: "#fff4f5",
+      border: "1px solid #f4c2c7",
+      fontFamily: sans,
+      fontSize: 13,
+      color: palette.danger,
+    };
+  }
+
+  if (level === "moderate") {
+    return {
+      marginTop: 14,
+      borderRadius: 14,
+      padding: "12px 14px",
+      background: "#fffaf1",
+      border: "1px solid #f1dfb8",
+      fontFamily: sans,
+      fontSize: 13,
+      color: palette.text,
+    };
+  }
+
+  return {
+    marginTop: 14,
+    borderRadius: 14,
+    padding: "12px 14px",
+    background: "#f7faf7",
+    border: `1px solid ${palette.border}`,
+    fontFamily: sans,
+    fontSize: 13,
+    color: palette.textMuted,
+  };
+}
 
 const advisoryBoxStyle: CSSProperties = {
   borderRadius: 14,

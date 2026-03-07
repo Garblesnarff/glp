@@ -21,6 +21,31 @@ export class LocalProfileRepository implements ProfileRepository {
     return readStoredJson<DailyLog>(`${STORAGE_KEYS.dailyLogPrefix}:${date}`);
   }
 
+  async loadRecentDailyLogs(days: number): Promise<DailyLog[]> {
+    if (typeof window === "undefined" || !window.localStorage) {
+      return [];
+    }
+
+    const prefix = `${STORAGE_KEYS.dailyLogPrefix}:`;
+    const logs: DailyLog[] = [];
+
+    for (let index = 0; index < window.localStorage.length; index += 1) {
+      const key = window.localStorage.key(index);
+      if (!key || !key.startsWith(prefix)) {
+        continue;
+      }
+
+      const parsed = await readStoredJson<DailyLog>(key);
+      if (parsed) {
+        logs.push(parsed);
+      }
+    }
+
+    return logs
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, days);
+  }
+
   async saveTodayLog(log: DailyLog): Promise<void> {
     await writeStoredJson(`${STORAGE_KEYS.dailyLogPrefix}:${log.date}`, log);
   }

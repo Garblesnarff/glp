@@ -80,6 +80,21 @@ export class SupabaseProfileRepository implements ProfileRepository {
     return (data?.payload as DailyLog | null) ?? null;
   }
 
+  async loadRecentDailyLogs(days: number): Promise<DailyLog[]> {
+    const { data, error } = await this.client
+      .from("daily_logs")
+      .select("payload")
+      .eq("user_id", this.userId)
+      .order("date", { ascending: false })
+      .limit(days);
+
+    if (error) {
+      throw error;
+    }
+
+    return (data ?? []).map((row) => row.payload as DailyLog);
+  }
+
   async saveTodayLog(log: DailyLog): Promise<void> {
     const { error } = await this.client.from("daily_logs").upsert(
       {

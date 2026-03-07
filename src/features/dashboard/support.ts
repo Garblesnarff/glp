@@ -146,3 +146,75 @@ export function appetiteLabel(level: AppetiteLevel) {
 
   return "Normal appetite";
 }
+
+export function getHydrationRiskSummary(profile: UserProfile, log: DailyLog) {
+  const hydrationLow = log.hydrationOz < profile.hydrationGoal * 0.5;
+  const vomitingRisk = severityScore[log.symptoms.nausea] >= 3;
+  const diarrheaRisk = severityScore[log.symptoms.diarrhea] >= 2;
+
+  if ((vomitingRisk || diarrheaRisk) && hydrationLow) {
+    return {
+      level: "high",
+      message: "Hydration risk is elevated today because fluid intake is low and GI symptoms are active.",
+    } as const;
+  }
+
+  if (needsElectrolytePrompt(log) || hydrationLow) {
+    return {
+      level: "moderate",
+      message: "Keep fluids steady today and consider electrolytes if symptoms continue.",
+    } as const;
+  }
+
+  return {
+    level: "low",
+    message: "Hydration risk looks manageable right now.",
+  } as const;
+}
+
+export function getRecentLogTrendSummary(recentLogs: DailyLog[]) {
+  if (recentLogs.length === 0) {
+    return {
+      symptomDays: 0,
+      avgHydrationOz: 0,
+      constipationDays: 0,
+      nauseaDays: 0,
+      lowAppetiteDays: 0,
+    };
+  }
+
+  const totals = recentLogs.reduce(
+    (acc, log) => {
+      const hasSymptoms = getActiveSymptoms(log).length > 0;
+      if (hasSymptoms) {
+        acc.symptomDays += 1;
+      }
+      if (severityScore[log.symptoms.constipation] >= 1) {
+        acc.constipationDays += 1;
+      }
+      if (severityScore[log.symptoms.nausea] >= 1) {
+        acc.nauseaDays += 1;
+      }
+      if (log.appetiteLevel !== "normal") {
+        acc.lowAppetiteDays += 1;
+      }
+      acc.totalHydrationOz += log.hydrationOz;
+      return acc;
+    },
+    {
+      symptomDays: 0,
+      constipationDays: 0,
+      nauseaDays: 0,
+      lowAppetiteDays: 0,
+      totalHydrationOz: 0,
+    },
+  );
+
+  return {
+    symptomDays: totals.symptomDays,
+    avgHydrationOz: Math.round(totals.totalHydrationOz / recentLogs.length),
+    constipationDays: totals.constipationDays,
+    nauseaDays: totals.nauseaDays,
+    lowAppetiteDays: totals.lowAppetiteDays,
+  };
+}

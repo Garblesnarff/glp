@@ -12,17 +12,20 @@ export function useProfile() {
   const { profileRepository } = useAppServices();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [todayLog, setTodayLog] = useState<DailyLog | null>(null);
+  const [recentLogs, setRecentLogs] = useState<DailyLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     void (async () => {
-      const [loadedProfile, loadedTodayLog] = await Promise.all([
+      const [loadedProfile, loadedTodayLog, loadedRecentLogs] = await Promise.all([
         profileRepository.loadUserProfile(),
         profileRepository.loadTodayLog(todayIsoDate()),
+        profileRepository.loadRecentDailyLogs(7),
       ]);
 
       setProfile(loadedProfile);
       setTodayLog(loadedTodayLog ?? createDefaultDailyLog(todayIsoDate()));
+      setRecentLogs(loadedRecentLogs);
       setIsLoading(false);
     })();
   }, [profileRepository]);
@@ -41,6 +44,10 @@ export function useProfile() {
 
   async function saveTodayLog(log: DailyLog) {
     setTodayLog(log);
+    setRecentLogs((current) => {
+      const next = [log, ...current.filter((item) => item.date !== log.date)];
+      return next.sort((a, b) => b.date.localeCompare(a.date)).slice(0, 7);
+    });
     await profileRepository.saveTodayLog(log);
   }
 
@@ -84,6 +91,7 @@ export function useProfile() {
     hasPersistedProfile: Boolean(profile),
     profileReady,
     todayLog: todayLog ?? createDefaultDailyLog(todayIsoDate()),
+    recentLogs,
     saveProfile,
     saveTodayLog,
     setHydration,
