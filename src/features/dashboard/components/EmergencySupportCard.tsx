@@ -49,9 +49,14 @@ export function EmergencySupportCard({
           ? "Severe stomach pain is logged today. Use the red-flag guidance and consider contacting your doctor."
           : "Red flags include severe abdominal pain, pain radiating to the back, nonstop vomiting, or dehydration signs."}
       </div>
-      <Link to="/planner" style={{ color: palette.accent, fontFamily: sans, fontWeight: 700, textDecoration: "none" }}>
-        Open full planner →
-      </Link>
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+        <Link to="/red-flags" style={{ color: palette.danger, fontFamily: sans, fontWeight: 700, textDecoration: "none" }}>
+          Open red-flag guidance →
+        </Link>
+        <Link to="/today" style={{ color: palette.accent, fontFamily: sans, fontWeight: 700, textDecoration: "none" }}>
+          Open daily log →
+        </Link>
+      </div>
     </div>
   );
 }

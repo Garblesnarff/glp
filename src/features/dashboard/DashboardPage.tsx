@@ -73,6 +73,11 @@ export function DashboardPage() {
             onSetAppetite={(value) => void setAppetiteLevel(value)}
             onSetSymptom={(symptom, severity) => void setSymptomSeverity(symptom, severity)}
           />
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
+            <Link to="/today" style={secondaryLinkStyle}>
+              Open full daily log
+            </Link>
+          </div>
         </DashboardPanel>
 
         <DashboardPanel title="Hydration">
@@ -82,6 +87,11 @@ export function DashboardPage() {
             statusMessage={hydrationStatus}
             onAddWater={(ounces) => void addHydration(ounces)}
           />
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
+            <Link to="/today" style={secondaryLinkStyle}>
+              Open hydration log
+            </Link>
+          </div>
         </DashboardPanel>
       </div>
 

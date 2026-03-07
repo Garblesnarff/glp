@@ -1,0 +1,186 @@
+import type { CSSProperties } from "react";
+import { Link } from "react-router-dom";
+import { font, palette, sans } from "../meal-planner/constants";
+import { useProfile } from "../profile/hooks/useProfile";
+import { DashboardPanel } from "../dashboard/components/DashboardPanel";
+import { HydrationCard } from "../dashboard/components/HydrationCard";
+import { QuickCheckInCard } from "../dashboard/components/QuickCheckInCard";
+import {
+  getActiveSymptoms,
+  getDashboardMessages,
+  getHydrationStatus,
+  hasRedFlagSymptoms,
+  needsElectrolytePrompt,
+} from "../dashboard/support";
+
+export function DailyLogPage() {
+  const { profile, todayLog, isLoading, addHydration, setAppetiteLevel, setSymptomSeverity } = useProfile();
+
+  if (isLoading) {
+    return <div style={{ padding: 24, fontFamily: sans }}>Loading daily log...</div>;
+  }
+
+  const activeSymptoms = getActiveSymptoms(todayLog);
+  const contextMessages = getDashboardMessages(profile, todayLog);
+  const hydrationStatus = getHydrationStatus(profile, todayLog);
+  const electrolytePrompt = needsElectrolytePrompt(todayLog);
+  const redFlagActive = hasRedFlagSymptoms(todayLog);
+
+  return (
+    <div style={{ maxWidth: 920, margin: "0 auto", padding: "24px 16px 80px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap" }}>
+        <div>
+          <div style={{ fontFamily: sans, fontSize: 11, textTransform: "uppercase", letterSpacing: 2, color: palette.accent }}>
+            Daily Log
+          </div>
+          <h1 style={{ fontFamily: font, fontSize: 40, margin: "8px 0 8px", lineHeight: 1.05 }}>
+            Log today’s symptoms and hydration.
+          </h1>
+          <p style={{ fontFamily: sans, fontSize: 15, color: palette.textMuted, lineHeight: 1.6, maxWidth: 620, margin: 0 }}>
+            This route is the dedicated version of the dashboard check-in. It is optimized for quick daily updates and should become the main data source for shot-day support and recommendations.
+          </p>
+        </div>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <Link to="/" style={secondaryLinkStyle}>
+            Back to dashboard
+          </Link>
+          <Link to="/red-flags" style={redLinkStyle}>
+            Red-flag help
+          </Link>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1.25fr 0.95fr", gap: 16, marginTop: 22 }}>
+        <DashboardPanel title="Symptoms and appetite">
+          <QuickCheckInCard
+            log={todayLog}
+            onSetAppetite={(value) => void setAppetiteLevel(value)}
+            onSetSymptom={(symptom, severity) => void setSymptomSeverity(symptom, severity)}
+          />
+        </DashboardPanel>
+
+        <DashboardPanel title="Hydration">
+          <HydrationCard
+            hydrationOz={todayLog.hydrationOz}
+            hydrationGoal={profile.hydrationGoal}
+            statusMessage={hydrationStatus}
+            onAddWater={(ounces) => void addHydration(ounces)}
+          />
+          {electrolytePrompt ? (
+            <div style={warningBoxStyle}>
+              GI symptoms are active today. Consider adding electrolytes if tolerated and keep fluids steady.
+            </div>
+          ) : null}
+        </DashboardPanel>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "0.95fr 1.05fr", gap: 16, marginTop: 16 }}>
+        <DashboardPanel title="Today’s summary">
+          {activeSymptoms.length === 0 ? (
+            <div style={{ fontFamily: sans, color: palette.textMuted }}>No symptoms logged yet today.</div>
+          ) : (
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {activeSymptoms.map(([symptom, severity]) => (
+                <span key={symptom} style={symptomBadgeStyle(severity)}>
+                  {symptom} · {severity}
+                </span>
+              ))}
+            </div>
+          )}
+          <ul style={{ margin: "14px 0 0", paddingLeft: 18, fontFamily: sans, color: palette.textMuted, lineHeight: 1.8, fontSize: 14 }}>
+            {contextMessages.map((message) => (
+              <li key={message}>{message}</li>
+            ))}
+          </ul>
+        </DashboardPanel>
+
+        <DashboardPanel title="Safety check">
+          <div style={redFlagActive ? criticalBoxStyle : advisoryBoxStyle}>
+            {redFlagActive
+              ? "Severe stomach pain is currently logged. Review the red-flag screen now and consider contacting your doctor."
+              : "Use the red-flag screen if symptoms become severe, persistent, or dehydration signs appear."}
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <Link to="/red-flags" style={redLinkStyle}>
+              Open red-flag guidance
+            </Link>
+          </div>
+        </DashboardPanel>
+      </div>
+    </div>
+  );
+}
+
+const secondaryLinkStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  borderRadius: 999,
+  border: `1px solid ${palette.border}`,
+  color: palette.text,
+  textDecoration: "none",
+  padding: "11px 16px",
+  fontFamily: sans,
+  fontWeight: 600,
+};
+
+const redLinkStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  borderRadius: 999,
+  border: `1px solid #f4c2c7`,
+  color: palette.danger,
+  textDecoration: "none",
+  padding: "11px 16px",
+  fontFamily: sans,
+  fontWeight: 700,
+  background: "#fff4f5",
+};
+
+const warningBoxStyle: CSSProperties = {
+  marginTop: 14,
+  borderRadius: 14,
+  padding: "12px 14px",
+  background: "#fffaf1",
+  border: "1px solid #f1dfb8",
+  fontFamily: sans,
+  fontSize: 13,
+  color: palette.text,
+};
+
+const advisoryBoxStyle: CSSProperties = {
+  borderRadius: 14,
+  padding: "12px 14px",
+  background: "#fffaf1",
+  border: "1px solid #f1dfb8",
+  fontFamily: sans,
+  fontSize: 13,
+  color: palette.text,
+};
+
+const criticalBoxStyle: CSSProperties = {
+  borderRadius: 14,
+  padding: "12px 14px",
+  background: "#fff4f5",
+  border: "1px solid #f4c2c7",
+  fontFamily: sans,
+  fontSize: 13,
+  color: palette.danger,
+};
+
+function symptomBadgeStyle(severity: string): CSSProperties {
+  const isSevere = severity === "severe";
+  const isModerate = severity === "moderate";
+
+  return {
+    borderRadius: 999,
+    padding: "6px 10px",
+    background: isSevere ? "#fff4f5" : isModerate ? "#fff8ec" : "#f7faf7",
+    border: `1px solid ${isSevere ? "#f4c2c7" : isModerate ? "#f1dfb8" : palette.border}`,
+    color: isSevere ? palette.danger : palette.text,
+    fontFamily: sans,
+    fontSize: 12,
+    textTransform: "capitalize",
+  };
+}

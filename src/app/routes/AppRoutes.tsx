@@ -8,11 +8,17 @@ const AuthStatusPage = lazy(() =>
 const DashboardPage = lazy(() =>
   import("../../features/dashboard/DashboardPage").then((module) => ({ default: module.DashboardPage })),
 );
+const DailyLogPage = lazy(() =>
+  import("../../features/daily-log/DailyLogPage").then((module) => ({ default: module.DailyLogPage })),
+);
 const GLP1MealPlanner = lazy(() =>
   import("../../features/meal-planner/GLP1MealPlanner").then((module) => ({ default: module.GLP1MealPlanner })),
 );
 const OnboardingPage = lazy(() =>
   import("../../features/onboarding/OnboardingPage").then((module) => ({ default: module.OnboardingPage })),
+);
+const RedFlagPage = lazy(() =>
+  import("../../features/safety/RedFlagPage").then((module) => ({ default: module.RedFlagPage })),
 );
 
 export function AppRoutes() {
@@ -20,11 +26,13 @@ export function AppRoutes() {
     <Suspense fallback={<RouteLoadingScreen />}>
       <Routes>
         <Route path="/" element={<DashboardPage />} />
+        <Route path="/today" element={<DailyLogPage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/planner" element={<GLP1MealPlanner initialTab="planner" />} />
         <Route path="/grocery" element={<GLP1MealPlanner initialTab="grocery" />} />
         <Route path="/tracker" element={<GLP1MealPlanner initialTab="tracker" />} />
         <Route path="/recipes" element={<GLP1MealPlanner initialTab="recipes" />} />
+        <Route path="/red-flags" element={<RedFlagPage />} />
         <Route
           path="/login"
           element={<AuthStatusPage title="Starting sign-in" body="Redirecting to WorkOS so your session can be established." />}
