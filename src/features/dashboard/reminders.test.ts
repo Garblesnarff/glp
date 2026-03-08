@@ -8,6 +8,7 @@ describe("dashboard reminders", () => {
     const profile = { ...defaultUserProfile, shotDay: "Saturday" };
     const today = createDefaultDailyLog("2026-03-07");
     today.hydrationOz = 16;
+    today.appetiteLevel = "low";
     today.symptoms.constipation = "moderate";
     const previous = createDefaultDailyLog("2026-03-06");
     const twoDaysAgo = createDefaultDailyLog("2026-03-05");
@@ -31,6 +32,8 @@ describe("dashboard reminders", () => {
     expect(reminders.some((reminder) => reminder.id === "dose-increase-week")).toBe(true);
     expect(reminders.some((reminder) => reminder.id === "hydration-nudge")).toBe(true);
     expect(reminders.some((reminder) => reminder.id === "constipation-escalation")).toBe(true);
+    expect(reminders.some((reminder) => reminder.id === "protein-support")).toBe(true);
+    expect(reminders.some((reminder) => reminder.id === "strength-consistency")).toBe(true);
     expect(reminders.some((reminder) => reminder.id === "rotation-nudge")).toBe(true);
   });
 });

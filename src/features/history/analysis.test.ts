@@ -9,6 +9,7 @@ describe("history analysis", () => {
     first.symptoms.nausea = "moderate";
     first.foodMood = "anxious";
     first.foodNoiseLevel = 4;
+    first.movement = ["10-minute walk"];
     first.mealsConsumed = [
       {
         recipeId: "b5",
@@ -49,6 +50,8 @@ describe("history analysis", () => {
     expect(summary.delayedOrMissedCount).toBe(1);
     expect(summary.roughMealDays).toBe(1);
     expect(summary.difficultFoodMoodDays).toBe(1);
+    expect(summary.proteinSupplementDays).toBe(0);
+    expect(summary.movementDays).toBe(1);
   });
 
   test("builds per-day correlation series", () => {
@@ -74,5 +77,7 @@ describe("history analysis", () => {
     expect(series[0]?.symptomLoad).toBeGreaterThan(0);
     expect(series[0]?.medicationStatuses[0]).toBe("completed");
     expect(series[0]?.foodMood).toBe("overwhelmed");
+    expect(series[0]?.supplementCount).toBe(0);
+    expect(series[0]?.strengthLogged).toBe(false);
   });
 });

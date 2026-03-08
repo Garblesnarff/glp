@@ -165,6 +165,12 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - Users can also log a short walk, mobility, and strength work without leaving the daily log
    - Recent 7-day trends now surface supplement adherence and movement frequency so these signals stop being passive stored fields
 
+20. **Support-habit adherence and coaching foundation**
+   - Dashboard now derives protein-support and movement-consistency guidance from today's state plus the recent 7-day window
+   - Companion reminders now nudge users when low-appetite days are unfolding without protein supplement support or when no strength work has been logged across the week
+   - History now includes supplement, movement, strength, and protein-support signals in both pattern summaries and day-level correlation rows
+   - This is the first step from passive checklist tracking toward lean-mass-preservation coaching
+
 ### What is still scaffolded vs complete
 
 - **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early tolerance-aware ranking, but still not yet personalized by deeper long-term correlation modeling
@@ -175,7 +181,7 @@ The codebase has moved beyond the original single-screen artifact and now includ
 - **Constipation workflow**: first bowel-movement tracking and support prompts now exist, but there is still no Bristol stool scale, persistent escalation timer beyond recent logs, or automated reminder scheduling yet
 - **Food relationship tracking**: food noise and food mood are now active parts of the daily workflow and trends, but there is still no dedicated coaching layer, celebration framing, or recommendation logic based on these signals yet
 - **Reminder system**: in-app reminders now exist for core companion workflows, but there is still no scheduling engine, push delivery, refill reminders, or user-configurable reminder preferences yet
-- **Supplement and movement support**: first checklist logging now exists for common deficiency-covering supplements and light/strength movement, but there is still no clinician-configurable regimen, adherence reminders, or coaching tied to muscle preservation yet
+- **Supplement and movement support**: checklist logging, first adherence nudges, and basic coaching now exist, but there is still no clinician-configurable regimen, custom supplement library, or scheduled reminder delivery yet
 - **Emergency support**: dashboard emergency card, red-flag route, and first-pass partner rough-day alerts now exist, but there is still no push delivery, reminder scheduling, or escalation logic beyond the in-app account alert
 - **Prep partner model**: route, invite UI, linked-primary shared reads, first-pass invite acceptance, and rough-day support alerts now exist, but there is still no polished invite acceptance UX, account unlink/recovery flow, or broader notification system yet
 - **Planner/grocery sharing**: account-scoped persistence is now wired for Supabase-backed sessions, but local mode remains personal-only and there is not yet explicit conflict handling or audit/history for shared edits

@@ -324,6 +324,48 @@ export function getDailyChecklistSummary(log: DailyLog) {
   };
 }
 
+export function getSupportHabitsSummary(log: DailyLog, recentLogs: DailyLog[]) {
+  const proteinSupplementLogged = log.supplements.includes("Protein supplement");
+  const strengthLoggedToday = log.movement.includes("Strength session");
+  const recentMovementDays = recentLogs.filter((entry) => entry.movement.length > 0).length;
+  const recentStrengthDays = recentLogs.filter((entry) => entry.movement.includes("Strength session")).length;
+  const recentProteinSupplementDays = recentLogs.filter((entry) => entry.supplements.includes("Protein supplement")).length;
+  const proteinToday = log.mealsConsumed.reduce((sum, meal) => sum + meal.actualProtein, 0);
+
+  const messages: string[] = [];
+
+  if (proteinToday < 60 && !proteinSupplementLogged && log.appetiteLevel !== "normal") {
+    messages.push("Protein is still light today. A shake or other protein supplement may be the easiest catch-up move.");
+  } else if (proteinSupplementLogged) {
+    messages.push("Protein supplement support is already logged today.");
+  }
+
+  if (strengthLoggedToday) {
+    messages.push("Strength work is logged today, which supports lean-mass preservation.");
+  } else if (recentStrengthDays === 0) {
+    messages.push("No strength work is logged in the last week. Even one short session would meaningfully support lean-mass preservation.");
+  } else if (recentMovementDays <= 2) {
+    messages.push("Movement has been light across the last week. Aim for another short walk or mobility block today.");
+  }
+
+  if (recentProteinSupplementDays === 0 && log.appetiteLevel !== "normal") {
+    messages.push("Low-appetite days are being logged without protein supplement support so far. That is a good gap to close first.");
+  }
+
+  if (messages.length === 0) {
+    messages.push("Support habits look reasonably steady right now. Keep protein, hydration, and movement consistent.");
+  }
+
+  return {
+    proteinSupplementLogged,
+    strengthLoggedToday,
+    recentMovementDays,
+    recentStrengthDays,
+    recentProteinSupplementDays,
+    messages: messages.slice(0, 3),
+  };
+}
+
 export function getRecentMealFeedbackSummary(recentLogs: DailyLog[]) {
   const meals = recentLogs.flatMap((log) => log.mealsConsumed);
 

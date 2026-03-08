@@ -20,6 +20,9 @@ export function getHistoryPatternSummary(recentLogs: DailyLog[], medicationLogs:
     recentLogs.length === 0 ? 0 : Math.round((recentLogs.reduce((sum, log) => sum + log.foodNoiseLevel, 0) / recentLogs.length) * 10) / 10;
   const averageSymptomLoad =
     recentLogs.length === 0 ? 0 : Math.round((recentLogs.reduce((sum, log) => sum + getSymptomLoad(log), 0) / recentLogs.length) * 10) / 10;
+  const movementDays = recentLogs.filter((log) => log.movement.length > 0).length;
+  const strengthDays = recentLogs.filter((log) => log.movement.includes("Strength session")).length;
+  const proteinSupplementDays = recentLogs.filter((log) => log.supplements.includes("Protein supplement")).length;
 
   const symptomDaysAfterDoseIncrease = latestDoseIncrease
     ? recentLogs.filter((log) => log.date >= latestDoseIncrease.date && getSymptomLoad(log) > 0).length
@@ -43,6 +46,16 @@ export function getHistoryPatternSummary(recentLogs: DailyLog[], medicationLogs:
     insights.push(`Food felt emotionally harder on ${difficultFoodMoodDays} logged day(s), with average food noise at ${averageFoodNoise}/5.`);
   }
 
+  if (proteinSupplementDays === 0) {
+    insights.push("No protein supplement support is logged in the recent window. On lower-appetite stretches, that is often the easiest protein gap to close.");
+  }
+
+  if (strengthDays === 0) {
+    insights.push("No strength work is logged in the recent window. Protein plus resistance work is still the better lean-mass preservation pattern.");
+  } else if (movementDays <= 2) {
+    insights.push(`Movement is only logged on ${movementDays} day(s), so habit consistency is still thin even with some activity present.`);
+  }
+
   if (insights.length === 0) {
     insights.push("No strong medication or tolerance signal stands out yet. Keep logging to make correlations more reliable.");
   }
@@ -53,6 +66,9 @@ export function getHistoryPatternSummary(recentLogs: DailyLog[], medicationLogs:
     roughMealDays,
     difficultFoodMoodDays,
     averageFoodNoise,
+    movementDays,
+    strengthDays,
+    proteinSupplementDays,
     symptomDaysAfterDoseIncrease,
     latestDoseIncreaseDate: latestDoseIncrease?.date ?? null,
     insights,
@@ -70,6 +86,10 @@ export function getDailyCorrelationSeries(recentLogs: DailyLog[], medicationLogs
       appetiteLevel: log.appetiteLevel,
       foodNoiseLevel: log.foodNoiseLevel,
       foodMood: log.foodMood,
+      supplementCount: log.supplements.length,
+      movementCount: log.movement.length,
+      strengthLogged: log.movement.includes("Strength session"),
+      proteinSupplementLogged: log.supplements.includes("Protein supplement"),
       roughMeals: log.mealsConsumed.filter((meal) => meal.tolerance === "rough").length,
       medicationStatuses: medicationEvents.map((event) => event.status ?? "completed"),
       doseIncrease: medicationEvents.some((event) => event.isDoseIncrease),

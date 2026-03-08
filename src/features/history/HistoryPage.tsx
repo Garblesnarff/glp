@@ -68,6 +68,9 @@ export function HistoryPage() {
             <SnapshotMetric label="Rough meal days" value={`${patternSummary.roughMealDays}`} />
             <SnapshotMetric label="Avg food noise" value={`${patternSummary.averageFoodNoise}/5`} />
             <SnapshotMetric label="Hard food days" value={`${patternSummary.difficultFoodMoodDays}`} />
+            <SnapshotMetric label="Movement days" value={`${patternSummary.movementDays}/7`} />
+            <SnapshotMetric label="Strength days" value={`${patternSummary.strengthDays}/7`} />
+            <SnapshotMetric label="Protein support" value={`${patternSummary.proteinSupplementDays}/7`} />
           </div>
           <ul style={{ margin: "14px 0 0", paddingLeft: 18, fontFamily: sans, color: palette.textMuted, lineHeight: 1.8, fontSize: 14 }}>
             {patternSummary.insights.map((insight) => (
@@ -88,6 +91,10 @@ export function HistoryPage() {
                   <span style={smallBadgeStyle(point.foodMood === "neutral" || point.foodMood === "excited" ? "normal" : "rough")}>
                     {capitalize(point.foodMood)}
                   </span>
+                  {point.supplementCount > 0 ? <span style={smallBadgeStyle("normal")}>{point.supplementCount} supplement{point.supplementCount > 1 ? "s" : ""}</span> : null}
+                  {point.movementCount > 0 ? <span style={smallBadgeStyle("normal")}>{point.movementCount} movement log{point.movementCount > 1 ? "s" : ""}</span> : null}
+                  {point.proteinSupplementLogged ? <span style={smallBadgeStyle("normal")}>Protein support</span> : null}
+                  {point.strengthLogged ? <span style={smallBadgeStyle("dose")}>Strength</span> : null}
                   {point.roughMeals > 0 ? <span style={smallBadgeStyle("rough")}>{point.roughMeals} rough meal{point.roughMeals > 1 ? "s" : ""}</span> : null}
                   {point.doseIncrease ? <span style={smallBadgeStyle("dose")}>Dose increase</span> : null}
                   {point.medicationStatuses.map((status) => (
@@ -147,6 +154,8 @@ function HistoryDayCard({ log, hydrationGoal }: { log: DailyLog; hydrationGoal: 
         <HistoryMetric label="Appetite" value={formatAppetite(log.appetiteLevel)} detail="Morning check-in" />
         <HistoryMetric label="Food mood" value={capitalize(log.foodMood)} detail="Food relationship" />
         <HistoryMetric label="Food noise" value={`${log.foodNoiseLevel}/5`} detail="Thinking about food" />
+        <HistoryMetric label="Supplements" value={`${log.supplements.length}`} detail={log.supplements.length > 0 ? log.supplements.join(", ") : "None logged"} />
+        <HistoryMetric label="Movement" value={`${log.movement.length}`} detail={log.movement.length > 0 ? log.movement.join(", ") : "None logged"} />
       </div>
 
       <div style={{ marginTop: 14, display: "grid", gap: 10 }}>

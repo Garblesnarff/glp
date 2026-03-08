@@ -22,6 +22,7 @@ import {
   getEmergencyFoods,
   getHydrationStatus,
   getRecipeRecommendationReasons,
+  getSupportHabitsSummary,
   hasRedFlagSymptoms,
   isShotDaySupportActive,
 } from "./support";
@@ -58,6 +59,7 @@ export function DashboardPage() {
   const redFlagActive = hasRedFlagSymptoms(todayLog);
   const roughDayAlertActive = activeAlerts.some((alert) => alert.kind === "rough_day");
   const reminders = getCompanionReminders(profile, todayLog, recentLogs, medicationLogs);
+  const supportHabits = getSupportHabitsSummary(todayLog, recentLogs);
 
   if (isLoading) {
     return <div style={{ padding: 24, fontFamily: sans }}>Loading dashboard...</div>;
@@ -179,6 +181,37 @@ export function DashboardPage() {
       </div>
 
       <div style={{ marginTop: 18 }}>
+        <DashboardPanel title="Protein + movement support">
+          <div style={{ display: "grid", gap: 10 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <span style={supportBadgeStyle(supportHabits.proteinSupplementLogged)}>
+                {supportHabits.proteinSupplementLogged ? "Protein support logged" : "Protein support open"}
+              </span>
+              <span style={supportBadgeStyle(supportHabits.strengthLoggedToday)}>
+                {supportHabits.strengthLoggedToday ? "Strength logged today" : `${supportHabits.recentStrengthDays}/7 strength days`}
+              </span>
+              <span style={supportBadgeStyle(supportHabits.recentMovementDays >= 3)}>
+                {supportHabits.recentMovementDays}/7 movement days
+              </span>
+            </div>
+            <ul style={{ margin: 0, paddingLeft: 18, fontFamily: sans, color: palette.textMuted, lineHeight: 1.8, fontSize: 14 }}>
+              {supportHabits.messages.map((message) => (
+                <li key={message}>{message}</li>
+              ))}
+            </ul>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              <Link to="/today" style={secondaryLinkStyle}>
+                Open checklist
+              </Link>
+              <Link to="/history" style={secondaryLinkStyle}>
+                Review habit trend
+              </Link>
+            </div>
+          </div>
+        </DashboardPanel>
+      </div>
+
+      <div style={{ marginTop: 18 }}>
         <DashboardPanel title="Recommended meals for today">
           <p style={{ margin: "0 0 12px", fontFamily: sans, color: palette.textMuted, lineHeight: 1.6 }}>
             These suggestions now react to shot-day support, symptoms, and the enriched GLP-1 recipe profile. Open a recipe to see the support fit in more detail.
@@ -243,6 +276,19 @@ const secondaryLinkStyle: CSSProperties = {
   fontFamily: sans,
   fontWeight: 600,
 };
+
+function supportBadgeStyle(complete: boolean): CSSProperties {
+  return {
+    borderRadius: 999,
+    padding: "6px 10px",
+    border: `1px solid ${complete ? palette.accentLight : "#f1dfb8"}`,
+    background: complete ? palette.accentSoft : "#fffaf1",
+    color: complete ? palette.accent : palette.text,
+    fontFamily: sans,
+    fontSize: 12,
+    fontWeight: 700,
+  };
+}
 
 const noticeStyle: CSSProperties = {
   borderRadius: 14,

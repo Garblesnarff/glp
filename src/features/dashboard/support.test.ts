@@ -12,6 +12,7 @@ import {
   getRecentMealFeedbackSummary,
   getRecentLogTrendSummary,
   getRecipeRecommendationReasons,
+  getSupportHabitsSummary,
   needsElectrolytePrompt,
 } from "./support";
 import { RECIPES } from "../meal-planner/data/recipes";
@@ -103,6 +104,19 @@ describe("dashboard support", () => {
 
     expect(summary.supplementTargetCount).toBe(5);
     expect(summary.movementSummary).toBe("Strength work is logged today.");
+  });
+
+  test("builds adherence-oriented support habit guidance", () => {
+    const today = createDefaultDailyLog("2026-03-07");
+    today.appetiteLevel = "low";
+    today.mealsConsumed = [];
+    const previous = createDefaultDailyLog("2026-03-06");
+    previous.appetiteLevel = "low";
+
+    const summary = getSupportHabitsSummary(today, [previous]);
+
+    expect(summary.messages[0]).toContain("Protein");
+    expect(summary.messages.some((message) => message.includes("No strength work"))).toBe(true);
   });
 
   test("explains why a recipe was recommended", () => {

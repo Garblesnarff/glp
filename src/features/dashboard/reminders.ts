@@ -22,6 +22,8 @@ export function getCompanionReminders(profile: UserProfile, log: DailyLog, recen
   const hydrationRemaining = Math.max(0, profile.hydrationGoal - log.hydrationOz);
   const latestDoseIncrease = medicationLogs.find((entry) => entry.isDoseIncrease);
   const doseIncreaseRecent = latestDoseIncrease ? daysSinceDate(latestDoseIncrease.date) <= 7 : false;
+  const proteinToday = log.mealsConsumed.reduce((sum, meal) => sum + meal.actualProtein, 0);
+  const recentStrengthDays = recentLogs.filter((entry) => entry.movement.includes("Strength session")).length;
 
   if (shotTomorrow) {
     reminders.push({
@@ -88,6 +90,32 @@ export function getCompanionReminders(profile: UserProfile, log: DailyLog, recen
     });
   }
 
+  if (!log.supplements.includes("Protein supplement") && log.appetiteLevel !== "normal" && proteinToday < 60) {
+    reminders.push({
+      id: "protein-support",
+      title: "Protein support is still open",
+      body: "Appetite is reduced and protein intake is still light today. A shake or other protein supplement may be the lowest-friction catch-up move.",
+      tone: "info",
+      link: {
+        label: "Open daily log",
+        to: "/today",
+      },
+    });
+  }
+
+  if (!log.movement.includes("Strength session") && recentStrengthDays === 0) {
+    reminders.push({
+      id: "strength-consistency",
+      title: "No strength work logged this week",
+      body: "Protein helps most when some resistance work is happening too. Even one short strength session this week would move the needle.",
+      tone: "info",
+      link: {
+        label: "Open daily log",
+        to: "/today",
+      },
+    });
+  }
+
   if (latestMedicationLog?.injectionSite) {
     reminders.push({
       id: "rotation-nudge",
@@ -101,7 +129,7 @@ export function getCompanionReminders(profile: UserProfile, log: DailyLog, recen
     });
   }
 
-  return reminders.slice(0, 5);
+  return reminders.slice(0, 7);
 }
 
 function getDaysUntilShot(shotDay: string, referenceDate = new Date()) {
