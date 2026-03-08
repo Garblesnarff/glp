@@ -18,4 +18,12 @@ export class LocalAccountRepository implements AccountRepository {
   async acceptPartnerInvite(): Promise<AccountMembership | null> {
     return null;
   }
+
+  async declinePartnerInvite(): Promise<void> {
+    return;
+  }
+
+  async leaveHousehold(): Promise<void> {
+    return;
+  }
 }

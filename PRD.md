@@ -220,6 +220,12 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - Recommendation scoring and rationale can now respond lightly to anxious, overwhelmed, or low-food-noise days by favoring lower-pressure meal fits
    - History analysis now reinforces lower-food-noise progress as a meaningful outcome instead of only flagging hard days
 
+29. **Partner/account recovery UX foundation**
+   - Prep partners can now explicitly decline incoming invites instead of only accepting them
+   - Prep partners can now leave a linked household from the partner workspace, which creates a real unlink/recovery path
+   - The partner workspace now distinguishes connected, unlinked, and mismatched-link states more clearly
+   - Primary users now get accepted-state feedback for outgoing partner invites instead of only pending/revoke scaffolding
+
 ### What is still scaffolded vs complete
 
 - **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early history-aware scoring, but still not yet personalized by deeper long-term correlation modeling
@@ -233,7 +239,7 @@ The codebase has moved beyond the original single-screen artifact and now includ
 - **Reminder system**: in-app reminders, persisted reminder preferences, and refill reminders now exist, but there is still no actual scheduler, push delivery, or notification channel management yet
 - **Supplement and movement support**: checklist logging, first adherence nudges, and basic coaching now exist, but there is still no clinician-configurable regimen, custom supplement library, or scheduled reminder delivery yet
 - **Emergency support**: dashboard emergency card, red-flag route, and first-pass partner rough-day alerts now exist, but there is still no push delivery, reminder scheduling, or escalation logic beyond the in-app account alert
-- **Prep partner model**: route, invite UI, linked-primary shared reads, first-pass invite acceptance, and rough-day support alerts now exist, but there is still no polished invite acceptance UX, account unlink/recovery flow, or broader notification system yet
+- **Prep partner model**: route, invite UI, linked-primary shared reads, invite acceptance, unlink/recovery actions, and rough-day support alerts now exist, but there is still no broader notification system or more advanced shared-account conflict handling yet
 - **Planner/grocery sharing**: account-scoped persistence is now wired for Supabase-backed sessions, but local mode remains personal-only and there is not yet explicit conflict handling or audit/history for shared edits
 - **Recommendation engine**: now structured, explainable, and partly history-aware via recent symptom and tolerance scoring, but still not powered by durable preference memory, broader lifestyle context, or longer-term longitudinal modeling
 - **History/trends**: recent history is now both browsable and lightly charted, but there are still no richer visual correlation dashboards, clinician-style exports, or deeper long-term trend models yet

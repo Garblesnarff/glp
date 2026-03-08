@@ -44,6 +44,16 @@ export function useAccountLinking() {
     setIncomingInvites((current) => current.filter((invite) => invite.id !== inviteId));
   }
 
+  async function declineInvite(inviteId: string) {
+    await accountRepository.declinePartnerInvite(inviteId);
+    setIncomingInvites((current) => current.filter((invite) => invite.id !== inviteId));
+  }
+
+  async function leaveHousehold() {
+    await accountRepository.leaveHousehold();
+    setMembership(null);
+  }
+
   async function ensurePrimaryAccount(profile: { role: "primary" | "prep_partner"; [key: string]: unknown }) {
     if (profile.role !== "primary") {
       return null;
@@ -59,6 +69,8 @@ export function useAccountLinking() {
     incomingInvites,
     isLoading,
     acceptInvite,
+    declineInvite,
+    leaveHousehold,
     ensurePrimaryAccount,
   };
 }

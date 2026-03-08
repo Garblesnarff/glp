@@ -25,7 +25,7 @@ export function PartnerWorkspacePage() {
   const auth = useAppAuth();
   const { profile, todayLog, recentLogs, isLoading: profileLoading } = useProfile();
   const { invites, isLoading: invitesLoading, createInvite, revokeInvite } = usePartnerInvites();
-  const { membership, incomingInvites, isLoading: accountLoading, acceptInvite } = useAccountLinking();
+  const { membership, incomingInvites, isLoading: accountLoading, acceptInvite, declineInvite, leaveHousehold } = useAccountLinking();
   const { linkedContext, isLoading: linkedLoading, linkedTodayLog, linkedRecentLogs } = useLinkedPrimaryContext(profile.role === "prep_partner");
   const { activeAlerts, isLoading: alertsLoading, resolveAlert } = useSupportAlerts();
   const [inviteEmail, setInviteEmail] = useState(profile.prepPartnerEmail ?? auth.user?.email ?? "");
@@ -97,8 +97,32 @@ export function PartnerWorkspacePage() {
       {isPrepPartner ? (
         <div style={{ ...linkStateStyle, marginTop: 18 }}>
           {linkedContext
-            ? `Linked to ${linkedContext.profile.name || "the primary user"} via prep-partner email match. This workspace is now reading shared household context.`
-            : "No linked primary profile was found for this prep-partner account yet. Ask the primary user to add this email in onboarding or send a partner invite."}
+            ? `Linked to ${linkedContext.profile.name || "the primary user"} via shared household context. This workspace is now reading the same prep state.`
+            : membership
+              ? "A household membership exists, but the linked primary context did not resolve cleanly. Use the recovery action below if this link is wrong."
+              : "No linked primary profile was found for this prep-partner account yet. Ask the primary user to add this email in onboarding or send a partner invite."}
+        </div>
+      ) : null}
+
+      {isPrepPartner && membership ? (
+        <div style={{ marginTop: 16 }}>
+          <DashboardPanel title="Connected household">
+            <div style={{ display: "grid", gap: 10 }}>
+              <div style={{ fontFamily: sans, fontSize: 14, color: palette.textMuted, lineHeight: 1.7 }}>
+                {linkedContext
+                  ? `You are connected to ${linkedContext.profile.name || "the primary user"} as a prep partner.`
+                  : "You are linked as a prep partner, but the household context looks incomplete."}
+              </div>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                <Link to="/planner" style={secondaryLinkStyle}>
+                  Open shared planner
+                </Link>
+                <button onClick={() => void leaveHousehold()} style={revokeButtonStyle}>
+                  Leave household link
+                </button>
+              </div>
+            </div>
+          </DashboardPanel>
         </div>
       ) : null}
 
@@ -111,12 +135,17 @@ export function PartnerWorkspacePage() {
                   <div>
                     <div style={{ fontFamily: sans, fontSize: 13, fontWeight: 700, color: palette.text }}>{invite.invitedEmail}</div>
                     <div style={{ fontFamily: sans, fontSize: 12, color: palette.textMuted, marginTop: 3 }}>
-                      Pending invite · {formatInviteDate(invite.createdAt)}
+                      Pending invite · {formatInviteDate(invite.createdAt)} · Accepting this will join the shared household.
                     </div>
                   </div>
-                  <button onClick={() => void acceptInvite(invite.id)} style={primaryButtonStyle}>
-                    Accept invite
-                  </button>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <button onClick={() => void acceptInvite(invite.id)} style={primaryButtonStyle}>
+                      Accept invite
+                    </button>
+                    <button onClick={() => void declineInvite(invite.id)} style={revokeButtonStyle}>
+                      Decline
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -226,6 +255,8 @@ export function PartnerWorkspacePage() {
                         <button onClick={() => void revokeInvite(invite.id)} style={revokeButtonStyle}>
                           Revoke
                         </button>
+                      ) : invite.status === "accepted" ? (
+                        <span style={acceptedBadgeStyle}>Connected</span>
                       ) : null}
                     </div>
                   ))
@@ -392,6 +423,17 @@ const revokeButtonStyle: CSSProperties = {
   fontSize: 12,
   fontWeight: 700,
   cursor: "pointer",
+};
+
+const acceptedBadgeStyle: CSSProperties = {
+  borderRadius: 999,
+  padding: "8px 12px",
+  background: palette.accentSoft,
+  border: `1px solid ${palette.accentLight}`,
+  color: palette.accent,
+  fontFamily: sans,
+  fontSize: 12,
+  fontWeight: 700,
 };
 
 function symptomBadgeStyle(severity: string): CSSProperties {

@@ -5,4 +5,6 @@ export interface AccountRepository {
   ensurePrimaryAccount(profile: UserProfile): Promise<AccountMembership | null>;
   loadIncomingPartnerInvites(email: string): Promise<Array<{ id: string; invitedEmail: string; status: "pending" | "accepted" | "revoked"; createdAt: string }>>;
   acceptPartnerInvite(inviteId: string): Promise<AccountMembership | null>;
+  declinePartnerInvite(inviteId: string): Promise<void>;
+  leaveHousehold(): Promise<void>;
 }

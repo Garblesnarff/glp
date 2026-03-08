@@ -125,6 +125,40 @@ export class SupabaseAccountRepository implements AccountRepository {
     };
   }
 
+  async declinePartnerInvite(inviteId: string): Promise<void> {
+    const { error } = await this.client.from("partner_invites").update({ status: "revoked" }).eq("id", inviteId).eq("status", "pending");
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  async leaveHousehold(): Promise<void> {
+    const membership = await this.loadMembership();
+    if (!membership || membership.role !== "prep_partner") {
+      return;
+    }
+
+    const { error: membershipError } = await this.client
+      .from("account_members")
+      .delete()
+      .eq("account_id", membership.accountId)
+      .eq("user_id", this.userId);
+
+    if (membershipError) {
+      throw membershipError;
+    }
+
+    const { error: profileError } = await this.client
+      .from("user_profiles")
+      .update({ account_id: null })
+      .eq("user_id", this.userId);
+
+    if (profileError) {
+      throw profileError;
+    }
+  }
+
   private async upsertOwnProfileLink(accountId: string, role: "primary" | "prep_partner") {
     const { data: existingProfile, error: existingError } = await this.client
       .from("user_profiles")
