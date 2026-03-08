@@ -250,6 +250,12 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - The Bun worker now reports transport readiness based on real provider env vars, so delivery operations have a concrete preflight summary instead of only a delivered-count output
    - This establishes the provider/orchestration boundary needed before wiring real external sends through services like Resend or Twilio
 
+34. **Notification provider adapter foundation**
+   - The Bun worker now has explicit provider adapters for email and SMS planning instead of treating external delivery as an unstructured future concern
+   - Due jobs can now be evaluated against concrete providers like Resend and Twilio, producing per-job readiness or blockage summaries by requested channel
+   - This creates the execution-planning boundary needed to add real external sends without rewriting the reminder, scheduling, or inbox layers
+   - External delivery is still not live, but the provider abstraction and orchestration seam are now present in the codebase
+
 ### What is still scaffolded vs complete
 
 - **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early history-aware scoring, but still not yet personalized by deeper long-term correlation modeling
@@ -259,7 +265,7 @@ The codebase has moved beyond the original single-screen artifact and now includ
 - **Trend analysis**: first pattern and correlation summaries now exist in history, but there are still no true charts, longitudinal scoring models, or recommendation loops driven by these correlations yet
 - **Constipation workflow**: bowel-movement tracking, support prompts, and reminder generation now exist, but there is still no Bristol stool scale, persistent escalation timer beyond recent logs, or richer clinical constipation assessment yet
 - **Food relationship tracking**: food noise and food mood now have dedicated coaching and light recommendation influence, but there is still no deeper guided journaling, celebration workflow, or long-horizon emotional pattern model yet
-- **Reminder system**: in-app reminders, persisted reminder preferences, refill reminders, channel planning, transport-readiness modeling, notification-job scheduling, a Bun delivery worker, and an in-app inbox now exist, but there is still no real email/SMS transport, push delivery, or fully automated server-side scheduling orchestration yet
+- **Reminder system**: in-app reminders, persisted reminder preferences, refill reminders, channel planning, transport-readiness modeling, provider adapters, notification-job scheduling, a Bun delivery worker, and an in-app inbox now exist, but there is still no live email/SMS send execution, push delivery, or fully automated server-side scheduling orchestration yet
 - **Supplement and movement support**: checklist logging, adherence nudges, coaching, and reminder generation now exist, but there is still no clinician-configurable regimen or custom supplement library yet
 - **Emergency support**: dashboard emergency card, red-flag route, and first-pass partner rough-day alerts now exist, but there is still no push delivery or escalation logic beyond the in-app account alert
 - **Prep partner model**: route, invite UI, linked-primary shared reads, invite acceptance, unlink/recovery actions, rough-day support alerts, and shared planner state now exist, but there is still no richer conflict handling or broader household notification coordination yet

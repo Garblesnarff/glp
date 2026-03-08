@@ -66,7 +66,9 @@ export function NotificationsPage() {
               <div key={status.channel} style={transportRowStyle(status.available)}>
                 <div>
                   <div style={{ fontFamily: sans, fontSize: 13, fontWeight: 700, color: palette.text }}>{formatChannel(status.channel)}</div>
-                  <div style={{ fontFamily: sans, fontSize: 12, color: palette.textMuted, marginTop: 4 }}>{status.summary}</div>
+                  <div style={{ fontFamily: sans, fontSize: 12, color: palette.textMuted, marginTop: 4 }}>
+                    Provider: {status.provider} · {status.summary}
+                  </div>
                 </div>
                 <span style={transportBadgeStyle(status.available)}>{status.available ? "Available" : "Not ready"}</span>
               </div>
