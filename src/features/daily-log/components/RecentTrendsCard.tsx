@@ -7,12 +7,16 @@ export function RecentTrendsCard({
   constipationDays,
   nauseaDays,
   lowAppetiteDays,
+  avgFoodNoise,
+  difficultFoodMoodDays,
 }: {
   symptomDays: number;
   avgHydrationOz: number;
   constipationDays: number;
   nauseaDays: number;
   lowAppetiteDays: number;
+  avgFoodNoise: number;
+  difficultFoodMoodDays: number;
 }) {
   return (
     <div style={{ display: "grid", gap: 12 }}>
@@ -21,6 +25,8 @@ export function RecentTrendsCard({
         <TrendMetric label="Avg hydration" value={`${avgHydrationOz} oz`} />
         <TrendMetric label="Nausea days" value={`${nauseaDays}`} />
         <TrendMetric label="Low appetite days" value={`${lowAppetiteDays}`} />
+        <TrendMetric label="Avg food noise" value={`${avgFoodNoise}/5`} />
+        <TrendMetric label="Hard food days" value={`${difficultFoodMoodDays}`} />
       </div>
       <div style={{ fontFamily: sans, color: palette.textMuted, fontSize: 13, lineHeight: 1.6 }}>
         Constipation was logged on {constipationDays} of the last 7 tracked days. Use this trend to decide whether to push fluids, gentler fiber, or movement support next.

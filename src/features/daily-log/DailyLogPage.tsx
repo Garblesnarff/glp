@@ -30,6 +30,8 @@ export function DailyLogPage() {
     addHydration,
     setAppetiteLevel,
     setSymptomSeverity,
+    setFoodNoiseLevel,
+    setFoodMood,
     saveMealEntry,
     removeMealEntry,
     setBowelMovement,
@@ -83,6 +85,8 @@ export function DailyLogPage() {
             log={todayLog}
             onSetAppetite={(value) => void setAppetiteLevel(value)}
             onSetSymptom={(symptom, severity) => void setSymptomSeverity(symptom, severity)}
+            onSetFoodNoise={(value) => void setFoodNoiseLevel(value)}
+            onSetFoodMood={(value) => void setFoodMood(value)}
           />
         </DashboardPanel>
 
@@ -183,6 +187,8 @@ export function DailyLogPage() {
             constipationDays={trendSummary.constipationDays}
             nauseaDays={trendSummary.nauseaDays}
             lowAppetiteDays={trendSummary.lowAppetiteDays}
+            avgFoodNoise={trendSummary.avgFoodNoise}
+            difficultFoodMoodDays={trendSummary.difficultFoodMoodDays}
           />
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
             <Link to="/history" style={secondaryLinkStyle}>

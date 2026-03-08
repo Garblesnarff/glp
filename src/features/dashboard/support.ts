@@ -233,6 +233,8 @@ export function getRecentLogTrendSummary(recentLogs: DailyLog[]) {
       constipationDays: 0,
       nauseaDays: 0,
       lowAppetiteDays: 0,
+      avgFoodNoise: 0,
+      difficultFoodMoodDays: 0,
     };
   }
 
@@ -251,7 +253,11 @@ export function getRecentLogTrendSummary(recentLogs: DailyLog[]) {
       if (log.appetiteLevel !== "normal") {
         acc.lowAppetiteDays += 1;
       }
+      if (log.foodMood === "anxious" || log.foodMood === "sad" || log.foodMood === "overwhelmed") {
+        acc.difficultFoodMoodDays += 1;
+      }
       acc.totalHydrationOz += log.hydrationOz;
+      acc.totalFoodNoise += log.foodNoiseLevel;
       return acc;
     },
     {
@@ -260,6 +266,8 @@ export function getRecentLogTrendSummary(recentLogs: DailyLog[]) {
       nauseaDays: 0,
       lowAppetiteDays: 0,
       totalHydrationOz: 0,
+      difficultFoodMoodDays: 0,
+      totalFoodNoise: 0,
     },
   );
 
@@ -269,6 +277,8 @@ export function getRecentLogTrendSummary(recentLogs: DailyLog[]) {
     constipationDays: totals.constipationDays,
     nauseaDays: totals.nauseaDays,
     lowAppetiteDays: totals.lowAppetiteDays,
+    avgFoodNoise: Math.round((totals.totalFoodNoise / recentLogs.length) * 10) / 10,
+    difficultFoodMoodDays: totals.difficultFoodMoodDays,
   };
 }
 

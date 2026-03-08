@@ -69,15 +69,20 @@ describe("dashboard support", () => {
     const first = createDefaultDailyLog("2026-03-07");
     first.hydrationOz = 40;
     first.symptoms.nausea = "mild";
+    first.foodNoiseLevel = 2;
     const second = createDefaultDailyLog("2026-03-06");
     second.hydrationOz = 64;
     second.appetiteLevel = "low";
+    second.foodMood = "anxious";
+    second.foodNoiseLevel = 4;
 
     const summary = getRecentLogTrendSummary([first, second]);
 
     expect(summary.avgHydrationOz).toBe(52);
     expect(summary.nauseaDays).toBe(1);
     expect(summary.lowAppetiteDays).toBe(1);
+    expect(summary.avgFoodNoise).toBe(3);
+    expect(summary.difficultFoodMoodDays).toBe(1);
   });
 
   test("explains why a recipe was recommended", () => {

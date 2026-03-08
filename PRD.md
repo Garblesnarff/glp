@@ -147,6 +147,12 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - The app now estimates days since last bowel movement from recent logs and raises an escalation state when constipation persists
    - Constipation support now surfaces fiber-friendly recipe suggestions from the enriched meal metadata
 
+17. **Food relationship tracking foundation**
+   - Food noise and food mood are now first-class daily check-in controls on dashboard and daily log
+   - Dashboard metrics now expose food noise directly instead of leaving it buried in stored log data
+   - Recent trends and history pattern analysis now include average food noise and harder food-relationship days
+   - Per-day history correlation rows now show food mood and food noise alongside symptoms, hydration, meals, and medication events
+
 ### What is still scaffolded vs complete
 
 - **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early tolerance-aware ranking, but still not yet personalized by deeper long-term correlation modeling
@@ -155,6 +161,7 @@ The codebase has moved beyond the original single-screen artifact and now includ
 - **Medication timeline**: dedicated route and first logging workflow now exist, but there is still no automatic recurring schedule, missed-dose reminders, or true correlation/visual analytics with symptoms and food tolerance yet
 - **Trend analysis**: first pattern and correlation summaries now exist in history, but there are still no true charts, longitudinal scoring models, or recommendation loops driven by these correlations yet
 - **Constipation workflow**: first bowel-movement tracking and support prompts now exist, but there is still no Bristol stool scale, persistent escalation timer beyond recent logs, or automated reminder scheduling yet
+- **Food relationship tracking**: food noise and food mood are now active parts of the daily workflow and trends, but there is still no dedicated coaching layer, celebration framing, or recommendation logic based on these signals yet
 - **Emergency support**: dashboard emergency card, red-flag route, and first-pass partner rough-day alerts now exist, but there is still no push delivery, reminder scheduling, or escalation logic beyond the in-app account alert
 - **Prep partner model**: route, invite UI, linked-primary shared reads, first-pass invite acceptance, and rough-day support alerts now exist, but there is still no polished invite acceptance UX, account unlink/recovery flow, or broader notification system yet
 - **Planner/grocery sharing**: account-scoped persistence is now wired for Supabase-backed sessions, but local mode remains personal-only and there is not yet explicit conflict handling or audit/history for shared edits

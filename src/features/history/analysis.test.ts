@@ -7,6 +7,8 @@ describe("history analysis", () => {
   test("summarizes dose increase and rough-day signals", () => {
     const first = createDefaultDailyLog("2026-03-07");
     first.symptoms.nausea = "moderate";
+    first.foodMood = "anxious";
+    first.foodNoiseLevel = 4;
     first.mealsConsumed = [
       {
         recipeId: "b5",
@@ -46,12 +48,14 @@ describe("history analysis", () => {
     expect(summary.symptomDaysAfterDoseIncrease).toBe(1);
     expect(summary.delayedOrMissedCount).toBe(1);
     expect(summary.roughMealDays).toBe(1);
+    expect(summary.difficultFoodMoodDays).toBe(1);
   });
 
   test("builds per-day correlation series", () => {
     const log = createDefaultDailyLog("2026-03-07");
     log.hydrationOz = 48;
     log.symptoms.constipation = "mild";
+    log.foodMood = "overwhelmed";
     const medicationLogs: MedicationLog[] = [
       {
         id: "m1",
@@ -69,5 +73,6 @@ describe("history analysis", () => {
 
     expect(series[0]?.symptomLoad).toBeGreaterThan(0);
     expect(series[0]?.medicationStatuses[0]).toBe("completed");
+    expect(series[0]?.foodMood).toBe("overwhelmed");
   });
 });

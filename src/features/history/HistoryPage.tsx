@@ -66,6 +66,8 @@ export function HistoryPage() {
             <SnapshotMetric label="After dose increase" value={`${patternSummary.symptomDaysAfterDoseIncrease}`} />
             <SnapshotMetric label="Delayed or missed" value={`${patternSummary.delayedOrMissedCount}`} />
             <SnapshotMetric label="Rough meal days" value={`${patternSummary.roughMealDays}`} />
+            <SnapshotMetric label="Avg food noise" value={`${patternSummary.averageFoodNoise}/5`} />
+            <SnapshotMetric label="Hard food days" value={`${patternSummary.difficultFoodMoodDays}`} />
           </div>
           <ul style={{ margin: "14px 0 0", paddingLeft: 18, fontFamily: sans, color: palette.textMuted, lineHeight: 1.8, fontSize: 14 }}>
             {patternSummary.insights.map((insight) => (
@@ -82,6 +84,10 @@ export function HistoryPage() {
                   <span style={smallBadgeStyle("normal")}>Symptom load {point.symptomLoad}</span>
                   <span style={smallBadgeStyle("normal")}>Hydration {point.hydrationOz} oz</span>
                   <span style={smallBadgeStyle(point.appetiteLevel === "normal" ? "normal" : "warn")}>{formatAppetite(point.appetiteLevel)}</span>
+                  <span style={smallBadgeStyle(point.foodNoiseLevel >= 4 ? "warn" : "normal")}>Food noise {point.foodNoiseLevel}/5</span>
+                  <span style={smallBadgeStyle(point.foodMood === "neutral" || point.foodMood === "excited" ? "normal" : "rough")}>
+                    {capitalize(point.foodMood)}
+                  </span>
                   {point.roughMeals > 0 ? <span style={smallBadgeStyle("rough")}>{point.roughMeals} rough meal{point.roughMeals > 1 ? "s" : ""}</span> : null}
                   {point.doseIncrease ? <span style={smallBadgeStyle("dose")}>Dose increase</span> : null}
                   {point.medicationStatuses.map((status) => (

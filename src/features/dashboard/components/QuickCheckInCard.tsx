@@ -1,19 +1,25 @@
 import { palette, sans } from "../../meal-planner/constants";
 import { appetiteLabel } from "../support";
-import type { AppetiteLevel, DailyLog, Severity, SymptomType } from "../../../domain/types";
+import type { AppetiteLevel, DailyLog, FoodMood, Severity, SymptomType } from "../../../domain/types";
 
 const appetiteOptions: AppetiteLevel[] = ["none", "low", "normal"];
 const symptomOrder: SymptomType[] = ["nausea", "fullness", "constipation", "diarrhea", "reflux", "stomachPain", "fatigue", "injectionSite"];
 const severityOptions: Severity[] = ["none", "mild", "moderate", "severe"];
+const foodMoods: FoodMood[] = ["excited", "neutral", "anxious", "sad", "overwhelmed"];
+const foodNoiseLevels = [1, 2, 3, 4, 5] as const;
 
 export function QuickCheckInCard({
   log,
   onSetAppetite,
   onSetSymptom,
+  onSetFoodNoise,
+  onSetFoodMood,
 }: {
   log: DailyLog;
   onSetAppetite: (value: AppetiteLevel) => void;
   onSetSymptom: (symptom: SymptomType, severity: Severity) => void;
+  onSetFoodNoise: (value: number) => void;
+  onSetFoodMood: (value: FoodMood) => void;
 }) {
   return (
     <div style={{ display: "grid", gap: 14 }}>
@@ -28,6 +34,28 @@ export function QuickCheckInCard({
               style={chipStyle(log.appetiteLevel === option)}
             >
               {appetiteLabel(option)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <div style={labelStyle}>Food noise today</div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+          {foodNoiseLevels.map((level) => (
+            <button key={level} type="button" onClick={() => onSetFoodNoise(level)} style={chipStyle(log.foodNoiseLevel === level)}>
+              {level}/5
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <div style={labelStyle}>Food mood</div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+          {foodMoods.map((mood) => (
+            <button key={mood} type="button" onClick={() => onSetFoodMood(mood)} style={chipStyle(log.foodMood === mood)}>
+              {mood}
             </button>
           ))}
         </div>

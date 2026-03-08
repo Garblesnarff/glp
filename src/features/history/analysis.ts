@@ -15,6 +15,9 @@ export function getHistoryPatternSummary(recentLogs: DailyLog[], medicationLogs:
   const latestDoseIncrease = medicationLogs.find((log) => log.isDoseIncrease);
   const delayedOrMissedCount = medicationLogs.filter((log) => log.status === "delayed" || log.status === "missed").length;
   const roughMealDays = recentLogs.filter((log) => log.mealsConsumed.some((meal) => meal.tolerance === "rough")).length;
+  const difficultFoodMoodDays = recentLogs.filter((log) => log.foodMood === "anxious" || log.foodMood === "sad" || log.foodMood === "overwhelmed").length;
+  const averageFoodNoise =
+    recentLogs.length === 0 ? 0 : Math.round((recentLogs.reduce((sum, log) => sum + log.foodNoiseLevel, 0) / recentLogs.length) * 10) / 10;
   const averageSymptomLoad =
     recentLogs.length === 0 ? 0 : Math.round((recentLogs.reduce((sum, log) => sum + getSymptomLoad(log), 0) / recentLogs.length) * 10) / 10;
 
@@ -36,6 +39,10 @@ export function getHistoryPatternSummary(recentLogs: DailyLog[], medicationLogs:
     insights.push(`Rough meal responses were logged on ${roughMealDays} day(s), which can be compared against medication changes and symptom load.`);
   }
 
+  if (difficultFoodMoodDays > 0) {
+    insights.push(`Food felt emotionally harder on ${difficultFoodMoodDays} logged day(s), with average food noise at ${averageFoodNoise}/5.`);
+  }
+
   if (insights.length === 0) {
     insights.push("No strong medication or tolerance signal stands out yet. Keep logging to make correlations more reliable.");
   }
@@ -44,6 +51,8 @@ export function getHistoryPatternSummary(recentLogs: DailyLog[], medicationLogs:
     averageSymptomLoad,
     delayedOrMissedCount,
     roughMealDays,
+    difficultFoodMoodDays,
+    averageFoodNoise,
     symptomDaysAfterDoseIncrease,
     latestDoseIncreaseDate: latestDoseIncrease?.date ?? null,
     insights,
@@ -59,6 +68,8 @@ export function getDailyCorrelationSeries(recentLogs: DailyLog[], medicationLogs
       symptomLoad: getSymptomLoad(log),
       hydrationOz: log.hydrationOz,
       appetiteLevel: log.appetiteLevel,
+      foodNoiseLevel: log.foodNoiseLevel,
+      foodMood: log.foodMood,
       roughMeals: log.mealsConsumed.filter((meal) => meal.tolerance === "rough").length,
       medicationStatuses: medicationEvents.map((event) => event.status ?? "completed"),
       doseIncrease: medicationEvents.some((event) => event.isDoseIncrease),

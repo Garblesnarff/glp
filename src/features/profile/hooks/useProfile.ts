@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createDefaultDailyLog, defaultUserProfile } from "../../../domain/defaults";
 import { calculateProteinTargetRange, isProfileComplete } from "../../../domain/utils";
-import type { AppetiteLevel, DailyLog, DailyLogMealEntry, MedicationLog, Severity, SymptomType, UserProfile } from "../../../domain/types";
+import type { AppetiteLevel, DailyLog, DailyLogMealEntry, FoodMood, MedicationLog, Severity, SymptomType, UserProfile } from "../../../domain/types";
 import { useAppServices } from "../../../app/providers/AppServices";
 
 function todayIsoDate() {
@@ -89,6 +89,22 @@ export function useProfile() {
     });
   }
 
+  async function setFoodNoiseLevel(foodNoiseLevel: number) {
+    const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
+    await saveTodayLog({
+      ...currentLog,
+      foodNoiseLevel,
+    });
+  }
+
+  async function setFoodMood(foodMood: FoodMood) {
+    const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
+    await saveTodayLog({
+      ...currentLog,
+      foodMood,
+    });
+  }
+
   async function saveMealEntry(entry: DailyLogMealEntry) {
     const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
     const existingIndex = currentLog.mealsConsumed.findIndex(
@@ -156,6 +172,8 @@ export function useProfile() {
     addHydration,
     setAppetiteLevel,
     setSymptomSeverity,
+    setFoodNoiseLevel,
+    setFoodMood,
     saveMealEntry,
     removeMealEntry,
     saveMedicationLog,

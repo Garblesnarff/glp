@@ -26,7 +26,8 @@ import {
 
 export function DashboardPage() {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
-  const { profile, profileReady, todayLog, recentLogs, isLoading, addHydration, setAppetiteLevel, setSymptomSeverity } = useProfile();
+  const { profile, profileReady, todayLog, recentLogs, isLoading, addHydration, setAppetiteLevel, setSymptomSeverity, setFoodNoiseLevel, setFoodMood } =
+    useProfile();
   const { membership } = useAccountLinking();
   const { activeAlerts, createRoughDayAlert } = useSupportAlerts();
   const daysSinceStart = profile.medicationStartDate ? getDaysSince(profile.medicationStartDate) : 0;
@@ -75,6 +76,7 @@ export function DashboardPage() {
         <DashboardMetricCard title="Hydration" value={`${todayLog.hydrationOz} oz`} detail={`Goal: ${profile.hydrationGoal} oz`} progress={hydrationPct} />
         <DashboardMetricCard title="Protein" value={`${proteinTotal} g`} detail={`Target: ${profile.proteinTarget.min}-${profile.proteinTarget.max} g`} progress={proteinPct} />
         <DashboardMetricCard title="Appetite" value={todayLog.appetiteLevel} detail="Updated in quick check-in" />
+        <DashboardMetricCard title="Food noise" value={`${todayLog.foodNoiseLevel}/5`} detail={todayLog.foodMood} />
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 16, marginTop: 18 }}>
@@ -83,6 +85,8 @@ export function DashboardPage() {
             log={todayLog}
             onSetAppetite={(value) => void setAppetiteLevel(value)}
             onSetSymptom={(symptom, severity) => void setSymptomSeverity(symptom, severity)}
+            onSetFoodNoise={(value) => void setFoodNoiseLevel(value)}
+            onSetFoodMood={(value) => void setFoodMood(value)}
           />
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
             <Link to="/today" style={secondaryLinkStyle}>
