@@ -226,24 +226,35 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - The partner workspace now distinguishes connected, unlinked, and mismatched-link states more clearly
    - Primary users now get accepted-state feedback for outgoing partner invites instead of only pending/revoke scaffolding
 
+30. **Notification delivery groundwork**
+   - The app now has a persisted notification-job queue boundary instead of only an in-app reminder panel
+   - Medication settings can now generate a scheduled delivery preview from current reminder logic and saved reminder preferences
+   - Supabase and local repositories now exist for notification jobs, so future Bun-side schedulers or push workers have a concrete persistence target
+   - This is the first real delivery foundation for moving from reminder logic to actual notification execution
+
+31. **Notification execution foundation**
+   - The app now has persisted delivered in-app notifications, not just scheduled jobs, so reminder execution has a real inbox target
+   - A Bun worker script can now process due notification jobs and materialize them into delivered inbox items using Supabase
+   - Users can review delivered reminders in a dedicated inbox route and mark them acknowledged inside the app
+   - This establishes the first end-to-end execution path from reminder logic to queued job to delivered in-app notification, even though push transport is still not implemented
+
 ### What is still scaffolded vs complete
 
 - **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early history-aware scoring, but still not yet personalized by deeper long-term correlation modeling
 - **Symptom tracker**: dedicated daily log and history views now exist, and meal-response capture is now attached to the daily workflow, but no charting, export, or clinician-style trend review yet
-- **Hydration tracker**: tap-based increments and hydration-risk logic exist, but not yet full bottle/glass visualization, reminders, or notification logic
+- **Hydration tracker**: tap-based increments, hydration-risk logic, and reminder scheduling now exist, but not yet full bottle/glass visualization or richer adherence visualization
 - **Medication timeline**: dedicated route and first logging workflow now exist, but there is still no automatic recurring schedule, missed-dose reminders, or true correlation/visual analytics with symptoms and food tolerance yet
 - **Trend analysis**: first pattern and correlation summaries now exist in history, but there are still no true charts, longitudinal scoring models, or recommendation loops driven by these correlations yet
-- **Constipation workflow**: first bowel-movement tracking and support prompts now exist, but there is still no Bristol stool scale, persistent escalation timer beyond recent logs, or automated reminder scheduling yet
+- **Constipation workflow**: bowel-movement tracking, support prompts, and reminder generation now exist, but there is still no Bristol stool scale, persistent escalation timer beyond recent logs, or richer clinical constipation assessment yet
 - **Food relationship tracking**: food noise and food mood now have dedicated coaching and light recommendation influence, but there is still no deeper guided journaling, celebration workflow, or long-horizon emotional pattern model yet
-- **Reminder system**: in-app reminders now exist for core companion workflows, but there is still no scheduling engine, push delivery, refill reminders, or user-configurable reminder preferences yet
-- **Reminder system**: in-app reminders, persisted reminder preferences, and refill reminders now exist, but there is still no actual scheduler, push delivery, or notification channel management yet
-- **Supplement and movement support**: checklist logging, first adherence nudges, and basic coaching now exist, but there is still no clinician-configurable regimen, custom supplement library, or scheduled reminder delivery yet
-- **Emergency support**: dashboard emergency card, red-flag route, and first-pass partner rough-day alerts now exist, but there is still no push delivery, reminder scheduling, or escalation logic beyond the in-app account alert
-- **Prep partner model**: route, invite UI, linked-primary shared reads, invite acceptance, unlink/recovery actions, and rough-day support alerts now exist, but there is still no broader notification system or more advanced shared-account conflict handling yet
+- **Reminder system**: in-app reminders, persisted reminder preferences, refill reminders, notification-job scheduling, a Bun delivery worker, and an in-app inbox now exist, but there is still no push delivery, channel fan-out, or background scheduling orchestration on the server yet
+- **Supplement and movement support**: checklist logging, adherence nudges, coaching, and reminder generation now exist, but there is still no clinician-configurable regimen or custom supplement library yet
+- **Emergency support**: dashboard emergency card, red-flag route, and first-pass partner rough-day alerts now exist, but there is still no push delivery or escalation logic beyond the in-app account alert
+- **Prep partner model**: route, invite UI, linked-primary shared reads, invite acceptance, unlink/recovery actions, rough-day support alerts, and shared planner state now exist, but there is still no richer conflict handling or broader household notification coordination yet
 - **Planner/grocery sharing**: account-scoped persistence is now wired for Supabase-backed sessions, but local mode remains personal-only and there is not yet explicit conflict handling or audit/history for shared edits
 - **Recommendation engine**: now structured, explainable, and partly history-aware via recent symptom and tolerance scoring, but still not powered by durable preference memory, broader lifestyle context, or longer-term longitudinal modeling
 - **History/trends**: recent history is now both browsable and lightly charted, but there are still no richer visual correlation dashboards, clinician-style exports, or deeper long-term trend models yet
-- **Weight tracking**: dedicated logging, framing, and consistency celebration now exist, but there is still no charting, waist/clothes-fit trend visualization, or deeper correlation with medication phases yet
+- **Weight tracking**: dedicated logging, framing, consistency celebration, and a simple trend chart now exist, but there is still no richer waist/clothes-fit visualization or deeper correlation with medication phases yet
 - **Social eating playbook**: first dining-out guidance now exists, but it still lacks more cuisines, restaurant-search integration, and event-specific coaching flows
 
 ---

@@ -9,12 +9,14 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
     "test": "bun test",
     "test:watch": "bun test --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "notifications:preview": "bun test src/features/notifications/schedule.test.ts",
+    "notifications:deliver": "bun run scripts/notification-worker.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.98.0",

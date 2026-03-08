@@ -129,3 +129,29 @@ export type SupportAlert = {
   createdAt: string;
   resolvedAt?: string;
 };
+
+export type NotificationJobStatus = "scheduled" | "sent" | "cancelled";
+export type NotificationDeliveryStatus = "new" | "acknowledged";
+
+export type NotificationJob = {
+  id: string;
+  sourceReminderId: string;
+  title: string;
+  body: string;
+  linkTo?: string;
+  sendAt: string;
+  channel: "in_app";
+  status: NotificationJobStatus;
+};
+
+export type NotificationDelivery = {
+  id: string;
+  sourceJobId: string;
+  sourceReminderId: string;
+  title: string;
+  body: string;
+  linkTo?: string;
+  deliveredAt: string;
+  channel: "in_app";
+  status: NotificationDeliveryStatus;
+};

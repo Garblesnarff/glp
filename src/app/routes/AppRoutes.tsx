@@ -23,6 +23,9 @@ const OnboardingPage = lazy(() =>
 const MedicationTimelinePage = lazy(() =>
   import("../../features/medication/MedicationTimelinePage").then((module) => ({ default: module.MedicationTimelinePage })),
 );
+const NotificationsPage = lazy(() =>
+  import("../../features/notifications/NotificationsPage").then((module) => ({ default: module.NotificationsPage })),
+);
 const PartnerWorkspacePage = lazy(() =>
   import("../../features/partner/PartnerWorkspacePage").then((module) => ({ default: module.PartnerWorkspacePage })),
 );
@@ -44,6 +47,7 @@ export function AppRoutes() {
         <Route path="/today" element={<DailyLogPage />} />
         <Route path="/history" element={<HistoryPage />} />
         <Route path="/medication" element={<MedicationTimelinePage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/partner" element={<PartnerWorkspacePage />} />
         <Route path="/social-eating" element={<SocialEatingPage />} />

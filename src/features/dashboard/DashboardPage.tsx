@@ -187,6 +187,14 @@ export function DashboardPage() {
       <div style={{ marginTop: 18 }}>
         <DashboardPanel title="Companion reminders">
           <CompanionRemindersPanel reminders={reminders} />
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
+            <Link to="/notifications" style={secondaryLinkStyle}>
+              Open notification inbox
+            </Link>
+            <Link to="/medication" style={secondaryLinkStyle}>
+              Manage reminder settings
+            </Link>
+          </div>
         </DashboardPanel>
       </div>
 

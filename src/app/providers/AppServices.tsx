@@ -4,6 +4,8 @@ import { LocalAccountRepository } from "../../features/account/repository/localA
 import type { AccountRepository } from "../../features/account/repository/AccountRepository";
 import { LocalMealPlanRepository } from "../../features/meal-planner/repository/localMealPlanRepository";
 import type { MealPlanRepository } from "../../features/meal-planner/repository/MealPlanRepository";
+import { LocalNotificationRepository } from "../../features/notifications/repository/localNotificationRepository";
+import type { NotificationRepository } from "../../features/notifications/repository/NotificationRepository";
 import { LocalHouseholdRepository } from "../../features/partner/repository/localHouseholdRepository";
 import { LocalPartnerInviteRepository } from "../../features/partner/repository/localPartnerInviteRepository";
 import type { HouseholdRepository } from "../../features/partner/repository/HouseholdRepository";
@@ -18,6 +20,7 @@ type AppServices = {
   envReadiness: typeof envReadiness;
   accountRepository: AccountRepository;
   mealPlanRepository: MealPlanRepository;
+  notificationRepository: NotificationRepository;
   profileRepository: ProfileRepository;
   partnerInviteRepository: PartnerInviteRepository;
   householdRepository: HouseholdRepository;
@@ -29,6 +32,7 @@ const defaultServices: AppServices = {
   envReadiness,
   accountRepository: new LocalAccountRepository(),
   mealPlanRepository: new LocalMealPlanRepository(),
+  notificationRepository: new LocalNotificationRepository(),
   profileRepository: new LocalProfileRepository(),
   partnerInviteRepository: new LocalPartnerInviteRepository(),
   householdRepository: new LocalHouseholdRepository(),

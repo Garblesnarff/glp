@@ -25,4 +25,13 @@ export default [
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
     },
   },
+  {
+    files: ["scripts/**/*.ts"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
 ];

@@ -4,6 +4,8 @@ import { LocalAccountRepository } from "../../features/account/repository/localA
 import { SupabaseAccountRepository } from "../../features/account/repository/SupabaseAccountRepository";
 import { SupabaseMealPlanRepository } from "../../features/meal-planner/repository/SupabaseMealPlanRepository";
 import { LocalMealPlanRepository } from "../../features/meal-planner/repository/localMealPlanRepository";
+import { LocalNotificationRepository } from "../../features/notifications/repository/localNotificationRepository";
+import { SupabaseNotificationRepository } from "../../features/notifications/repository/SupabaseNotificationRepository";
 import { LocalHouseholdRepository } from "../../features/partner/repository/localHouseholdRepository";
 import { LocalPartnerInviteRepository } from "../../features/partner/repository/localPartnerInviteRepository";
 import { SupabaseHouseholdRepository } from "../../features/partner/repository/SupabaseHouseholdRepository";
@@ -30,6 +32,7 @@ function AppServicesProvider({ children }: PropsWithChildren) {
 
   const services = useMemo(() => {
     const localRepository = new LocalMealPlanRepository();
+    const localNotificationRepository = new LocalNotificationRepository();
     const localAccountRepository = new LocalAccountRepository();
     const localProfileRepository = new LocalProfileRepository();
     const localPartnerInviteRepository = new LocalPartnerInviteRepository();
@@ -48,6 +51,10 @@ function AppServicesProvider({ children }: PropsWithChildren) {
         supabaseClient && auth.user
           ? new SupabaseMealPlanRepository(supabaseClient, auth.user.id)
           : localRepository,
+      notificationRepository:
+        supabaseClient && auth.user
+          ? new SupabaseNotificationRepository(supabaseClient, auth.user.id)
+          : localNotificationRepository,
       profileRepository:
         supabaseClient && auth.user
           ? new SupabaseProfileRepository(supabaseClient, auth.user.id)

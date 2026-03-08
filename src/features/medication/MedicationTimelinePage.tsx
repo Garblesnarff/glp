@@ -7,6 +7,7 @@ import { getCompanionReminders } from "../dashboard/reminders";
 import { CompanionRemindersPanel } from "../dashboard/components/CompanionRemindersPanel";
 import type { ReminderPreferences } from "../../domain/types";
 import { getRefillSummary } from "./refill";
+import { useNotificationQueue } from "../notifications/hooks/useNotificationQueue";
 
 const shotDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const injectionSites = ["Left abdomen", "Right abdomen", "Left thigh", "Right thigh", "Left arm", "Right arm"];
@@ -24,6 +25,7 @@ type MedicationDraft = {
 
 export function MedicationTimelinePage() {
   const { profile, medicationLogs, saveMedicationLog, saveProfile, recentLogs, todayLog, isLoading } = useProfile();
+  const { jobs, isLoading: queueLoading, refreshSchedule } = useNotificationQueue();
   const [draft, setDraft] = useState<MedicationDraft>({
     medication: profile.medicationName,
     dose: "",
@@ -95,6 +97,9 @@ export function MedicationTimelinePage() {
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           <Link to="/" style={secondaryLinkStyle}>
             Back to dashboard
+          </Link>
+          <Link to="/notifications" style={secondaryLinkStyle}>
+            Open inbox
           </Link>
           <Link to="/history" style={secondaryLinkStyle}>
             View history
@@ -239,6 +244,46 @@ export function MedicationTimelinePage() {
       </div>
 
       <div style={{ marginTop: 16 }}>
+        <DashboardPanel title="Scheduled delivery preview">
+          <div style={{ display: "grid", gap: 12 }}>
+            <div style={scheduleInfoStyle}>
+              This is the delivery boundary for future scheduled or push reminders. It turns your reminder preferences plus current reminder logic into queued notification jobs.
+            </div>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              <button onClick={() => void refreshSchedule(profile, todayLog, recentLogs, medicationLogs)} style={primaryButtonStyle}>
+                Refresh scheduled jobs
+              </button>
+              <Link to="/notifications" style={secondaryLinkStyle}>
+                Open inbox
+              </Link>
+              <div style={{ fontFamily: sans, fontSize: 12, color: palette.textMuted, alignSelf: "center" }}>
+                {queueLoading ? "Loading queue..." : `${jobs.length} scheduled job${jobs.length === 1 ? "" : "s"}`}
+              </div>
+            </div>
+            {jobs.length === 0 ? (
+              <div style={{ fontFamily: sans, fontSize: 13, color: palette.textMuted }}>
+                No scheduled jobs yet. Refresh the queue to build the next delivery preview from current reminder settings.
+              </div>
+            ) : (
+              <div style={{ display: "grid", gap: 8 }}>
+                {jobs.map((job) => (
+                  <div key={job.id} style={timelineRowStyle}>
+                    <div>
+                      <div style={{ fontFamily: sans, fontSize: 13, fontWeight: 700, color: palette.text }}>{job.title}</div>
+                      <div style={{ fontFamily: sans, fontSize: 12, color: palette.textMuted, marginTop: 4 }}>
+                        {formatDateTime(job.sendAt)} · {job.channel} · {job.status}
+                      </div>
+                      <div style={{ fontFamily: sans, fontSize: 12, color: palette.text, marginTop: 6, lineHeight: 1.5 }}>{job.body}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </DashboardPanel>
+      </div>
+
+      <div style={{ marginTop: 16 }}>
         <DashboardPanel title="Medication companion reminders">
           <CompanionRemindersPanel reminders={reminders.filter((reminder) => reminder.link?.to === "/medication" || reminder.id === "shot-prep")} />
         </DashboardPanel>
@@ -363,6 +408,15 @@ function getNextInjectionSite(current?: string) {
 
 function capitalize(value: string) {
   return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
+}
+
+function formatDateTime(value: string) {
+  return new Date(value).toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }
 
 const secondaryLinkStyle: CSSProperties = {
