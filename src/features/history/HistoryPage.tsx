@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import { font, palette, sans } from "../meal-planner/constants";
 import { DashboardPanel } from "../dashboard/components/DashboardPanel";
 import { useProfile } from "../profile/hooks/useProfile";
-import { getActiveSymptoms, getHydrationRiskSummary, getRecentLogTrendSummary } from "../dashboard/support";
+import { getActiveSymptoms, getHydrationRiskSummary, getRecentLogTrendSummary, getRecentMealFeedbackSummary } from "../dashboard/support";
 import type { DailyLog } from "../../domain/types";
+import { RECIPES } from "../meal-planner/data/recipes";
 
 export function HistoryPage() {
   const { profile, recentLogs, isLoading } = useProfile();
@@ -14,6 +15,7 @@ export function HistoryPage() {
   }
 
   const trendSummary = getRecentLogTrendSummary(recentLogs);
+  const mealFeedbackSummary = getRecentMealFeedbackSummary(recentLogs);
 
   return (
     <div style={{ maxWidth: 960, margin: "0 auto", padding: "24px 16px 80px" }}>
@@ -47,6 +49,9 @@ export function HistoryPage() {
             <SnapshotMetric label="Constipation days" value={`${trendSummary.constipationDays}`} />
             <SnapshotMetric label="Nausea days" value={`${trendSummary.nauseaDays}`} />
             <SnapshotMetric label="Low appetite days" value={`${trendSummary.lowAppetiteDays}`} />
+            <SnapshotMetric label="Meals logged" value={`${mealFeedbackSummary.loggedMeals}`} />
+            <SnapshotMetric label="Easy meals" value={`${mealFeedbackSummary.easyMeals}`} />
+            <SnapshotMetric label="Rough meals" value={`${mealFeedbackSummary.roughMeals}`} />
           </div>
         </DashboardPanel>
       </div>
@@ -95,6 +100,31 @@ function HistoryDayCard({ log, hydrationGoal }: { log: DailyLog; hydrationGoal: 
 
       <div style={{ marginTop: 14, display: "grid", gap: 10 }}>
         <div style={riskBoxStyle(hydrationRisk.level)}>{hydrationRisk.message}</div>
+
+        {log.mealsConsumed.length > 0 ? (
+          <div style={{ display: "grid", gap: 8 }}>
+            {log.mealsConsumed.map((meal) => {
+              const recipe = RECIPES.find((candidate) => candidate.id === meal.recipeId);
+              return (
+                <div key={`${meal.recipeId}:${meal.mealType}`} style={mealRowStyle}>
+                  <div>
+                    <div style={{ fontFamily: sans, fontSize: 13, fontWeight: 700, color: palette.text }}>
+                      {recipe?.name ?? meal.recipeId}
+                    </div>
+                    <div style={{ fontFamily: sans, fontSize: 12, color: palette.textMuted, marginTop: 4 }}>
+                      {capitalize(meal.mealType)} · {capitalize(meal.portion)} portion
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                    {meal.tolerance ? <span style={mealBadgeStyle(meal.tolerance === "rough" ? "rough" : "normal")}>{capitalize(meal.tolerance)}</span> : null}
+                    {meal.wouldRepeat === true ? <span style={mealBadgeStyle("normal")}>Would repeat</span> : null}
+                    {meal.wouldRepeat === false ? <span style={mealBadgeStyle("rough")}>Would skip</span> : null}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
 
         {activeSymptoms.length > 0 ? (
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -182,6 +212,18 @@ const snapshotGridStyle: CSSProperties = {
   gap: 10,
 };
 
+const mealRowStyle: CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 12,
+  flexWrap: "wrap",
+  borderRadius: 12,
+  border: `1px solid ${palette.border}`,
+  background: "#fff",
+  padding: "10px 12px",
+};
+
 function riskBoxStyle(level: "low" | "moderate" | "high"): CSSProperties {
   if (level === "high") {
     return {
@@ -229,5 +271,18 @@ function symptomBadgeStyle(severity: string): CSSProperties {
     fontFamily: sans,
     fontSize: 12,
     textTransform: "capitalize",
+  };
+}
+
+function mealBadgeStyle(tone: "normal" | "rough"): CSSProperties {
+  return {
+    borderRadius: 999,
+    padding: "6px 10px",
+    background: tone === "rough" ? "#fff4f5" : "#f4fbf6",
+    border: `1px solid ${tone === "rough" ? "#f4c2c7" : palette.accentLight}`,
+    color: tone === "rough" ? palette.danger : palette.accent,
+    fontFamily: sans,
+    fontSize: 12,
+    fontWeight: 700,
   };
 }

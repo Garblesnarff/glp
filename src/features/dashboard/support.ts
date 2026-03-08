@@ -1,6 +1,6 @@
 import { RECIPES } from "../meal-planner/data/recipes";
 import type { Recipe } from "../meal-planner/types";
-import type { AppetiteLevel, DailyLog, Severity, SymptomType, UserProfile } from "../../domain/types";
+import type { AppetiteLevel, DailyLog, DailyLogMealEntry, Severity, SymptomType, UserProfile } from "../../domain/types";
 
 const severityScore: Record<Severity, number> = {
   none: 0,
@@ -88,13 +88,18 @@ export function getEmergencyFoods(profile: UserProfile, log: DailyLog, recipes: 
     .slice(0, 3);
 }
 
-export function getDashboardMealRecommendations(profile: UserProfile, log: DailyLog, recipes: Recipe[] = RECIPES) {
+export function getDashboardMealRecommendations(profile: UserProfile, log: DailyLog, recipes: Recipe[] = RECIPES, recentLogs: DailyLog[] = []) {
   const appetite = log.appetiteLevel;
   const shotDay = isShotDaySupportActive(profile);
+  const toleranceScores = getRecipeToleranceScores(recentLogs);
 
   return recipes
-    .filter((recipe) => recipe.tags.includes("high-protein"))
+    .filter((recipe) => recipe.tags.includes("high-protein") || recipe.protein >= 24)
     .filter((recipe) => {
+      if ((toleranceScores.get(recipe.id) ?? 0) <= -2) {
+        return false;
+      }
+
       if (!recipe.glp1.appetiteLevel.includes(appetite)) {
         return false;
       }
@@ -114,6 +119,10 @@ export function getDashboardMealRecommendations(profile: UserProfile, log: Daily
       return recipe.meal !== "snack" && !recipe.glp1.avoidWhen.includes("severe reflux");
     })
     .sort((a, b) => {
+      const toleranceDelta = (toleranceScores.get(b.id) ?? 0) - (toleranceScores.get(a.id) ?? 0);
+      if (toleranceDelta !== 0) {
+        return toleranceDelta;
+      }
       const heavinessDelta = a.glp1.heaviness - b.glp1.heaviness;
       if (heavinessDelta !== 0) {
         return heavinessDelta;
@@ -123,9 +132,10 @@ export function getDashboardMealRecommendations(profile: UserProfile, log: Daily
     .slice(0, 3);
 }
 
-export function getRecipeRecommendationReasons(recipe: Recipe, profile: UserProfile, log: DailyLog) {
+export function getRecipeRecommendationReasons(recipe: Recipe, profile: UserProfile, log: DailyLog, recentLogs: DailyLog[] = []) {
   const reasons: string[] = [];
   const shotDay = isShotDaySupportActive(profile);
+  const toleranceScore = getRecipeToleranceScores(recentLogs).get(recipe.id) ?? 0;
 
   if (shotDay && recipe.glp1.shotDayFriendly) {
     reasons.push("Shot-day friendly");
@@ -147,6 +157,10 @@ export function getRecipeRecommendationReasons(recipe: Recipe, profile: UserProf
 
   if (severityScore[log.symptoms.constipation] >= 1 && recipe.glp1.constipationSupport !== "none") {
     reasons.push(`${recipe.glp1.constipationSupport} fiber support`);
+  }
+
+  if (toleranceScore > 0) {
+    reasons.push("Previously tolerated");
   }
 
   if (reasons.length === 0 && recipe.glp1.heaviness <= 2) {
@@ -256,4 +270,61 @@ export function getRecentLogTrendSummary(recentLogs: DailyLog[]) {
     nauseaDays: totals.nauseaDays,
     lowAppetiteDays: totals.lowAppetiteDays,
   };
+}
+
+export function getRecentMealFeedbackSummary(recentLogs: DailyLog[]) {
+  const meals = recentLogs.flatMap((log) => log.mealsConsumed);
+
+  return meals.reduce(
+    (summary, meal) => {
+      summary.loggedMeals += 1;
+      if (meal.tolerance === "easy") {
+        summary.easyMeals += 1;
+      }
+      if (meal.tolerance === "rough") {
+        summary.roughMeals += 1;
+      }
+      if (meal.wouldRepeat === true) {
+        summary.repeatYesMeals += 1;
+      }
+      return summary;
+    },
+    {
+      loggedMeals: 0,
+      easyMeals: 0,
+      roughMeals: 0,
+      repeatYesMeals: 0,
+    },
+  );
+}
+
+function getRecipeToleranceScores(recentLogs: DailyLog[]) {
+  const scores = new Map<string, number>();
+
+  recentLogs.flatMap((log) => log.mealsConsumed).forEach((meal) => {
+    const current = scores.get(meal.recipeId) ?? 0;
+    scores.set(meal.recipeId, current + getMealEntryScore(meal));
+  });
+
+  return scores;
+}
+
+function getMealEntryScore(meal: DailyLogMealEntry) {
+  let score = 0;
+
+  if (meal.tolerance === "easy") {
+    score += 2;
+  } else if (meal.tolerance === "okay") {
+    score += 1;
+  } else if (meal.tolerance === "rough") {
+    score -= 3;
+  }
+
+  if (meal.wouldRepeat === true) {
+    score += 1;
+  } else if (meal.wouldRepeat === false) {
+    score -= 1;
+  }
+
+  return score;
 }

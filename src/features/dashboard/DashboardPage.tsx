@@ -24,7 +24,7 @@ import {
 
 export function DashboardPage() {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
-  const { profile, profileReady, todayLog, isLoading, addHydration, setAppetiteLevel, setSymptomSeverity } = useProfile();
+  const { profile, profileReady, todayLog, recentLogs, isLoading, addHydration, setAppetiteLevel, setSymptomSeverity } = useProfile();
   const daysSinceStart = profile.medicationStartDate ? getDaysSince(profile.medicationStartDate) : 0;
   const nextShot = getNextShotLabel(profile.shotDay);
   const hydrationPct = Math.min((todayLog.hydrationOz / profile.hydrationGoal) * 100, 100);
@@ -35,7 +35,7 @@ export function DashboardPage() {
   const shotDayActive = isShotDaySupportActive(profile);
   const hydrationStatus = getHydrationStatus(profile, todayLog);
   const emergencyFoods = getEmergencyFoods(profile, todayLog);
-  const mealRecommendations = getDashboardMealRecommendations(profile, todayLog);
+  const mealRecommendations = getDashboardMealRecommendations(profile, todayLog, undefined, recentLogs);
   const redFlagActive = hasRedFlagSymptoms(todayLog);
 
   if (isLoading) {
@@ -145,7 +145,7 @@ export function DashboardPage() {
                 recipe={recipe}
                 onClick={() => setSelectedRecipe(recipe)}
                 compact
-                contextBadges={getRecipeRecommendationReasons(recipe, profile, todayLog)}
+                contextBadges={getRecipeRecommendationReasons(recipe, profile, todayLog, recentLogs)}
               />
             ))}
           </div>

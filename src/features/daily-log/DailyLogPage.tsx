@@ -6,8 +6,11 @@ import { DashboardPanel } from "../dashboard/components/DashboardPanel";
 import { HydrationCard } from "../dashboard/components/HydrationCard";
 import { QuickCheckInCard } from "../dashboard/components/QuickCheckInCard";
 import { RecentTrendsCard } from "./components/RecentTrendsCard";
+import { MealResponseCard } from "./components/MealResponseCard";
+import { RECIPES } from "../meal-planner/data/recipes";
 import {
   getActiveSymptoms,
+  getDashboardMealRecommendations,
   getDashboardMessages,
   getHydrationRiskSummary,
   getHydrationStatus,
@@ -17,7 +20,8 @@ import {
 } from "../dashboard/support";
 
 export function DailyLogPage() {
-  const { profile, todayLog, recentLogs, isLoading, addHydration, setAppetiteLevel, setSymptomSeverity } = useProfile();
+  const { profile, todayLog, recentLogs, isLoading, addHydration, setAppetiteLevel, setSymptomSeverity, saveMealEntry, removeMealEntry } =
+    useProfile();
 
   if (isLoading) {
     return <div style={{ padding: 24, fontFamily: sans }}>Loading daily log...</div>;
@@ -30,6 +34,7 @@ export function DailyLogPage() {
   const electrolytePrompt = needsElectrolytePrompt(todayLog);
   const redFlagActive = hasRedFlagSymptoms(todayLog);
   const trendSummary = getRecentLogTrendSummary(recentLogs);
+  const mealRecommendations = getDashboardMealRecommendations(profile, todayLog, RECIPES, recentLogs);
 
   return (
     <div style={{ maxWidth: 920, margin: "0 auto", padding: "24px 16px 80px" }}>
@@ -120,6 +125,28 @@ export function DailyLogPage() {
       </div>
 
       <div style={{ marginTop: 16 }}>
+        <DashboardPanel title="Meal response">
+          <MealResponseCard
+            entries={todayLog.mealsConsumed}
+            recommendations={mealRecommendations}
+            onAddRecipe={(recipe) =>
+              void saveMealEntry({
+                recipeId: recipe.id,
+                mealType: recipe.meal,
+                portion: recipe.recommendedPortion,
+                actualProtein: scaleMacro(recipe.protein, recipe.recommendedPortion),
+                actualFiber: scaleMacro(recipe.fiber, recipe.recommendedPortion),
+                actualCalories: scaleMacro(recipe.calories, recipe.recommendedPortion),
+                tolerance: "okay",
+              })
+            }
+            onUpdateEntry={(entry) => void saveMealEntry(entry)}
+            onRemoveEntry={(entry) => void removeMealEntry(entry)}
+          />
+        </DashboardPanel>
+      </div>
+
+      <div style={{ marginTop: 16 }}>
         <DashboardPanel title="Last 7 days">
           <RecentTrendsCard
             symptomDays={trendSummary.symptomDays}
@@ -137,6 +164,16 @@ export function DailyLogPage() {
       </div>
     </div>
   );
+}
+
+function scaleMacro(value: number, portion: "mini" | "half" | "full") {
+  if (portion === "mini") {
+    return Math.round(value * 0.5);
+  }
+  if (portion === "half") {
+    return Math.round(value * 0.75);
+  }
+  return value;
 }
 
 const secondaryLinkStyle: CSSProperties = {

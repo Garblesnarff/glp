@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createDefaultDailyLog, defaultUserProfile } from "../../../domain/defaults";
 import { calculateProteinTargetRange, isProfileComplete } from "../../../domain/utils";
-import type { AppetiteLevel, DailyLog, Severity, SymptomType, UserProfile } from "../../../domain/types";
+import type { AppetiteLevel, DailyLog, DailyLogMealEntry, Severity, SymptomType, UserProfile } from "../../../domain/types";
 import { useAppServices } from "../../../app/providers/AppServices";
 
 function todayIsoDate() {
@@ -85,6 +85,33 @@ export function useProfile() {
     });
   }
 
+  async function saveMealEntry(entry: DailyLogMealEntry) {
+    const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
+    const existingIndex = currentLog.mealsConsumed.findIndex(
+      (meal) => meal.recipeId === entry.recipeId && meal.mealType === entry.mealType,
+    );
+    const mealsConsumed =
+      existingIndex >= 0
+        ? currentLog.mealsConsumed.map((meal, index) => (index === existingIndex ? entry : meal))
+        : [...currentLog.mealsConsumed, entry];
+
+    await saveTodayLog({
+      ...currentLog,
+      mealsConsumed,
+    });
+  }
+
+  async function removeMealEntry(entry: Pick<DailyLogMealEntry, "recipeId" | "mealType">) {
+    const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
+
+    await saveTodayLog({
+      ...currentLog,
+      mealsConsumed: currentLog.mealsConsumed.filter(
+        (meal) => !(meal.recipeId === entry.recipeId && meal.mealType === entry.mealType),
+      ),
+    });
+  }
+
   return {
     isLoading,
     profile: profile ?? defaultUserProfile,
@@ -98,5 +125,7 @@ export function useProfile() {
     addHydration,
     setAppetiteLevel,
     setSymptomSeverity,
+    saveMealEntry,
+    removeMealEntry,
   };
 }

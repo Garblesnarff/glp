@@ -17,6 +17,7 @@ export type AppetiteLevel = "none" | "low" | "normal";
 export type FoodMood = "excited" | "neutral" | "anxious" | "sad" | "overwhelmed";
 
 export type PortionSize = "mini" | "half" | "full";
+export type MealTolerance = "easy" | "okay" | "rough";
 
 export type UserProfile = {
   name: string;
@@ -53,6 +54,9 @@ export type DailyLogMealEntry = {
   actualProtein: number;
   actualFiber: number;
   actualCalories: number;
+  tolerance?: MealTolerance;
+  wouldRepeat?: boolean;
+  notes?: string;
 };
 
 export type DailyLog = {

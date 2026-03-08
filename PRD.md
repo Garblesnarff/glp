@@ -98,14 +98,20 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - Recipe detail screens now expose GLP-1 support metadata so recommendations are explainable in the UI
    - Dashboard recommendation cards now show short rationale badges for why a meal fits today's context
 
+9. **Meal response capture and early tolerance learning**
+   - Daily log now supports quick logging of eaten meals from current recommendations
+   - Users can record portion, tolerance, and whether they would eat the meal again
+   - Recent tolerance feedback now influences recommendation ranking and can suppress recently rough meals
+   - History now shows meal-response data alongside symptom and hydration history
+
 ### What is still scaffolded vs complete
 
-- **Dashboard**: implemented as the default route with live daily-state interactions and recommendation rationale badges, but still not yet personalized by true learned tolerance patterns
-- **Symptom tracker**: dedicated daily log and history views now exist, but no charting, export, or clinician-style trend review yet
+- **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early tolerance-aware ranking, but still not yet personalized by deeper long-term correlation modeling
+- **Symptom tracker**: dedicated daily log and history views now exist, and meal-response capture is now attached to the daily workflow, but no charting, export, or clinician-style trend review yet
 - **Hydration tracker**: tap-based increments and hydration-risk logic exist, but not yet full bottle/glass visualization, reminders, or notification logic
 - **Emergency support**: dashboard emergency card and standalone red-flag route now exist, but no partner notification flow yet
 - **Prep partner model**: database/domain scaffold exists, but no dedicated UI or invite flow yet
-- **Recommendation engine**: now partially structured and explainable via enriched recipe metadata, but still not personalized by true symptom correlations, explicit tolerance learning, or longer-term longitudinal modeling
+- **Recommendation engine**: now partially structured, explainable, and lightly personalized via recent tolerance feedback, but still not powered by true symptom correlations, durable preference memory, or longer-term longitudinal modeling
 - **History/trends**: recent history exists as a browsable view, but not yet charted or analyzed beyond summary logic
 
 ---
