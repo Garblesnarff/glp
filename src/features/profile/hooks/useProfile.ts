@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createDefaultDailyLog, defaultUserProfile } from "../../../domain/defaults";
 import { calculateProteinTargetRange, isProfileComplete } from "../../../domain/utils";
-import type { AppetiteLevel, DailyLog, DailyLogMealEntry, FoodMood, MedicationLog, Severity, SymptomType, UserProfile } from "../../../domain/types";
+import type { AppetiteLevel, DailyLog, DailyLogMealEntry, FoodMood, MedicationLog, Severity, SymptomType, UserProfile, WeightLog } from "../../../domain/types";
 import { useAppServices } from "../../../app/providers/AppServices";
 
 function todayIsoDate() {
@@ -14,21 +14,24 @@ export function useProfile() {
   const [todayLog, setTodayLog] = useState<DailyLog | null>(null);
   const [recentLogs, setRecentLogs] = useState<DailyLog[]>([]);
   const [medicationLogs, setMedicationLogs] = useState<MedicationLog[]>([]);
+  const [weightLogs, setWeightLogs] = useState<WeightLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     void (async () => {
-      const [loadedProfile, loadedTodayLog, loadedRecentLogs, loadedMedicationLogs] = await Promise.all([
+      const [loadedProfile, loadedTodayLog, loadedRecentLogs, loadedMedicationLogs, loadedWeightLogs] = await Promise.all([
         profileRepository.loadUserProfile(),
         profileRepository.loadTodayLog(todayIsoDate()),
         profileRepository.loadRecentDailyLogs(7),
         profileRepository.loadMedicationLogs(),
+        profileRepository.loadWeightLogs(),
       ]);
 
       setProfile(loadedProfile);
       setTodayLog(loadedTodayLog ?? createDefaultDailyLog(todayIsoDate()));
       setRecentLogs(loadedRecentLogs);
       setMedicationLogs(loadedMedicationLogs);
+      setWeightLogs(loadedWeightLogs);
       setIsLoading(false);
     })();
   }, [profileRepository]);
@@ -138,6 +141,23 @@ export function useProfile() {
     await profileRepository.saveMedicationLogs(nextLogs);
   }
 
+  async function saveWeightLog(log: WeightLog) {
+    const nextLogs = [log, ...weightLogs.filter((item) => item.id !== log.id)].sort((a, b) => b.date.localeCompare(a.date));
+    setWeightLogs(nextLogs);
+    await profileRepository.saveWeightLogs(nextLogs);
+
+    if (log.weight !== profile?.currentWeight) {
+      const currentProfile = profile ?? defaultUserProfile;
+      const nextProfile = {
+        ...currentProfile,
+        currentWeight: log.weight,
+        proteinTarget: calculateProteinTargetRange(log.weight),
+      };
+      setProfile(nextProfile);
+      await profileRepository.saveUserProfile(nextProfile);
+    }
+  }
+
   async function setBowelMovement(hasBowelMovement: boolean) {
     const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
     await saveTodayLog({
@@ -178,6 +198,7 @@ export function useProfile() {
     todayLog: todayLog ?? createDefaultDailyLog(todayIsoDate()),
     recentLogs,
     medicationLogs,
+    weightLogs,
     saveProfile,
     saveTodayLog,
     setHydration,
@@ -189,6 +210,7 @@ export function useProfile() {
     saveMealEntry,
     removeMealEntry,
     saveMedicationLog,
+    saveWeightLog,
     setBowelMovement,
     toggleMovementActivity,
     toggleSupplement,

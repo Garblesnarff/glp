@@ -55,6 +55,15 @@ export type MedicationLog = {
   notes?: string;
 };
 
+export type WeightLog = {
+  id: string;
+  date: string;
+  weight: number;
+  waistInches?: number;
+  clothesFit?: "looser" | "same" | "tighter";
+  note?: string;
+};
+
 export type DailyLogMealEntry = {
   recipeId: string;
   mealType: "breakfast" | "lunch" | "dinner" | "snack";

@@ -171,6 +171,13 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - History now includes supplement, movement, strength, and protein-support signals in both pattern summaries and day-level correlation rows
    - This is the first step from passive checklist tracking toward lean-mass-preservation coaching
 
+21. **Weight tracking with correct framing foundation**
+   - A dedicated weight route now exists so weigh-ins are not buried inside onboarding or treated as the home screen hero
+   - Users can log weight plus optional waist measurement, clothes-fit notes, and free-text context
+   - Weight is now framed against recent hydration and protein consistency instead of just raw scale change
+   - Saving a new weigh-in updates the current profile weight and recalculates protein targets from the newer body weight
+   - Supabase and local persistence paths now exist for durable weight-log storage
+
 ### What is still scaffolded vs complete
 
 - **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early tolerance-aware ranking, but still not yet personalized by deeper long-term correlation modeling
@@ -187,6 +194,7 @@ The codebase has moved beyond the original single-screen artifact and now includ
 - **Planner/grocery sharing**: account-scoped persistence is now wired for Supabase-backed sessions, but local mode remains personal-only and there is not yet explicit conflict handling or audit/history for shared edits
 - **Recommendation engine**: now partially structured, explainable, and lightly personalized via recent tolerance feedback, but still not powered by true symptom correlations, durable preference memory, or longer-term longitudinal modeling
 - **History/trends**: recent history exists as a browsable view, but not yet charted or analyzed beyond summary logic
+- **Weight tracking**: dedicated logging and better framing now exist, but there is still no charting, celebration system, waist/clothes-fit trend visualization, or deeper correlation with medication phases yet
 
 ---
 

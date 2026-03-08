@@ -1,10 +1,11 @@
 import { readStoredJson, writeStoredJson } from "../../../lib/storage";
-import type { DailyLog, MedicationLog, UserProfile } from "../../../domain/types";
+import type { DailyLog, MedicationLog, UserProfile, WeightLog } from "../../../domain/types";
 import type { ProfileRepository } from "./ProfileRepository";
 
 const STORAGE_KEYS = {
   profile: "glp1-user-profile",
   medicationLogs: "glp1-medication-logs",
+  weightLogs: "glp1-weight-logs",
   dailyLogPrefix: "glp1-daily-log",
 };
 
@@ -56,5 +57,13 @@ export class LocalProfileRepository implements ProfileRepository {
 
   async saveMedicationLogs(logs: MedicationLog[]): Promise<void> {
     await writeStoredJson(STORAGE_KEYS.medicationLogs, logs);
+  }
+
+  async loadWeightLogs(): Promise<WeightLog[]> {
+    return (await readStoredJson<WeightLog[]>(STORAGE_KEYS.weightLogs)) ?? [];
+  }
+
+  async saveWeightLogs(logs: WeightLog[]): Promise<void> {
+    await writeStoredJson(STORAGE_KEYS.weightLogs, logs);
   }
 }

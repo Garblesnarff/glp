@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { DailyLog, MedicationLog, UserProfile } from "../../../domain/types";
+import type { DailyLog, MedicationLog, UserProfile, WeightLog } from "../../../domain/types";
 import type { ProfileRepository } from "./ProfileRepository";
 
 export class SupabaseProfileRepository implements ProfileRepository {
@@ -153,6 +153,51 @@ export class SupabaseProfileRepository implements ProfileRepository {
         status: log.status ?? "completed",
         is_dose_increase: log.isDoseIncrease ?? false,
         notes: log.notes ?? null,
+      })),
+    );
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  async loadWeightLogs(): Promise<WeightLog[]> {
+    const { data, error } = await this.client.from("weight_logs").select("*").eq("user_id", this.userId).order("date", { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return (data ?? []).map((row) => ({
+      id: row.id,
+      date: row.date,
+      weight: Number(row.weight),
+      waistInches: row.waist_inches ? Number(row.waist_inches) : undefined,
+      clothesFit: row.clothes_fit ?? undefined,
+      note: row.note ?? undefined,
+    }));
+  }
+
+  async saveWeightLogs(logs: WeightLog[]): Promise<void> {
+    const { error: deleteError } = await this.client.from("weight_logs").delete().eq("user_id", this.userId);
+
+    if (deleteError) {
+      throw deleteError;
+    }
+
+    if (logs.length === 0) {
+      return;
+    }
+
+    const { error } = await this.client.from("weight_logs").insert(
+      logs.map((log) => ({
+        id: log.id,
+        user_id: this.userId,
+        date: log.date,
+        weight: log.weight,
+        waist_inches: log.waistInches ?? null,
+        clothes_fit: log.clothesFit ?? null,
+        note: log.note ?? null,
       })),
     );
 

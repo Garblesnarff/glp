@@ -49,6 +49,7 @@ export function AppShell({ children }: PropsWithChildren) {
               <TopNavLink to="/">Dashboard</TopNavLink>
               <TopNavLink to="/partner">{profile.role === "prep_partner" ? "Prep View" : "Partner"}</TopNavLink>
               <TopNavLink to="/medication">Medication</TopNavLink>
+              <TopNavLink to="/weight">Weight</TopNavLink>
               <TopNavLink to="/planner">Planner</TopNavLink>
               <TopNavLink to="/grocery">Grocery</TopNavLink>
               <TopNavLink to="/tracker">Tracker</TopNavLink>

@@ -1,4 +1,4 @@
-import type { DailyLog, MedicationLog, UserProfile } from "../../../domain/types";
+import type { DailyLog, MedicationLog, UserProfile, WeightLog } from "../../../domain/types";
 
 export interface ProfileRepository {
   loadUserProfile(): Promise<UserProfile | null>;
@@ -8,4 +8,6 @@ export interface ProfileRepository {
   saveTodayLog(log: DailyLog): Promise<void>;
   loadMedicationLogs(): Promise<MedicationLog[]>;
   saveMedicationLogs(logs: MedicationLog[]): Promise<void>;
+  loadWeightLogs(): Promise<WeightLog[]>;
+  saveWeightLogs(logs: WeightLog[]): Promise<void>;
 }

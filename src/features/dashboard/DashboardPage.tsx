@@ -115,6 +115,9 @@ export function DashboardPage() {
             <Link to="/medication" style={secondaryLinkStyle}>
               Medication timeline
             </Link>
+            <Link to="/weight" style={secondaryLinkStyle}>
+              Weight context
+            </Link>
           </div>
         </DashboardPanel>
 
