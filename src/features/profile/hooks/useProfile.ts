@@ -9,7 +9,7 @@ function todayIsoDate() {
 }
 
 export function useProfile() {
-  const { profileRepository } = useAppServices();
+  const { profileRepository, accountRepository } = useAppServices();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [todayLog, setTodayLog] = useState<DailyLog | null>(null);
   const [recentLogs, setRecentLogs] = useState<DailyLog[]>([]);
@@ -40,6 +40,7 @@ export function useProfile() {
 
     setProfile(normalizedProfile);
     await profileRepository.saveUserProfile(normalizedProfile);
+    await accountRepository.ensurePrimaryAccount(normalizedProfile);
   }
 
   async function saveTodayLog(log: DailyLog) {

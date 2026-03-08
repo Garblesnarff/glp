@@ -53,7 +53,9 @@ export function DashboardPage() {
             {profileReady ? `Good to see you, ${profile.name}.` : "Welcome to your GLP-1 companion."}
           </h1>
           <p style={{ fontFamily: sans, fontSize: 15, color: palette.textMuted, maxWidth: 620, lineHeight: 1.6, margin: 0 }}>
-            Your dashboard now captures daily symptoms, hydration, appetite, and rough-day support instead of just linking out to the planner.
+            {profile.role === "prep_partner"
+              ? "Your dashboard surfaces the current support context so you can prep, shop, and respond quickly."
+              : "Your dashboard now captures daily symptoms, hydration, appetite, and rough-day support instead of just linking out to the planner."}
           </p>
         </div>
         {!profileReady ? (
@@ -80,6 +82,9 @@ export function DashboardPage() {
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
             <Link to="/today" style={secondaryLinkStyle}>
               Open full daily log
+            </Link>
+            <Link to="/partner" style={secondaryLinkStyle}>
+              {profile.role === "prep_partner" ? "Open prep view" : "Partner workspace"}
             </Link>
           </div>
         </DashboardPanel>

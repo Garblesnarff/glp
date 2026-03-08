@@ -18,6 +18,11 @@ export type FoodMood = "excited" | "neutral" | "anxious" | "sad" | "overwhelmed"
 
 export type PortionSize = "mini" | "half" | "full";
 export type MealTolerance = "easy" | "okay" | "rough";
+export type PartnerInviteStatus = "pending" | "accepted" | "revoked";
+export type AccountMembership = {
+  accountId: string;
+  role: AccountRole;
+};
 
 export type UserProfile = {
   name: string;
@@ -71,4 +76,13 @@ export type DailyLog = {
   movement: string[];
   bowelMovement?: boolean;
   notes?: string;
+};
+
+export type PartnerInvite = {
+  id: string;
+  accountId?: string;
+  invitedEmail: string;
+  role: "prep_partner";
+  status: PartnerInviteStatus;
+  createdAt: string;
 };

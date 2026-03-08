@@ -104,13 +104,26 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - Recent tolerance feedback now influences recommendation ranking and can suppress recently rough meals
    - History now shows meal-response data alongside symptom and hydration history
 
+10. **Prep partner workspace foundation**
+   - A dedicated partner route now exists in the app shell
+   - Primary users can create and revoke prep-partner invite scaffolds from the UI
+   - Prep guidance is now available in a partner-specific workspace with role-aware copy and actions
+   - Supabase repository and RLS migration groundwork now exist for partner invite management
+   - Prep partners can now resolve a linked primary user by prep-partner email and read shared household context in the partner workspace
+
+11. **Account-link lifecycle foundation**
+   - Primary users now auto-create a durable account membership during onboarding/profile save when using Supabase
+   - Prep partners can see incoming invites and accept them from the partner workspace
+   - Supabase account/account-member RLS policies now exist for account creation, membership insertion, and invitee-side invite acceptance
+   - The app now has an explicit account-linking repository layer instead of burying account lifecycle logic inside profile code
+
 ### What is still scaffolded vs complete
 
 - **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early tolerance-aware ranking, but still not yet personalized by deeper long-term correlation modeling
 - **Symptom tracker**: dedicated daily log and history views now exist, and meal-response capture is now attached to the daily workflow, but no charting, export, or clinician-style trend review yet
 - **Hydration tracker**: tap-based increments and hydration-risk logic exist, but not yet full bottle/glass visualization, reminders, or notification logic
 - **Emergency support**: dashboard emergency card and standalone red-flag route now exist, but no partner notification flow yet
-- **Prep partner model**: database/domain scaffold exists, but no dedicated UI or invite flow yet
+- **Prep partner model**: route, invite UI, linked-primary shared reads, and first-pass invite acceptance now exist, but there is still no polished invite acceptance UX, account unlink/recovery flow, or partner-specific notification system yet
 - **Recommendation engine**: now partially structured, explainable, and lightly personalized via recent tolerance feedback, but still not powered by true symptom correlations, durable preference memory, or longer-term longitudinal modeling
 - **History/trends**: recent history exists as a browsable view, but not yet charted or analyzed beyond summary logic
 

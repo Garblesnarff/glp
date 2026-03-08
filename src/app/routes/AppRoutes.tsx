@@ -20,6 +20,9 @@ const GLP1MealPlanner = lazy(() =>
 const OnboardingPage = lazy(() =>
   import("../../features/onboarding/OnboardingPage").then((module) => ({ default: module.OnboardingPage })),
 );
+const PartnerWorkspacePage = lazy(() =>
+  import("../../features/partner/PartnerWorkspacePage").then((module) => ({ default: module.PartnerWorkspacePage })),
+);
 const RedFlagPage = lazy(() =>
   import("../../features/safety/RedFlagPage").then((module) => ({ default: module.RedFlagPage })),
 );
@@ -32,6 +35,7 @@ export function AppRoutes() {
         <Route path="/today" element={<DailyLogPage />} />
         <Route path="/history" element={<HistoryPage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
+        <Route path="/partner" element={<PartnerWorkspacePage />} />
         <Route path="/planner" element={<GLP1MealPlanner initialTab="planner" />} />
         <Route path="/grocery" element={<GLP1MealPlanner initialTab="grocery" />} />
         <Route path="/tracker" element={<GLP1MealPlanner initialTab="tracker" />} />

@@ -2,10 +2,12 @@ import type { PropsWithChildren } from "react";
 import { NavLink } from "react-router-dom";
 import { envReadiness } from "../config/env";
 import { palette, sans } from "../features/meal-planner/constants";
+import { useProfile } from "../features/profile/hooks/useProfile";
 import { useAppAuth } from "./providers/app-auth-context";
 
 export function AppShell({ children }: PropsWithChildren) {
   const auth = useAppAuth();
+  const { profile } = useProfile();
 
   return (
     <>
@@ -45,6 +47,7 @@ export function AppShell({ children }: PropsWithChildren) {
             </span>
             <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <TopNavLink to="/">Dashboard</TopNavLink>
+              <TopNavLink to="/partner">{profile.role === "prep_partner" ? "Prep View" : "Partner"}</TopNavLink>
               <TopNavLink to="/planner">Planner</TopNavLink>
               <TopNavLink to="/grocery">Grocery</TopNavLink>
               <TopNavLink to="/tracker">Tracker</TopNavLink>
