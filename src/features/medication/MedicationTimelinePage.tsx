@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { font, palette, sans } from "../meal-planner/constants";
 import { useProfile } from "../profile/hooks/useProfile";
 import { DashboardPanel } from "../dashboard/components/DashboardPanel";
+import { getCompanionReminders } from "../dashboard/reminders";
+import { CompanionRemindersPanel } from "../dashboard/components/CompanionRemindersPanel";
 
 const shotDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const injectionSites = ["Left abdomen", "Right abdomen", "Left thigh", "Right thigh", "Left arm", "Right arm"];
@@ -19,7 +21,7 @@ type MedicationDraft = {
 };
 
 export function MedicationTimelinePage() {
-  const { profile, medicationLogs, saveMedicationLog, recentLogs, isLoading } = useProfile();
+  const { profile, medicationLogs, saveMedicationLog, recentLogs, todayLog, isLoading } = useProfile();
   const [draft, setDraft] = useState<MedicationDraft>({
     medication: profile.medicationName,
     dose: "",
@@ -36,6 +38,7 @@ export function MedicationTimelinePage() {
   const doseIncreaseCount = medicationLogs.filter((log) => log.isDoseIncrease).length;
   const delayedOrMissedCount = medicationLogs.filter((log) => log.status === "delayed" || log.status === "missed").length;
   const nextSuggestedSite = useMemo(() => getNextInjectionSite(latestLog?.injectionSite), [latestLog?.injectionSite]);
+  const reminders = getCompanionReminders(profile, todayLog, recentLogs, medicationLogs);
 
   if (isLoading) {
     return <div style={{ padding: 24, fontFamily: sans }}>Loading medication timeline...</div>;
@@ -184,6 +187,12 @@ export function MedicationTimelinePage() {
               ))}
             </div>
           )}
+        </DashboardPanel>
+      </div>
+
+      <div style={{ marginTop: 16 }}>
+        <DashboardPanel title="Medication companion reminders">
+          <CompanionRemindersPanel reminders={reminders.filter((reminder) => reminder.link?.to === "/medication" || reminder.id === "shot-prep")} />
         </DashboardPanel>
       </div>
     </div>

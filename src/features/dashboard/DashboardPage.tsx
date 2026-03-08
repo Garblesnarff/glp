@@ -9,10 +9,12 @@ import { useProfile } from "../profile/hooks/useProfile";
 import { useAccountLinking } from "../account/hooks/useAccountLinking";
 import { useSupportAlerts } from "../support-alerts/hooks/useSupportAlerts";
 import { DashboardMetricCard } from "./components/DashboardMetricCard";
+import { CompanionRemindersPanel } from "./components/CompanionRemindersPanel";
 import { DashboardPanel } from "./components/DashboardPanel";
 import { EmergencySupportCard } from "./components/EmergencySupportCard";
 import { HydrationCard } from "./components/HydrationCard";
 import { QuickCheckInCard } from "./components/QuickCheckInCard";
+import { getCompanionReminders } from "./reminders";
 import {
   getActiveSymptoms,
   getDashboardMealRecommendations,
@@ -26,7 +28,19 @@ import {
 
 export function DashboardPage() {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
-  const { profile, profileReady, todayLog, recentLogs, isLoading, addHydration, setAppetiteLevel, setSymptomSeverity, setFoodNoiseLevel, setFoodMood } =
+  const {
+    profile,
+    profileReady,
+    todayLog,
+    recentLogs,
+    medicationLogs,
+    isLoading,
+    addHydration,
+    setAppetiteLevel,
+    setSymptomSeverity,
+    setFoodNoiseLevel,
+    setFoodMood,
+  } =
     useProfile();
   const { membership } = useAccountLinking();
   const { activeAlerts, createRoughDayAlert } = useSupportAlerts();
@@ -43,6 +57,7 @@ export function DashboardPage() {
   const mealRecommendations = getDashboardMealRecommendations(profile, todayLog, undefined, recentLogs);
   const redFlagActive = hasRedFlagSymptoms(todayLog);
   const roughDayAlertActive = activeAlerts.some((alert) => alert.kind === "rough_day");
+  const reminders = getCompanionReminders(profile, todayLog, recentLogs, medicationLogs);
 
   if (isLoading) {
     return <div style={{ padding: 24, fontFamily: sans }}>Loading dashboard...</div>;
@@ -154,6 +169,12 @@ export function DashboardPage() {
               }
             }}
           />
+        </DashboardPanel>
+      </div>
+
+      <div style={{ marginTop: 18 }}>
+        <DashboardPanel title="Companion reminders">
+          <CompanionRemindersPanel reminders={reminders} />
         </DashboardPanel>
       </div>
 

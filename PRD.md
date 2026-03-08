@@ -153,6 +153,12 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - Recent trends and history pattern analysis now include average food noise and harder food-relationship days
    - Per-day history correlation rows now show food mood and food noise alongside symptoms, hydration, meals, and medication events
 
+18. **In-app companion reminder foundation**
+   - Dashboard now derives and surfaces in-app reminders for shot-day prep, dose-increase weeks, hydration, constipation support, and injection-site rotation
+   - Medication timeline now also surfaces the reminder set relevant to medication planning
+   - Reminder logic lives in an explicit derived layer instead of being buried in UI components
+   - This establishes the product behavior for reminders before adding scheduled/push delivery infrastructure
+
 ### What is still scaffolded vs complete
 
 - **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early tolerance-aware ranking, but still not yet personalized by deeper long-term correlation modeling
@@ -162,6 +168,7 @@ The codebase has moved beyond the original single-screen artifact and now includ
 - **Trend analysis**: first pattern and correlation summaries now exist in history, but there are still no true charts, longitudinal scoring models, or recommendation loops driven by these correlations yet
 - **Constipation workflow**: first bowel-movement tracking and support prompts now exist, but there is still no Bristol stool scale, persistent escalation timer beyond recent logs, or automated reminder scheduling yet
 - **Food relationship tracking**: food noise and food mood are now active parts of the daily workflow and trends, but there is still no dedicated coaching layer, celebration framing, or recommendation logic based on these signals yet
+- **Reminder system**: in-app reminders now exist for core companion workflows, but there is still no scheduling engine, push delivery, refill reminders, or user-configurable reminder preferences yet
 - **Emergency support**: dashboard emergency card, red-flag route, and first-pass partner rough-day alerts now exist, but there is still no push delivery, reminder scheduling, or escalation logic beyond the in-app account alert
 - **Prep partner model**: route, invite UI, linked-primary shared reads, first-pass invite acceptance, and rough-day support alerts now exist, but there is still no polished invite acceptance UX, account unlink/recovery flow, or broader notification system yet
 - **Planner/grocery sharing**: account-scoped persistence is now wired for Supabase-backed sessions, but local mode remains personal-only and there is not yet explicit conflict handling or audit/history for shared edits
