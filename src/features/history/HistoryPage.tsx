@@ -6,9 +6,10 @@ import { useProfile } from "../profile/hooks/useProfile";
 import { getActiveSymptoms, getHydrationRiskSummary, getRecentLogTrendSummary, getRecentMealFeedbackSummary } from "../dashboard/support";
 import type { DailyLog } from "../../domain/types";
 import { RECIPES } from "../meal-planner/data/recipes";
+import { getDailyCorrelationSeries, getHistoryPatternSummary } from "./analysis";
 
 export function HistoryPage() {
-  const { profile, recentLogs, isLoading } = useProfile();
+  const { profile, recentLogs, medicationLogs, isLoading } = useProfile();
 
   if (isLoading) {
     return <div style={{ padding: 24, fontFamily: sans }}>Loading history...</div>;
@@ -16,6 +17,8 @@ export function HistoryPage() {
 
   const trendSummary = getRecentLogTrendSummary(recentLogs);
   const mealFeedbackSummary = getRecentMealFeedbackSummary(recentLogs);
+  const patternSummary = getHistoryPatternSummary(recentLogs, medicationLogs);
+  const correlationSeries = getDailyCorrelationSeries(recentLogs, medicationLogs);
 
   return (
     <div style={{ maxWidth: 960, margin: "0 auto", padding: "24px 16px 80px" }}>
@@ -52,6 +55,48 @@ export function HistoryPage() {
             <SnapshotMetric label="Meals logged" value={`${mealFeedbackSummary.loggedMeals}`} />
             <SnapshotMetric label="Easy meals" value={`${mealFeedbackSummary.easyMeals}`} />
             <SnapshotMetric label="Rough meals" value={`${mealFeedbackSummary.roughMeals}`} />
+          </div>
+        </DashboardPanel>
+      </div>
+
+      <div style={{ marginTop: 16 }}>
+        <DashboardPanel title="Pattern signals">
+          <div style={snapshotGridStyle}>
+            <SnapshotMetric label="Avg symptom load" value={`${patternSummary.averageSymptomLoad}`} />
+            <SnapshotMetric label="After dose increase" value={`${patternSummary.symptomDaysAfterDoseIncrease}`} />
+            <SnapshotMetric label="Delayed or missed" value={`${patternSummary.delayedOrMissedCount}`} />
+            <SnapshotMetric label="Rough meal days" value={`${patternSummary.roughMealDays}`} />
+          </div>
+          <ul style={{ margin: "14px 0 0", paddingLeft: 18, fontFamily: sans, color: palette.textMuted, lineHeight: 1.8, fontSize: 14 }}>
+            {patternSummary.insights.map((insight) => (
+              <li key={insight}>{insight}</li>
+            ))}
+          </ul>
+          <div style={{ display: "grid", gap: 8, marginTop: 14 }}>
+            {correlationSeries.map((point) => (
+              <div key={point.date} style={correlationRowStyle}>
+                <div style={{ minWidth: 88, fontFamily: sans, fontSize: 12, fontWeight: 700, color: palette.text }}>
+                  {formatShortDate(point.date)}
+                </div>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <span style={smallBadgeStyle("normal")}>Symptom load {point.symptomLoad}</span>
+                  <span style={smallBadgeStyle("normal")}>Hydration {point.hydrationOz} oz</span>
+                  <span style={smallBadgeStyle(point.appetiteLevel === "normal" ? "normal" : "warn")}>{formatAppetite(point.appetiteLevel)}</span>
+                  {point.roughMeals > 0 ? <span style={smallBadgeStyle("rough")}>{point.roughMeals} rough meal{point.roughMeals > 1 ? "s" : ""}</span> : null}
+                  {point.doseIncrease ? <span style={smallBadgeStyle("dose")}>Dose increase</span> : null}
+                  {point.medicationStatuses.map((status) => (
+                    <span key={`${point.date}-${status}`} style={smallBadgeStyle(status === "completed" ? "normal" : "warn")}>
+                      Shot {status}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
+            <Link to="/medication" style={secondaryLinkStyle}>
+              Open medication timeline
+            </Link>
           </div>
         </DashboardPanel>
       </div>
@@ -169,6 +214,13 @@ function formatDateLabel(date: string) {
   });
 }
 
+function formatShortDate(date: string) {
+  return new Date(`${date}T12:00:00`).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+}
+
 function formatAppetite(value: DailyLog["appetiteLevel"]) {
   if (value === "none") {
     return "No appetite";
@@ -210,6 +262,17 @@ const snapshotGridStyle: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
   gap: 10,
+};
+
+const correlationRowStyle: CSSProperties = {
+  display: "flex",
+  gap: 12,
+  flexWrap: "wrap",
+  alignItems: "center",
+  borderRadius: 12,
+  border: `1px solid ${palette.border}`,
+  background: "#fff",
+  padding: "10px 12px",
 };
 
 const mealRowStyle: CSSProperties = {
@@ -281,6 +344,25 @@ function mealBadgeStyle(tone: "normal" | "rough"): CSSProperties {
     background: tone === "rough" ? "#fff4f5" : "#f4fbf6",
     border: `1px solid ${tone === "rough" ? "#f4c2c7" : palette.accentLight}`,
     color: tone === "rough" ? palette.danger : palette.accent,
+    fontFamily: sans,
+    fontSize: 12,
+    fontWeight: 700,
+  };
+}
+
+function smallBadgeStyle(tone: "normal" | "warn" | "rough" | "dose"): CSSProperties {
+  const background =
+    tone === "rough" ? "#fff4f5" : tone === "warn" ? "#fff8ec" : tone === "dose" ? "#eef5ff" : "#f4fbf6";
+  const border =
+    tone === "rough" ? "#f4c2c7" : tone === "warn" ? "#f1dfb8" : tone === "dose" ? "#c6daf8" : palette.accentLight;
+  const color = tone === "rough" ? palette.danger : tone === "dose" ? "#244a7c" : tone === "warn" ? palette.text : palette.accent;
+
+  return {
+    borderRadius: 999,
+    padding: "6px 10px",
+    background,
+    border: `1px solid ${border}`,
+    color,
     fontFamily: sans,
     fontSize: 12,
     fontWeight: 700,

@@ -53,4 +53,8 @@ export class LocalProfileRepository implements ProfileRepository {
   async loadMedicationLogs(): Promise<MedicationLog[]> {
     return (await readStoredJson<MedicationLog[]>(STORAGE_KEYS.medicationLogs)) ?? [];
   }
+
+  async saveMedicationLogs(logs: MedicationLog[]): Promise<void> {
+    await writeStoredJson(STORAGE_KEYS.medicationLogs, logs);
+  }
 }

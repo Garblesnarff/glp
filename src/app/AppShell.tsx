@@ -48,6 +48,7 @@ export function AppShell({ children }: PropsWithChildren) {
             <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <TopNavLink to="/">Dashboard</TopNavLink>
               <TopNavLink to="/partner">{profile.role === "prep_partner" ? "Prep View" : "Partner"}</TopNavLink>
+              <TopNavLink to="/medication">Medication</TopNavLink>
               <TopNavLink to="/planner">Planner</TopNavLink>
               <TopNavLink to="/grocery">Grocery</TopNavLink>
               <TopNavLink to="/tracker">Tracker</TopNavLink>

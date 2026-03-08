@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createDefaultDailyLog, defaultUserProfile } from "../../../domain/defaults";
 import { calculateProteinTargetRange, isProfileComplete } from "../../../domain/utils";
-import type { AppetiteLevel, DailyLog, DailyLogMealEntry, Severity, SymptomType, UserProfile } from "../../../domain/types";
+import type { AppetiteLevel, DailyLog, DailyLogMealEntry, MedicationLog, Severity, SymptomType, UserProfile } from "../../../domain/types";
 import { useAppServices } from "../../../app/providers/AppServices";
 
 function todayIsoDate() {
@@ -13,19 +13,22 @@ export function useProfile() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [todayLog, setTodayLog] = useState<DailyLog | null>(null);
   const [recentLogs, setRecentLogs] = useState<DailyLog[]>([]);
+  const [medicationLogs, setMedicationLogs] = useState<MedicationLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     void (async () => {
-      const [loadedProfile, loadedTodayLog, loadedRecentLogs] = await Promise.all([
+      const [loadedProfile, loadedTodayLog, loadedRecentLogs, loadedMedicationLogs] = await Promise.all([
         profileRepository.loadUserProfile(),
         profileRepository.loadTodayLog(todayIsoDate()),
         profileRepository.loadRecentDailyLogs(7),
+        profileRepository.loadMedicationLogs(),
       ]);
 
       setProfile(loadedProfile);
       setTodayLog(loadedTodayLog ?? createDefaultDailyLog(todayIsoDate()));
       setRecentLogs(loadedRecentLogs);
+      setMedicationLogs(loadedMedicationLogs);
       setIsLoading(false);
     })();
   }, [profileRepository]);
@@ -113,6 +116,12 @@ export function useProfile() {
     });
   }
 
+  async function saveMedicationLog(log: MedicationLog) {
+    const nextLogs = [log, ...medicationLogs.filter((item) => item.id !== log.id)].sort((a, b) => b.date.localeCompare(a.date));
+    setMedicationLogs(nextLogs);
+    await profileRepository.saveMedicationLogs(nextLogs);
+  }
+
   return {
     isLoading,
     profile: profile ?? defaultUserProfile,
@@ -120,6 +129,7 @@ export function useProfile() {
     profileReady,
     todayLog: todayLog ?? createDefaultDailyLog(todayIsoDate()),
     recentLogs,
+    medicationLogs,
     saveProfile,
     saveTodayLog,
     setHydration,
@@ -128,5 +138,6 @@ export function useProfile() {
     setSymptomSeverity,
     saveMealEntry,
     removeMealEntry,
+    saveMedicationLog,
   };
 }

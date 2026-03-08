@@ -39,6 +39,8 @@ create table if not exists public.medication_logs (
   shot_day text not null,
   injection_site text not null,
   date date not null,
+  status text not null default 'completed' check (status in ('completed', 'delayed', 'missed')),
+  is_dose_increase boolean not null default false,
   notes text,
   created_at timestamptz not null default timezone('utc', now())
 );

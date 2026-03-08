@@ -129,11 +129,25 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - Support alerts now have an explicit repository layer and Supabase table/RLS policy scaffold
    - The emergency flow now reaches across the shared household model instead of staying single-user only
 
+14. **Medication timeline foundation**
+   - A dedicated medication route now exists for logging injections, doses, dose-increase weeks, and missed or delayed shots
+   - Medication logs now support shot status and dose-escalation markers in the domain and repository layer
+   - The timeline includes simple injection-site rotation guidance and a first symptom-overlap summary
+   - Dashboard navigation now exposes medication tracking as a first-class workflow instead of burying it in onboarding
+
+15. **Pattern analysis foundation**
+   - History now includes a dedicated pattern-signals panel that combines symptoms, rough meals, hydration, appetite, and medication events
+   - Per-day correlation rows now flag dose-increase days, shot status, rough meal responses, and symptom load in one place
+   - The codebase now has explicit analysis helpers for medication/tolerance correlations instead of only raw summary cards
+   - This is the first implementation step toward the PRD’s food-tolerance and dose-correlation trend layer
+
 ### What is still scaffolded vs complete
 
 - **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early tolerance-aware ranking, but still not yet personalized by deeper long-term correlation modeling
 - **Symptom tracker**: dedicated daily log and history views now exist, and meal-response capture is now attached to the daily workflow, but no charting, export, or clinician-style trend review yet
 - **Hydration tracker**: tap-based increments and hydration-risk logic exist, but not yet full bottle/glass visualization, reminders, or notification logic
+- **Medication timeline**: dedicated route and first logging workflow now exist, but there is still no automatic recurring schedule, missed-dose reminders, or true correlation/visual analytics with symptoms and food tolerance yet
+- **Trend analysis**: first pattern and correlation summaries now exist in history, but there are still no true charts, longitudinal scoring models, or recommendation loops driven by these correlations yet
 - **Emergency support**: dashboard emergency card, red-flag route, and first-pass partner rough-day alerts now exist, but there is still no push delivery, reminder scheduling, or escalation logic beyond the in-app account alert
 - **Prep partner model**: route, invite UI, linked-primary shared reads, first-pass invite acceptance, and rough-day support alerts now exist, but there is still no polished invite acceptance UX, account unlink/recovery flow, or broader notification system yet
 - **Planner/grocery sharing**: account-scoped persistence is now wired for Supabase-backed sessions, but local mode remains personal-only and there is not yet explicit conflict handling or audit/history for shared edits

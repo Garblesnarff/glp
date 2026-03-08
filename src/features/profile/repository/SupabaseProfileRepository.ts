@@ -124,7 +124,40 @@ export class SupabaseProfileRepository implements ProfileRepository {
       shotDay: row.shot_day,
       injectionSite: row.injection_site,
       date: row.date,
+      status: row.status ?? "completed",
+      isDoseIncrease: row.is_dose_increase ?? false,
       notes: row.notes ?? undefined,
     }));
+  }
+
+  async saveMedicationLogs(logs: MedicationLog[]): Promise<void> {
+    const { error: deleteError } = await this.client.from("medication_logs").delete().eq("user_id", this.userId);
+
+    if (deleteError) {
+      throw deleteError;
+    }
+
+    if (logs.length === 0) {
+      return;
+    }
+
+    const { error } = await this.client.from("medication_logs").insert(
+      logs.map((log) => ({
+        id: log.id,
+        user_id: this.userId,
+        medication: log.medication,
+        dose: log.dose,
+        shot_day: log.shotDay,
+        injection_site: log.injectionSite,
+        date: log.date,
+        status: log.status ?? "completed",
+        is_dose_increase: log.isDoseIncrease ?? false,
+        notes: log.notes ?? null,
+      })),
+    );
+
+    if (error) {
+      throw error;
+    }
   }
 }

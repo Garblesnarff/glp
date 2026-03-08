@@ -7,4 +7,5 @@ export interface ProfileRepository {
   loadRecentDailyLogs(days: number): Promise<DailyLog[]>;
   saveTodayLog(log: DailyLog): Promise<void>;
   loadMedicationLogs(): Promise<MedicationLog[]>;
+  saveMedicationLogs(logs: MedicationLog[]): Promise<void>;
 }

@@ -20,6 +20,9 @@ const GLP1MealPlanner = lazy(() =>
 const OnboardingPage = lazy(() =>
   import("../../features/onboarding/OnboardingPage").then((module) => ({ default: module.OnboardingPage })),
 );
+const MedicationTimelinePage = lazy(() =>
+  import("../../features/medication/MedicationTimelinePage").then((module) => ({ default: module.MedicationTimelinePage })),
+);
 const PartnerWorkspacePage = lazy(() =>
   import("../../features/partner/PartnerWorkspacePage").then((module) => ({ default: module.PartnerWorkspacePage })),
 );
@@ -34,6 +37,7 @@ export function AppRoutes() {
         <Route path="/" element={<DashboardPage />} />
         <Route path="/today" element={<DailyLogPage />} />
         <Route path="/history" element={<HistoryPage />} />
+        <Route path="/medication" element={<MedicationTimelinePage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/partner" element={<PartnerWorkspacePage />} />
         <Route path="/planner" element={<GLP1MealPlanner initialTab="planner" />} />

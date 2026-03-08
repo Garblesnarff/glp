@@ -91,6 +91,9 @@ export function DashboardPage() {
             <Link to="/partner" style={secondaryLinkStyle}>
               {profile.role === "prep_partner" ? "Open prep view" : "Partner workspace"}
             </Link>
+            <Link to="/medication" style={secondaryLinkStyle}>
+              Medication timeline
+            </Link>
           </div>
         </DashboardPanel>
 

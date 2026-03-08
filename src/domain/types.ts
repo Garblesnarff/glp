@@ -50,6 +50,8 @@ export type MedicationLog = {
   shotDay: string;
   injectionSite: string;
   date: string;
+  status?: "completed" | "delayed" | "missed";
+  isDoseIncrease?: boolean;
   notes?: string;
 };
 
