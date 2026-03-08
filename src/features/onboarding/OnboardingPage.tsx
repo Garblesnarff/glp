@@ -104,6 +104,15 @@ export function OnboardingPage() {
               ))}
             </select>
           </Field>
+          <Field label="Typical supply days">
+            <input
+              type="number"
+              min={1}
+              value={draft.medicationSupplyDays}
+              onChange={(event) => setField("medicationSupplyDays", Number(event.target.value))}
+              style={inputStyle}
+            />
+          </Field>
         </Section>
 
         <Section title="Restrictions">

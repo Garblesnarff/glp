@@ -66,6 +66,9 @@ function mapProfile(data: Record<string, unknown>): UserProfile {
     medicationName: String(data.medication_name ?? ""),
     medicationStartDate: String(data.medication_start_date ?? ""),
     shotDay: String(data.shot_day ?? "Monday"),
+    medicationSupplyDays: 28,
+    refillLeadDays: 5,
+    lastRefillDate: "",
     prepPartnerEmail: data.prep_partner_email ? String(data.prep_partner_email) : undefined,
     reminderPreferences: defaultReminderPreferences,
   };

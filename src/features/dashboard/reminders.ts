@@ -1,5 +1,6 @@
 import type { DailyLog, MedicationLog, UserProfile } from "../../domain/types";
 import { getDaysSinceLastBowelMovement, isShotDaySupportActive } from "./support";
+import { getRefillSummary } from "../medication/refill";
 
 export type CompanionReminder = {
   id: string;
@@ -28,6 +29,7 @@ export function getCompanionReminders(profile: UserProfile, log: DailyLog, recen
   const doseIncreaseRecent = latestDoseIncrease ? daysSinceDate(latestDoseIncrease.date) <= 7 : false;
   const proteinToday = log.mealsConsumed.reduce((sum, meal) => sum + meal.actualProtein, 0);
   const recentStrengthDays = recentLogs.filter((entry) => entry.movement.includes("Strength session")).length;
+  const refill = getRefillSummary(profile);
 
   if (shotTomorrow && profile.reminderPreferences.shotPrep) {
     reminders.push({
@@ -38,6 +40,19 @@ export function getCompanionReminders(profile: UserProfile, log: DailyLog, recen
       link: {
         label: "Open planner",
         to: "/planner",
+      },
+    });
+  }
+
+  if ((refill.refillDueSoon || refill.refillOverdue) && profile.reminderPreferences.refill) {
+    reminders.push({
+      id: "refill-reminder",
+      title: refill.refillOverdue ? "Medication refill looks overdue" : "Medication refill is coming up",
+      body: refill.message,
+      tone: refill.refillOverdue ? "warn" : "info",
+      link: {
+        label: "Open medication timeline",
+        to: "/medication",
       },
     });
   }

@@ -19,6 +19,9 @@ export class LocalProfileRepository implements ProfileRepository {
 
     return {
       ...profile,
+      medicationSupplyDays: profile.medicationSupplyDays ?? 28,
+      refillLeadDays: profile.refillLeadDays ?? 5,
+      lastRefillDate: profile.lastRefillDate ?? "",
       reminderPreferences: {
         ...defaultReminderPreferences,
         ...(profile.reminderPreferences ?? {}),

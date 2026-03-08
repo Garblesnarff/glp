@@ -6,6 +6,7 @@ import { DashboardPanel } from "../dashboard/components/DashboardPanel";
 import { getCompanionReminders } from "../dashboard/reminders";
 import { CompanionRemindersPanel } from "../dashboard/components/CompanionRemindersPanel";
 import type { ReminderPreferences } from "../../domain/types";
+import { getRefillSummary } from "./refill";
 
 const shotDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const injectionSites = ["Left abdomen", "Right abdomen", "Left thigh", "Right thigh", "Left arm", "Right arm"];
@@ -41,6 +42,7 @@ export function MedicationTimelinePage() {
   const delayedOrMissedCount = medicationLogs.filter((log) => log.status === "delayed" || log.status === "missed").length;
   const nextSuggestedSite = useMemo(() => getNextInjectionSite(latestLog?.injectionSite), [latestLog?.injectionSite]);
   const reminders = getCompanionReminders(profile, todayLog, recentLogs, medicationLogs);
+  const refill = getRefillSummary(profile);
 
   useEffect(() => {
     setPreferenceDraft(profile.reminderPreferences);
@@ -107,6 +109,7 @@ export function MedicationTimelinePage() {
         <SummaryCard label="Rough symptom days" value={`${symptomDays}/7`} detail="Recent symptom context" />
         <SummaryCard label="Delayed or missed" value={`${delayedOrMissedCount}`} detail="Shot adherence alerts" />
         <SummaryCard label="Next site rotation" value={nextSuggestedSite} detail="Simple injection-site rotation prompt" />
+        <SummaryCard label="Next refill" value={refill.nextRefillDate ?? "Not set"} detail={refill.message} />
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 16 }}>
@@ -197,6 +200,45 @@ export function MedicationTimelinePage() {
       </div>
 
       <div style={{ marginTop: 16 }}>
+        <DashboardPanel title="Refill planning">
+          <div style={{ display: "grid", gap: 14 }}>
+            <div style={scheduleInfoStyle}>
+              Refill planning is now part of the medication workflow. The app can warn you when the next refill date gets close based on supply length and lead time.
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
+              <Field label="Last refill date">
+                <input
+                  type="date"
+                  value={profile.lastRefillDate ?? ""}
+                  onChange={(event) => void saveProfile({ ...profile, lastRefillDate: event.target.value })}
+                  style={inputStyle}
+                />
+              </Field>
+              <Field label="Supply days">
+                <input
+                  type="number"
+                  min={1}
+                  value={profile.medicationSupplyDays}
+                  onChange={(event) => void saveProfile({ ...profile, medicationSupplyDays: Number(event.target.value) || profile.medicationSupplyDays })}
+                  style={inputStyle}
+                />
+              </Field>
+              <Field label="Refill reminder lead days">
+                <input
+                  type="number"
+                  min={1}
+                  value={profile.refillLeadDays}
+                  onChange={(event) => void saveProfile({ ...profile, refillLeadDays: Number(event.target.value) || profile.refillLeadDays })}
+                  style={inputStyle}
+                />
+              </Field>
+            </div>
+            <div style={refill.refillOverdue ? refillWarnStyle : scheduleInfoStyle}>{refill.message}</div>
+          </div>
+        </DashboardPanel>
+      </div>
+
+      <div style={{ marginTop: 16 }}>
         <DashboardPanel title="Medication companion reminders">
           <CompanionRemindersPanel reminders={reminders.filter((reminder) => reminder.link?.to === "/medication" || reminder.id === "shot-prep")} />
         </DashboardPanel>
@@ -250,6 +292,7 @@ export function MedicationTimelinePage() {
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
               {([
                 ["shotPrep", "Shot prep"],
+                ["refill", "Refill reminders"],
                 ["doseIncrease", "Dose increase week"],
                 ["hydration", "Hydration nudges"],
                 ["constipation", "Constipation support"],
@@ -429,3 +472,10 @@ function pillToggleStyle(active: boolean): CSSProperties {
     cursor: "pointer",
   };
 }
+
+const refillWarnStyle: CSSProperties = {
+  ...scheduleInfoStyle,
+  background: "#fff4f5",
+  border: "1px solid #f4c2c7",
+  color: palette.danger,
+};

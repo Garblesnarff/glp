@@ -7,6 +7,7 @@ export type ReminderPreferences = {
   quietHoursStart: string;
   quietHoursEnd: string;
   shotPrep: boolean;
+  refill: boolean;
   hydration: boolean;
   constipation: boolean;
   doseIncrease: boolean;
@@ -55,6 +56,9 @@ export type UserProfile = {
   medicationName: string;
   medicationStartDate: string;
   shotDay: string;
+  medicationSupplyDays: number;
+  refillLeadDays: number;
+  lastRefillDate?: string;
   prepPartnerEmail?: string;
   reminderPreferences: ReminderPreferences;
 };

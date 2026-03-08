@@ -13,7 +13,7 @@ export class SupabaseProfileRepository implements ProfileRepository {
     const { data, error } = await this.client
       .from("user_profiles")
       .select(
-        "name, role, current_weight, goal_weight, protein_target_min, protein_target_max, fiber_target, hydration_goal, dietary_restrictions, medication_name, medication_start_date, shot_day, prep_partner_email, reminder_preferences",
+        "name, role, current_weight, goal_weight, protein_target_min, protein_target_max, fiber_target, hydration_goal, dietary_restrictions, medication_name, medication_start_date, shot_day, medication_supply_days, refill_lead_days, last_refill_date, prep_partner_email, reminder_preferences",
       )
       .eq("user_id", this.userId)
       .maybeSingle();
@@ -41,6 +41,9 @@ export class SupabaseProfileRepository implements ProfileRepository {
       medicationName: data.medication_name,
       medicationStartDate: data.medication_start_date,
       shotDay: data.shot_day,
+      medicationSupplyDays: data.medication_supply_days ?? 28,
+      refillLeadDays: data.refill_lead_days ?? 5,
+      lastRefillDate: data.last_refill_date ?? "",
       prepPartnerEmail: data.prep_partner_email ?? undefined,
       reminderPreferences: {
         ...defaultReminderPreferences,
@@ -65,6 +68,9 @@ export class SupabaseProfileRepository implements ProfileRepository {
         medication_name: profile.medicationName,
         medication_start_date: profile.medicationStartDate,
         shot_day: profile.shotDay,
+        medication_supply_days: profile.medicationSupplyDays,
+        refill_lead_days: profile.refillLeadDays,
+        last_refill_date: profile.lastRefillDate || null,
         prep_partner_email: profile.prepPartnerEmail ?? null,
         reminder_preferences: profile.reminderPreferences,
       },

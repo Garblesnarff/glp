@@ -19,6 +19,7 @@ export const defaultReminderPreferences: ReminderPreferences = {
   quietHoursStart: "21:00",
   quietHoursEnd: "07:00",
   shotPrep: true,
+  refill: true,
   hydration: true,
   constipation: true,
   doseIncrease: true,
@@ -41,6 +42,9 @@ export const defaultUserProfile: UserProfile = {
   medicationName: "",
   medicationStartDate: "",
   shotDay: "Monday",
+  medicationSupplyDays: 28,
+  refillLeadDays: 5,
+  lastRefillDate: "",
   prepPartnerEmail: "",
   reminderPreferences: defaultReminderPreferences,
 };

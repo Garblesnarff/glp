@@ -55,4 +55,17 @@ describe("dashboard reminders", () => {
     expect(reminders.some((reminder) => reminder.id === "hydration-nudge")).toBe(false);
     expect(reminders.some((reminder) => reminder.id === "protein-support")).toBe(false);
   });
+
+  test("emits refill reminders when supply is running low", () => {
+    const profile = {
+      ...defaultUserProfile,
+      lastRefillDate: "2026-02-12",
+      medicationSupplyDays: 28,
+      refillLeadDays: 5,
+    };
+
+    const reminders = getCompanionReminders(profile, createDefaultDailyLog("2026-03-07"), [], []);
+
+    expect(reminders.some((reminder) => reminder.id === "refill-reminder")).toBe(true);
+  });
 });
