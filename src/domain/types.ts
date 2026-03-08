@@ -1,4 +1,19 @@
 export type AccountRole = "primary" | "prep_partner";
+export type ReminderDeliveryWindow = "morning" | "afternoon" | "evening";
+
+export type ReminderPreferences = {
+  enabled: boolean;
+  deliveryWindow: ReminderDeliveryWindow;
+  quietHoursStart: string;
+  quietHoursEnd: string;
+  shotPrep: boolean;
+  hydration: boolean;
+  constipation: boolean;
+  doseIncrease: boolean;
+  rotation: boolean;
+  proteinSupport: boolean;
+  movement: boolean;
+};
 
 export type SymptomType =
   | "nausea"
@@ -41,6 +56,7 @@ export type UserProfile = {
   medicationStartDate: string;
   shotDay: string;
   prepPartnerEmail?: string;
+  reminderPreferences: ReminderPreferences;
 };
 
 export type MedicationLog = {

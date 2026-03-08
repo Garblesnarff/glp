@@ -1,4 +1,4 @@
-import type { DailyLog, SymptomType, UserProfile } from "./types";
+import type { DailyLog, ReminderPreferences, SymptomType, UserProfile } from "./types";
 
 export const defaultSymptoms = Object.freeze(
   {
@@ -12,6 +12,20 @@ export const defaultSymptoms = Object.freeze(
     injectionSite: "none",
   } satisfies Record<SymptomType, DailyLog["symptoms"][SymptomType]>,
 );
+
+export const defaultReminderPreferences: ReminderPreferences = {
+  enabled: true,
+  deliveryWindow: "morning",
+  quietHoursStart: "21:00",
+  quietHoursEnd: "07:00",
+  shotPrep: true,
+  hydration: true,
+  constipation: true,
+  doseIncrease: true,
+  rotation: true,
+  proteinSupport: true,
+  movement: true,
+};
 
 export const defaultUserProfile: UserProfile = {
   name: "",
@@ -28,6 +42,7 @@ export const defaultUserProfile: UserProfile = {
   medicationStartDate: "",
   shotDay: "Monday",
   prepPartnerEmail: "",
+  reminderPreferences: defaultReminderPreferences,
 };
 
 export function createDefaultDailyLog(date: string): DailyLog {

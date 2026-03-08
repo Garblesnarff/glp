@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { defaultReminderPreferences } from "../../../domain/defaults";
 import type { DailyLog, UserProfile } from "../../../domain/types";
 import type { HouseholdRepository, LinkedPrimaryContext } from "./HouseholdRepository";
 
@@ -66,5 +67,6 @@ function mapProfile(data: Record<string, unknown>): UserProfile {
     medicationStartDate: String(data.medication_start_date ?? ""),
     shotDay: String(data.shot_day ?? "Monday"),
     prepPartnerEmail: data.prep_partner_email ? String(data.prep_partner_email) : undefined,
+    reminderPreferences: defaultReminderPreferences,
   };
 }

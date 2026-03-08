@@ -196,6 +196,12 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - Recommendation badges can now explain when a meal fits not only today's symptoms but also recent nausea or reflux patterns
    - This is the first real move toward the PRD’s smart recommendation engine driven by longitudinal companion data
 
+25. **Reminder preference and scheduling groundwork**
+   - Reminder preferences are now persisted in the user profile instead of being hardcoded in the reminder engine
+   - Users can now control delivery window, quiet hours, and reminder categories like shot prep, hydration, constipation, protein support, movement, and rotation
+   - Medication settings now expose the first reminder-configuration UI, which future scheduled or push delivery can build on directly
+   - The reminder engine now respects those saved preferences when deciding which reminders to surface
+
 ### What is still scaffolded vs complete
 
 - **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early history-aware scoring, but still not yet personalized by deeper long-term correlation modeling
@@ -206,6 +212,7 @@ The codebase has moved beyond the original single-screen artifact and now includ
 - **Constipation workflow**: first bowel-movement tracking and support prompts now exist, but there is still no Bristol stool scale, persistent escalation timer beyond recent logs, or automated reminder scheduling yet
 - **Food relationship tracking**: food noise and food mood are now active parts of the daily workflow and trends, but there is still no dedicated coaching layer or recommendation logic based on these signals yet
 - **Reminder system**: in-app reminders now exist for core companion workflows, but there is still no scheduling engine, push delivery, refill reminders, or user-configurable reminder preferences yet
+- **Reminder system**: in-app reminders and persisted reminder preferences now exist, but there is still no actual scheduler, push delivery, refill reminder flow, or notification channel management yet
 - **Supplement and movement support**: checklist logging, first adherence nudges, and basic coaching now exist, but there is still no clinician-configurable regimen, custom supplement library, or scheduled reminder delivery yet
 - **Emergency support**: dashboard emergency card, red-flag route, and first-pass partner rough-day alerts now exist, but there is still no push delivery, reminder scheduling, or escalation logic beyond the in-app account alert
 - **Prep partner model**: route, invite UI, linked-primary shared reads, first-pass invite acceptance, and rough-day support alerts now exist, but there is still no polished invite acceptance UX, account unlink/recovery flow, or broader notification system yet

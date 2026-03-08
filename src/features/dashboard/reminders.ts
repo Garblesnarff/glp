@@ -15,6 +15,10 @@ export type CompanionReminder = {
 const injectionSites = ["Left abdomen", "Right abdomen", "Left thigh", "Right thigh", "Left arm", "Right arm"];
 
 export function getCompanionReminders(profile: UserProfile, log: DailyLog, recentLogs: DailyLog[], medicationLogs: MedicationLog[]) {
+  if (!profile.reminderPreferences.enabled) {
+    return [];
+  }
+
   const reminders: CompanionReminder[] = [];
   const latestMedicationLog = medicationLogs[0] ?? null;
   const shotTomorrow = getDaysUntilShot(profile.shotDay) === 1;
@@ -25,7 +29,7 @@ export function getCompanionReminders(profile: UserProfile, log: DailyLog, recen
   const proteinToday = log.mealsConsumed.reduce((sum, meal) => sum + meal.actualProtein, 0);
   const recentStrengthDays = recentLogs.filter((entry) => entry.movement.includes("Strength session")).length;
 
-  if (shotTomorrow) {
+  if (shotTomorrow && profile.reminderPreferences.shotPrep) {
     reminders.push({
       id: "shot-prep",
       title: "Shot day is tomorrow",
@@ -38,7 +42,7 @@ export function getCompanionReminders(profile: UserProfile, log: DailyLog, recen
     });
   }
 
-  if (doseIncreaseRecent) {
+  if (doseIncreaseRecent && profile.reminderPreferences.doseIncrease) {
     reminders.push({
       id: "dose-increase-week",
       title: "Dose increase week",
@@ -51,7 +55,7 @@ export function getCompanionReminders(profile: UserProfile, log: DailyLog, recen
     });
   }
 
-  if (hydrationRemaining >= 24 || isShotDaySupportActive(profile)) {
+  if ((hydrationRemaining >= 24 || isShotDaySupportActive(profile)) && profile.reminderPreferences.hydration) {
     reminders.push({
       id: "hydration-nudge",
       title: "Keep hydration moving",
@@ -64,7 +68,7 @@ export function getCompanionReminders(profile: UserProfile, log: DailyLog, recen
     });
   }
 
-  if (daysSinceBowelMovement !== null && daysSinceBowelMovement >= 2) {
+  if (daysSinceBowelMovement !== null && daysSinceBowelMovement >= 2 && profile.reminderPreferences.constipation) {
     reminders.push({
       id: "constipation-escalation",
       title: "Constipation support is due",
@@ -77,7 +81,7 @@ export function getCompanionReminders(profile: UserProfile, log: DailyLog, recen
     });
   }
 
-  if (!log.movement.includes("10-minute walk") && log.symptoms.constipation !== "none") {
+  if (!log.movement.includes("10-minute walk") && log.symptoms.constipation !== "none" && profile.reminderPreferences.movement) {
     reminders.push({
       id: "movement-nudge",
       title: "Short walk still open",
@@ -90,7 +94,7 @@ export function getCompanionReminders(profile: UserProfile, log: DailyLog, recen
     });
   }
 
-  if (!log.supplements.includes("Protein supplement") && log.appetiteLevel !== "normal" && proteinToday < 60) {
+  if (!log.supplements.includes("Protein supplement") && log.appetiteLevel !== "normal" && proteinToday < 60 && profile.reminderPreferences.proteinSupport) {
     reminders.push({
       id: "protein-support",
       title: "Protein support is still open",
@@ -103,7 +107,7 @@ export function getCompanionReminders(profile: UserProfile, log: DailyLog, recen
     });
   }
 
-  if (!log.movement.includes("Strength session") && recentStrengthDays === 0) {
+  if (!log.movement.includes("Strength session") && recentStrengthDays === 0 && profile.reminderPreferences.movement) {
     reminders.push({
       id: "strength-consistency",
       title: "No strength work logged this week",
@@ -116,7 +120,7 @@ export function getCompanionReminders(profile: UserProfile, log: DailyLog, recen
     });
   }
 
-  if (latestMedicationLog?.injectionSite) {
+  if (latestMedicationLog?.injectionSite && profile.reminderPreferences.rotation) {
     reminders.push({
       id: "rotation-nudge",
       title: "Rotate injection site",

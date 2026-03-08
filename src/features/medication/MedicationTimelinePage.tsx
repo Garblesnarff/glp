@@ -1,10 +1,11 @@
-import { useMemo, useState, type CSSProperties, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { font, palette, sans } from "../meal-planner/constants";
 import { useProfile } from "../profile/hooks/useProfile";
 import { DashboardPanel } from "../dashboard/components/DashboardPanel";
 import { getCompanionReminders } from "../dashboard/reminders";
 import { CompanionRemindersPanel } from "../dashboard/components/CompanionRemindersPanel";
+import type { ReminderPreferences } from "../../domain/types";
 
 const shotDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const injectionSites = ["Left abdomen", "Right abdomen", "Left thigh", "Right thigh", "Left arm", "Right arm"];
@@ -21,7 +22,7 @@ type MedicationDraft = {
 };
 
 export function MedicationTimelinePage() {
-  const { profile, medicationLogs, saveMedicationLog, recentLogs, todayLog, isLoading } = useProfile();
+  const { profile, medicationLogs, saveMedicationLog, saveProfile, recentLogs, todayLog, isLoading } = useProfile();
   const [draft, setDraft] = useState<MedicationDraft>({
     medication: profile.medicationName,
     dose: "",
@@ -32,6 +33,7 @@ export function MedicationTimelinePage() {
     isDoseIncrease: false,
     notes: "",
   });
+  const [preferenceDraft, setPreferenceDraft] = useState<ReminderPreferences>(profile.reminderPreferences);
 
   const latestLog = medicationLogs[0] ?? null;
   const symptomDays = recentLogs.filter((log) => Object.values(log.symptoms).some((severity) => severity !== "none")).length;
@@ -39,6 +41,10 @@ export function MedicationTimelinePage() {
   const delayedOrMissedCount = medicationLogs.filter((log) => log.status === "delayed" || log.status === "missed").length;
   const nextSuggestedSite = useMemo(() => getNextInjectionSite(latestLog?.injectionSite), [latestLog?.injectionSite]);
   const reminders = getCompanionReminders(profile, todayLog, recentLogs, medicationLogs);
+
+  useEffect(() => {
+    setPreferenceDraft(profile.reminderPreferences);
+  }, [profile.reminderPreferences]);
 
   if (isLoading) {
     return <div style={{ padding: 24, fontFamily: sans }}>Loading medication timeline...</div>;
@@ -195,6 +201,87 @@ export function MedicationTimelinePage() {
           <CompanionRemindersPanel reminders={reminders.filter((reminder) => reminder.link?.to === "/medication" || reminder.id === "shot-prep")} />
         </DashboardPanel>
       </div>
+
+      <div style={{ marginTop: 16 }}>
+        <DashboardPanel title="Reminder preferences">
+          <div style={{ display: "grid", gap: 14 }}>
+            <div style={scheduleInfoStyle}>
+              Reminder scheduling groundwork is now saved in your profile. Delivery is still in-app only for now, but these settings define the future notification window and quiet hours.
+            </div>
+            <label style={checkboxLabelStyle}>
+              <input
+                type="checkbox"
+                checked={preferenceDraft.enabled}
+                onChange={(event) => setPreferenceDraft((current) => ({ ...current, enabled: event.target.checked }))}
+              />
+              <span>Enable companion reminders</span>
+            </label>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
+              <Field label="Preferred delivery window">
+                <select
+                  value={preferenceDraft.deliveryWindow}
+                  onChange={(event) =>
+                    setPreferenceDraft((current) => ({ ...current, deliveryWindow: event.target.value as ReminderPreferences["deliveryWindow"] }))
+                  }
+                  style={inputStyle}
+                >
+                  <option value="morning">Morning</option>
+                  <option value="afternoon">Afternoon</option>
+                  <option value="evening">Evening</option>
+                </select>
+              </Field>
+              <Field label="Quiet hours start">
+                <input
+                  type="time"
+                  value={preferenceDraft.quietHoursStart}
+                  onChange={(event) => setPreferenceDraft((current) => ({ ...current, quietHoursStart: event.target.value }))}
+                  style={inputStyle}
+                />
+              </Field>
+              <Field label="Quiet hours end">
+                <input
+                  type="time"
+                  value={preferenceDraft.quietHoursEnd}
+                  onChange={(event) => setPreferenceDraft((current) => ({ ...current, quietHoursEnd: event.target.value }))}
+                  style={inputStyle}
+                />
+              </Field>
+            </div>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              {([
+                ["shotPrep", "Shot prep"],
+                ["doseIncrease", "Dose increase week"],
+                ["hydration", "Hydration nudges"],
+                ["constipation", "Constipation support"],
+                ["rotation", "Injection rotation"],
+                ["proteinSupport", "Protein support"],
+                ["movement", "Movement nudges"],
+              ] as const).map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setPreferenceDraft((current) => ({ ...current, [key]: !current[key] }))}
+                  style={pillToggleStyle(preferenceDraft[key])}
+                >
+                  {preferenceDraft[key] ? "✓ " : ""}{label}
+                </button>
+              ))}
+            </div>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              <button
+                type="button"
+                style={primaryButtonStyle}
+                onClick={() => void saveProfile({ ...profile, reminderPreferences: preferenceDraft })}
+              >
+                Save reminder preferences
+              </button>
+              <div style={{ fontFamily: sans, fontSize: 12, color: palette.textMuted, alignSelf: "center" }}>
+                Current window: {capitalize(preferenceDraft.deliveryWindow)} · Quiet hours {preferenceDraft.quietHoursStart}-{preferenceDraft.quietHoursEnd}
+              </div>
+            </div>
+          </div>
+        </DashboardPanel>
+      </div>
     </div>
   );
 }
@@ -317,3 +404,28 @@ const doseIncreaseBadgeStyle: CSSProperties = {
   fontSize: 12,
   fontWeight: 700,
 };
+
+const scheduleInfoStyle: CSSProperties = {
+  borderRadius: 14,
+  padding: "12px 14px",
+  background: "#f7faf7",
+  border: `1px solid ${palette.border}`,
+  fontFamily: sans,
+  fontSize: 13,
+  color: palette.text,
+  lineHeight: 1.6,
+};
+
+function pillToggleStyle(active: boolean): CSSProperties {
+  return {
+    borderRadius: 999,
+    padding: "9px 12px",
+    border: `1px solid ${active ? palette.accent : palette.border}`,
+    background: active ? palette.accentSoft : "#fff",
+    color: active ? palette.accent : palette.text,
+    fontFamily: sans,
+    fontSize: 12,
+    fontWeight: 700,
+    cursor: "pointer",
+  };
+}

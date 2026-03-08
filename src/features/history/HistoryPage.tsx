@@ -9,6 +9,7 @@ import type { DailyLog } from "../../domain/types";
 import { RECIPES } from "../meal-planner/data/recipes";
 import { getDailyCorrelationSeries, getHistoryPatternSummary, getTrendChartSeries } from "./analysis";
 import { LineTrendChart } from "./components/LineTrendChart";
+import { defaultReminderPreferences } from "../../domain/defaults";
 
 export function HistoryPage() {
   const { profile, recentLogs, medicationLogs, isLoading } = useProfile();
@@ -170,6 +171,7 @@ function HistoryDayCard({ log, hydrationGoal }: { log: DailyLog; hydrationGoal: 
       medicationName: "",
       medicationStartDate: "",
       shotDay: "Monday",
+      reminderPreferences: defaultReminderPreferences,
     },
     log,
   );

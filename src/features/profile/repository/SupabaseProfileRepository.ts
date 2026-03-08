@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { DailyLog, MedicationLog, UserProfile, WeightLog } from "../../../domain/types";
+import { defaultReminderPreferences } from "../../../domain/defaults";
 import type { ProfileRepository } from "./ProfileRepository";
 
 export class SupabaseProfileRepository implements ProfileRepository {
@@ -12,7 +13,7 @@ export class SupabaseProfileRepository implements ProfileRepository {
     const { data, error } = await this.client
       .from("user_profiles")
       .select(
-        "name, role, current_weight, goal_weight, protein_target_min, protein_target_max, fiber_target, hydration_goal, dietary_restrictions, medication_name, medication_start_date, shot_day, prep_partner_email",
+        "name, role, current_weight, goal_weight, protein_target_min, protein_target_max, fiber_target, hydration_goal, dietary_restrictions, medication_name, medication_start_date, shot_day, prep_partner_email, reminder_preferences",
       )
       .eq("user_id", this.userId)
       .maybeSingle();
@@ -41,6 +42,10 @@ export class SupabaseProfileRepository implements ProfileRepository {
       medicationStartDate: data.medication_start_date,
       shotDay: data.shot_day,
       prepPartnerEmail: data.prep_partner_email ?? undefined,
+      reminderPreferences: {
+        ...defaultReminderPreferences,
+        ...(data.reminder_preferences ?? {}),
+      },
     } satisfies UserProfile;
   }
 
@@ -61,6 +66,7 @@ export class SupabaseProfileRepository implements ProfileRepository {
         medication_start_date: profile.medicationStartDate,
         shot_day: profile.shotDay,
         prep_partner_email: profile.prepPartnerEmail ?? null,
+        reminder_preferences: profile.reminderPreferences,
       },
       { onConflict: "user_id" },
     );

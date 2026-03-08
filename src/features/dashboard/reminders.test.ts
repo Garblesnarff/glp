@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { createDefaultDailyLog, defaultUserProfile } from "../../domain/defaults";
+import { createDefaultDailyLog, defaultReminderPreferences, defaultUserProfile } from "../../domain/defaults";
 import type { MedicationLog } from "../../domain/types";
 import { getCompanionReminders } from "./reminders";
 
@@ -35,5 +35,24 @@ describe("dashboard reminders", () => {
     expect(reminders.some((reminder) => reminder.id === "protein-support")).toBe(true);
     expect(reminders.some((reminder) => reminder.id === "strength-consistency")).toBe(true);
     expect(reminders.some((reminder) => reminder.id === "rotation-nudge")).toBe(true);
+  });
+
+  test("respects reminder preference toggles", () => {
+    const profile = {
+      ...defaultUserProfile,
+      reminderPreferences: {
+        ...defaultReminderPreferences,
+        hydration: false,
+        proteinSupport: false,
+      },
+    };
+    const today = createDefaultDailyLog("2026-03-07");
+    today.hydrationOz = 12;
+    today.appetiteLevel = "low";
+
+    const reminders = getCompanionReminders(profile, today, [], []);
+
+    expect(reminders.some((reminder) => reminder.id === "hydration-nudge")).toBe(false);
+    expect(reminders.some((reminder) => reminder.id === "protein-support")).toBe(false);
   });
 });

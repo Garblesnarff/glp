@@ -1,4 +1,5 @@
 import { readStoredJson, writeStoredJson } from "../../../lib/storage";
+import { defaultReminderPreferences } from "../../../domain/defaults";
 import type { DailyLog, MedicationLog, UserProfile, WeightLog } from "../../../domain/types";
 import type { ProfileRepository } from "./ProfileRepository";
 
@@ -11,7 +12,18 @@ const STORAGE_KEYS = {
 
 export class LocalProfileRepository implements ProfileRepository {
   async loadUserProfile(): Promise<UserProfile | null> {
-    return readStoredJson<UserProfile>(STORAGE_KEYS.profile);
+    const profile = await readStoredJson<UserProfile>(STORAGE_KEYS.profile);
+    if (!profile) {
+      return null;
+    }
+
+    return {
+      ...profile,
+      reminderPreferences: {
+        ...defaultReminderPreferences,
+        ...(profile.reminderPreferences ?? {}),
+      },
+    };
   }
 
   async saveUserProfile(profile: UserProfile): Promise<void> {
