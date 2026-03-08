@@ -26,6 +26,9 @@ const MedicationTimelinePage = lazy(() =>
 const PartnerWorkspacePage = lazy(() =>
   import("../../features/partner/PartnerWorkspacePage").then((module) => ({ default: module.PartnerWorkspacePage })),
 );
+const SocialEatingPage = lazy(() =>
+  import("../../features/social-eating/SocialEatingPage").then((module) => ({ default: module.SocialEatingPage })),
+);
 const WeightPage = lazy(() =>
   import("../../features/weight/WeightPage").then((module) => ({ default: module.WeightPage })),
 );
@@ -43,6 +46,7 @@ export function AppRoutes() {
         <Route path="/medication" element={<MedicationTimelinePage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/partner" element={<PartnerWorkspacePage />} />
+        <Route path="/social-eating" element={<SocialEatingPage />} />
         <Route path="/weight" element={<WeightPage />} />
         <Route path="/planner" element={<GLP1MealPlanner initialTab="planner" />} />
         <Route path="/grocery" element={<GLP1MealPlanner initialTab="grocery" />} />

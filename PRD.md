@@ -202,6 +202,12 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - Medication settings now expose the first reminder-configuration UI, which future scheduled or push delivery can build on directly
    - The reminder engine now respects those saved preferences when deciding which reminders to surface
 
+26. **Social eating playbook foundation**
+   - A dedicated social-eating route now exists for dining out, family gatherings, and pressure-heavy meal situations
+   - The playbook now provides cuisine-specific guidance for Mexican, Chinese, burger, and pizza contexts
+   - Guidance is no longer fully static: it reacts to current appetite, shot-day support, nausea, and reflux context
+   - The app now includes short social scripts plus an explicit doggy-bag strategy so users have a practical fallback in real-world situations
+
 ### What is still scaffolded vs complete
 
 - **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early history-aware scoring, but still not yet personalized by deeper long-term correlation modeling
@@ -220,6 +226,7 @@ The codebase has moved beyond the original single-screen artifact and now includ
 - **Recommendation engine**: now structured, explainable, and partly history-aware via recent symptom and tolerance scoring, but still not powered by durable preference memory, broader lifestyle context, or longer-term longitudinal modeling
 - **History/trends**: recent history is now both browsable and lightly charted, but there are still no richer visual correlation dashboards, clinician-style exports, or deeper long-term trend models yet
 - **Weight tracking**: dedicated logging, framing, and consistency celebration now exist, but there is still no charting, waist/clothes-fit trend visualization, or deeper correlation with medication phases yet
+- **Social eating playbook**: first dining-out guidance now exists, but it still lacks more cuisines, restaurant-search integration, and event-specific coaching flows
 
 ---
 

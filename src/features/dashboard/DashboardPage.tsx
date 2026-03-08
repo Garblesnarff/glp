@@ -120,6 +120,9 @@ export function DashboardPage() {
             <Link to="/weight" style={secondaryLinkStyle}>
               Weight context
             </Link>
+            <Link to="/social-eating" style={secondaryLinkStyle}>
+              Social eating
+            </Link>
           </div>
         </DashboardPanel>
 
