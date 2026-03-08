@@ -19,6 +19,7 @@ import { usePartnerInvites } from "./hooks/usePartnerInvites";
 import { useLinkedPrimaryContext } from "./hooks/useLinkedPrimaryContext";
 import { useAccountLinking } from "../account/hooks/useAccountLinking";
 import { useProfile } from "../profile/hooks/useProfile";
+import { useSupportAlerts } from "../support-alerts/hooks/useSupportAlerts";
 
 export function PartnerWorkspacePage() {
   const auth = useAppAuth();
@@ -26,6 +27,7 @@ export function PartnerWorkspacePage() {
   const { invites, isLoading: invitesLoading, createInvite, revokeInvite } = usePartnerInvites();
   const { membership, incomingInvites, isLoading: accountLoading, acceptInvite } = useAccountLinking();
   const { linkedContext, isLoading: linkedLoading, linkedTodayLog, linkedRecentLogs } = useLinkedPrimaryContext(profile.role === "prep_partner");
+  const { activeAlerts, isLoading: alertsLoading, resolveAlert } = useSupportAlerts();
   const [inviteEmail, setInviteEmail] = useState(profile.prepPartnerEmail ?? auth.user?.email ?? "");
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
 
@@ -57,7 +59,7 @@ export function PartnerWorkspacePage() {
     setInviteEmail("");
   }
 
-  if (profileLoading || invitesLoading || linkedLoading || accountLoading) {
+  if (profileLoading || invitesLoading || linkedLoading || accountLoading || alertsLoading) {
     return <div style={{ padding: 24, fontFamily: sans }}>Loading partner workspace...</div>;
   }
 
@@ -114,6 +116,33 @@ export function PartnerWorkspacePage() {
                   </div>
                   <button onClick={() => void acceptInvite(invite.id)} style={primaryButtonStyle}>
                     Accept invite
+                  </button>
+                </div>
+              ))}
+            </div>
+          </DashboardPanel>
+        </div>
+      ) : null}
+
+      {activeAlerts.length > 0 ? (
+        <div style={{ marginTop: 16 }}>
+          <DashboardPanel title="Support alerts">
+            <div style={{ display: "grid", gap: 10 }}>
+              {activeAlerts.map((alert) => (
+                <div key={alert.id} style={alertRowStyle}>
+                  <div>
+                    <div style={{ fontFamily: sans, fontSize: 13, fontWeight: 700, color: palette.text }}>
+                      Rough day support requested
+                    </div>
+                    <div style={{ fontFamily: sans, fontSize: 12, color: palette.textMuted, marginTop: 4 }}>
+                      {formatInviteDate(alert.createdAt)}
+                    </div>
+                    {alert.note ? (
+                      <div style={{ fontFamily: sans, fontSize: 12, color: palette.text, marginTop: 6, lineHeight: 1.5 }}>{alert.note}</div>
+                    ) : null}
+                  </div>
+                  <button onClick={() => void resolveAlert(alert.id)} style={primaryButtonStyle}>
+                    Mark handled
                   </button>
                 </div>
               ))}
@@ -341,6 +370,18 @@ const linkStateStyle: CSSProperties = {
   fontFamily: sans,
   fontSize: 13,
   color: palette.text,
+};
+
+const alertRowStyle: CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: 12,
+  flexWrap: "wrap",
+  borderRadius: 12,
+  border: "1px solid #f1dfb8",
+  background: "#fffaf1",
+  padding: "12px 14px",
 };
 
 const revokeButtonStyle: CSSProperties = {

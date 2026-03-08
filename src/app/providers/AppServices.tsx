@@ -10,6 +10,8 @@ import type { HouseholdRepository } from "../../features/partner/repository/Hous
 import type { PartnerInviteRepository } from "../../features/partner/repository/PartnerInviteRepository";
 import { LocalProfileRepository } from "../../features/profile/repository/localProfileRepository";
 import type { ProfileRepository } from "../../features/profile/repository/ProfileRepository";
+import { LocalSupportAlertRepository } from "../../features/support-alerts/repository/localSupportAlertRepository";
+import type { SupportAlertRepository } from "../../features/support-alerts/repository/SupportAlertRepository";
 
 type AppServices = {
   env: typeof appEnv;
@@ -19,6 +21,7 @@ type AppServices = {
   profileRepository: ProfileRepository;
   partnerInviteRepository: PartnerInviteRepository;
   householdRepository: HouseholdRepository;
+  supportAlertRepository: SupportAlertRepository;
 };
 
 const defaultServices: AppServices = {
@@ -29,6 +32,7 @@ const defaultServices: AppServices = {
   profileRepository: new LocalProfileRepository(),
   partnerInviteRepository: new LocalPartnerInviteRepository(),
   householdRepository: new LocalHouseholdRepository(),
+  supportAlertRepository: new LocalSupportAlertRepository(),
 };
 
 export const AppServicesContext = createContext<AppServices>(defaultServices);

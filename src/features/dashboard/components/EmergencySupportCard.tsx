@@ -6,10 +6,16 @@ export function EmergencySupportCard({
   hydrationProgress,
   redFlagActive,
   foods,
+  onNotifyPartner,
+  canNotifyPartner,
+  supportAlertSent,
 }: {
   hydrationProgress: string;
   redFlagActive: boolean;
   foods: Recipe[];
+  onNotifyPartner?: () => void;
+  canNotifyPartner?: boolean;
+  supportAlertSent?: boolean;
 }) {
   return (
     <div style={{ display: "grid", gap: 12 }}>
@@ -56,6 +62,23 @@ export function EmergencySupportCard({
         <Link to="/today" style={{ color: palette.accent, fontFamily: sans, fontWeight: 700, textDecoration: "none" }}>
           Open daily log →
         </Link>
+        {onNotifyPartner && canNotifyPartner ? (
+          <button
+            onClick={onNotifyPartner}
+            style={{
+              border: "none",
+              background: "transparent",
+              color: supportAlertSent ? palette.textMuted : palette.warm,
+              fontFamily: sans,
+              fontWeight: 700,
+              cursor: supportAlertSent ? "default" : "pointer",
+              padding: 0,
+            }}
+            disabled={supportAlertSent}
+          >
+            {supportAlertSent ? "Prep partner notified" : "Notify prep partner →"}
+          </button>
+        ) : null}
       </div>
     </div>
   );

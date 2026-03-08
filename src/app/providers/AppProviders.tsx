@@ -10,6 +10,8 @@ import { SupabaseHouseholdRepository } from "../../features/partner/repository/S
 import { SupabasePartnerInviteRepository } from "../../features/partner/repository/SupabasePartnerInviteRepository";
 import { LocalProfileRepository } from "../../features/profile/repository/localProfileRepository";
 import { SupabaseProfileRepository } from "../../features/profile/repository/SupabaseProfileRepository";
+import { LocalSupportAlertRepository } from "../../features/support-alerts/repository/localSupportAlertRepository";
+import { SupabaseSupportAlertRepository } from "../../features/support-alerts/repository/SupabaseSupportAlertRepository";
 import { createSupabaseBrowserClient } from "../../integrations/supabase/client";
 import { AppAuthProvider } from "./AppAuth";
 import { AppServicesContext, createAppServices } from "./AppServices";
@@ -32,6 +34,7 @@ function AppServicesProvider({ children }: PropsWithChildren) {
     const localProfileRepository = new LocalProfileRepository();
     const localPartnerInviteRepository = new LocalPartnerInviteRepository();
     const localHouseholdRepository = new LocalHouseholdRepository();
+    const localSupportAlertRepository = new LocalSupportAlertRepository();
     const supabaseClient =
       auth.mode === "workos" && auth.user
         ? createSupabaseBrowserClient(auth.getAccessToken)
@@ -54,6 +57,8 @@ function AppServicesProvider({ children }: PropsWithChildren) {
           ? new SupabasePartnerInviteRepository(supabaseClient, auth.user.id)
           : localPartnerInviteRepository,
       householdRepository: supabaseClient ? new SupabaseHouseholdRepository(supabaseClient) : localHouseholdRepository,
+      supportAlertRepository:
+        supabaseClient && auth.user ? new SupabaseSupportAlertRepository(supabaseClient, auth.user.id) : localSupportAlertRepository,
     });
   }, [auth.getAccessToken, auth.mode, auth.user]);
 

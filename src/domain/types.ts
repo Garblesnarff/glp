@@ -19,6 +19,7 @@ export type FoodMood = "excited" | "neutral" | "anxious" | "sad" | "overwhelmed"
 export type PortionSize = "mini" | "half" | "full";
 export type MealTolerance = "easy" | "okay" | "rough";
 export type PartnerInviteStatus = "pending" | "accepted" | "revoked";
+export type SupportAlertStatus = "active" | "resolved";
 export type AccountMembership = {
   accountId: string;
   role: AccountRole;
@@ -85,4 +86,15 @@ export type PartnerInvite = {
   role: "prep_partner";
   status: PartnerInviteStatus;
   createdAt: string;
+};
+
+export type SupportAlert = {
+  id: string;
+  accountId?: string;
+  createdByUserId?: string;
+  kind: "rough_day";
+  status: SupportAlertStatus;
+  note?: string;
+  createdAt: string;
+  resolvedAt?: string;
 };

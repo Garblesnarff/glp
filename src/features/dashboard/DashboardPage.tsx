@@ -6,6 +6,8 @@ import { RecipeCard } from "../meal-planner/components/RecipeCard";
 import { RecipeModal } from "../meal-planner/components/RecipeModal";
 import type { Recipe } from "../meal-planner/types";
 import { useProfile } from "../profile/hooks/useProfile";
+import { useAccountLinking } from "../account/hooks/useAccountLinking";
+import { useSupportAlerts } from "../support-alerts/hooks/useSupportAlerts";
 import { DashboardMetricCard } from "./components/DashboardMetricCard";
 import { DashboardPanel } from "./components/DashboardPanel";
 import { EmergencySupportCard } from "./components/EmergencySupportCard";
@@ -25,6 +27,8 @@ import {
 export function DashboardPage() {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const { profile, profileReady, todayLog, recentLogs, isLoading, addHydration, setAppetiteLevel, setSymptomSeverity } = useProfile();
+  const { membership } = useAccountLinking();
+  const { activeAlerts, createRoughDayAlert } = useSupportAlerts();
   const daysSinceStart = profile.medicationStartDate ? getDaysSince(profile.medicationStartDate) : 0;
   const nextShot = getNextShotLabel(profile.shotDay);
   const hydrationPct = Math.min((todayLog.hydrationOz / profile.hydrationGoal) * 100, 100);
@@ -37,6 +41,7 @@ export function DashboardPage() {
   const emergencyFoods = getEmergencyFoods(profile, todayLog);
   const mealRecommendations = getDashboardMealRecommendations(profile, todayLog, undefined, recentLogs);
   const redFlagActive = hasRedFlagSymptoms(todayLog);
+  const roughDayAlertActive = activeAlerts.some((alert) => alert.kind === "rough_day");
 
   if (isLoading) {
     return <div style={{ padding: 24, fontFamily: sans }}>Loading dashboard...</div>;
@@ -134,6 +139,13 @@ export function DashboardPage() {
             hydrationProgress={hydrationStatus}
             redFlagActive={redFlagActive}
             foods={emergencyFoods}
+            canNotifyPartner={profile.role === "primary" && Boolean(membership)}
+            supportAlertSent={roughDayAlertActive}
+            onNotifyPartner={() => {
+              if (!roughDayAlertActive) {
+                void createRoughDayAlert(buildRoughDayAlertNote(activeSymptoms.map(([symptom]) => symptom), todayLog.appetiteLevel));
+              }
+            }}
           />
         </DashboardPanel>
       </div>
@@ -171,6 +183,11 @@ export function DashboardPage() {
       {selectedRecipe ? <RecipeModal recipe={selectedRecipe} onClose={() => setSelectedRecipe(null)} /> : null}
     </div>
   );
+}
+
+function buildRoughDayAlertNote(symptoms: string[], appetiteLevel: string) {
+  const symptomLabel = symptoms.length > 0 ? symptoms.slice(0, 3).join(", ") : "symptoms not specified";
+  return `Rough day support requested. Appetite: ${appetiteLevel}. Symptoms: ${symptomLabel}.`;
 }
 
 const ctaLinkStyle: CSSProperties = {

@@ -123,13 +123,19 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - Legacy single-user rows still have a safe `user_id` fallback path during migration
    - The planner UI now indicates when the current view is operating on a shared household plan
 
+13. **Rough-day partner alert foundation**
+   - Primary users can now trigger an account-scoped rough-day support alert from the emergency support card
+   - Prep partners can see active support alerts in the partner workspace and mark them handled
+   - Support alerts now have an explicit repository layer and Supabase table/RLS policy scaffold
+   - The emergency flow now reaches across the shared household model instead of staying single-user only
+
 ### What is still scaffolded vs complete
 
 - **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early tolerance-aware ranking, but still not yet personalized by deeper long-term correlation modeling
 - **Symptom tracker**: dedicated daily log and history views now exist, and meal-response capture is now attached to the daily workflow, but no charting, export, or clinician-style trend review yet
 - **Hydration tracker**: tap-based increments and hydration-risk logic exist, but not yet full bottle/glass visualization, reminders, or notification logic
-- **Emergency support**: dashboard emergency card and standalone red-flag route now exist, but no partner notification flow yet
-- **Prep partner model**: route, invite UI, linked-primary shared reads, and first-pass invite acceptance now exist, but there is still no polished invite acceptance UX, account unlink/recovery flow, or partner-specific notification system yet
+- **Emergency support**: dashboard emergency card, red-flag route, and first-pass partner rough-day alerts now exist, but there is still no push delivery, reminder scheduling, or escalation logic beyond the in-app account alert
+- **Prep partner model**: route, invite UI, linked-primary shared reads, first-pass invite acceptance, and rough-day support alerts now exist, but there is still no polished invite acceptance UX, account unlink/recovery flow, or broader notification system yet
 - **Planner/grocery sharing**: account-scoped persistence is now wired for Supabase-backed sessions, but local mode remains personal-only and there is not yet explicit conflict handling or audit/history for shared edits
 - **Recommendation engine**: now partially structured, explainable, and lightly personalized via recent tolerance feedback, but still not powered by true symptom correlations, durable preference memory, or longer-term longitudinal modeling
 - **History/trends**: recent history exists as a browsable view, but not yet charted or analyzed beyond summary logic
