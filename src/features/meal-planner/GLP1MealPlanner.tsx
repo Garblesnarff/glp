@@ -35,6 +35,9 @@ export function GLP1MealPlanner({ initialTab = "recipes" }: { initialTab?: "reci
         <div style={{ fontSize: 11, fontFamily: sans, opacity: 0.6, marginTop: 2 }}>
           Egg-free · Gluten-free · No seafood · No sausage
         </div>
+        <div style={{ fontSize: 11, fontFamily: sans, opacity: 0.78, marginTop: 6 }}>
+          {planner.scopeLabel}
+        </div>
       </div>
 
       <div

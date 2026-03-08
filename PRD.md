@@ -117,6 +117,12 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - Supabase account/account-member RLS policies now exist for account creation, membership insertion, and invitee-side invite acceptance
    - The app now has an explicit account-linking repository layer instead of burying account lifecycle logic inside profile code
 
+12. **Shared planner/grocery household scope**
+   - Supabase meal-planner state now supports account-scoped storage via `account_id`
+   - Planner and grocery data can now resolve through shared household membership instead of staying strictly user-scoped
+   - Legacy single-user rows still have a safe `user_id` fallback path during migration
+   - The planner UI now indicates when the current view is operating on a shared household plan
+
 ### What is still scaffolded vs complete
 
 - **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early tolerance-aware ranking, but still not yet personalized by deeper long-term correlation modeling
@@ -124,6 +130,7 @@ The codebase has moved beyond the original single-screen artifact and now includ
 - **Hydration tracker**: tap-based increments and hydration-risk logic exist, but not yet full bottle/glass visualization, reminders, or notification logic
 - **Emergency support**: dashboard emergency card and standalone red-flag route now exist, but no partner notification flow yet
 - **Prep partner model**: route, invite UI, linked-primary shared reads, and first-pass invite acceptance now exist, but there is still no polished invite acceptance UX, account unlink/recovery flow, or partner-specific notification system yet
+- **Planner/grocery sharing**: account-scoped persistence is now wired for Supabase-backed sessions, but local mode remains personal-only and there is not yet explicit conflict handling or audit/history for shared edits
 - **Recommendation engine**: now partially structured, explainable, and lightly personalized via recent tolerance feedback, but still not powered by true symptom correlations, durable preference memory, or longer-term longitudinal modeling
 - **History/trends**: recent history exists as a browsable view, but not yet charted or analyzed beyond summary logic
 

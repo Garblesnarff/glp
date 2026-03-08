@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAppServices } from "../../../app/providers/AppServices";
+import { useAccountLinking } from "../../account/hooks/useAccountLinking";
 import { RECIPES } from "../data/recipes";
 import {
   assignRecipeToWeekPlan,
@@ -14,6 +15,7 @@ import type { AssignSlot, GroceryState, MealType, PlannerTab, Recipe, WeekPlan }
 
 export function useMealPlanner(initialTab: PlannerTab = "recipes") {
   const { mealPlanRepository } = useAppServices();
+  const { membership } = useAccountLinking();
   const [tab, setTab] = useState<PlannerTab>(initialTab);
   const [search, setSearch] = useState("");
   const [mealFilter, setMealFilter] = useState<MealType | "all">("all");
@@ -111,5 +113,7 @@ export function useMealPlanner(initialTab: PlannerTab = "recipes") {
     clearSlot,
     clearWeek,
     startAssigning,
+    scopeLabel: membership ? "Shared household plan" : "Personal plan",
+    isSharedScope: Boolean(membership),
   };
 }
