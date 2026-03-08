@@ -8,10 +8,12 @@ import { QuickCheckInCard } from "../dashboard/components/QuickCheckInCard";
 import { RecentTrendsCard } from "./components/RecentTrendsCard";
 import { MealResponseCard } from "./components/MealResponseCard";
 import { ConstipationSupportCard } from "./components/ConstipationSupportCard";
+import { DailyChecklistCard } from "./components/DailyChecklistCard";
 import { RECIPES } from "../meal-planner/data/recipes";
 import {
   getActiveSymptoms,
   getConstipationSupportPlan,
+  getDailyChecklistSummary,
   getDashboardMealRecommendations,
   getDashboardMessages,
   getHydrationRiskSummary,
@@ -36,6 +38,7 @@ export function DailyLogPage() {
     removeMealEntry,
     setBowelMovement,
     toggleMovementActivity,
+    toggleSupplement,
   } = useProfile();
 
   if (isLoading) {
@@ -51,6 +54,7 @@ export function DailyLogPage() {
   const trendSummary = getRecentLogTrendSummary(recentLogs);
   const mealRecommendations = getDashboardMealRecommendations(profile, todayLog, RECIPES, recentLogs);
   const constipationPlan = getConstipationSupportPlan(profile, todayLog, recentLogs, RECIPES);
+  const checklistSummary = getDailyChecklistSummary(todayLog);
 
   return (
     <div style={{ maxWidth: 920, margin: "0 auto", padding: "24px 16px 80px" }}>
@@ -143,6 +147,19 @@ export function DailyLogPage() {
       </div>
 
       <div style={{ marginTop: 16 }}>
+        <DashboardPanel title="Supplements and movement">
+          <DailyChecklistCard
+            supplements={todayLog.supplements}
+            movement={todayLog.movement}
+            supplementTargetCount={checklistSummary.supplementTargetCount}
+            movementSummary={checklistSummary.movementSummary}
+            onToggleSupplement={(value) => void toggleSupplement(value)}
+            onToggleMovement={(value) => void toggleMovementActivity(value)}
+          />
+        </DashboardPanel>
+      </div>
+
+      <div style={{ marginTop: 16 }}>
         <DashboardPanel title="Constipation support">
           <ConstipationSupportCard
             daysSinceBowelMovement={constipationPlan.daysSinceBowelMovement}
@@ -189,6 +206,10 @@ export function DailyLogPage() {
             lowAppetiteDays={trendSummary.lowAppetiteDays}
             avgFoodNoise={trendSummary.avgFoodNoise}
             difficultFoodMoodDays={trendSummary.difficultFoodMoodDays}
+            supplementDays={trendSummary.supplementDays}
+            proteinSupplementDays={trendSummary.proteinSupplementDays}
+            movementDays={trendSummary.movementDays}
+            strengthDays={trendSummary.strengthDays}
           />
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
             <Link to="/history" style={secondaryLinkStyle}>

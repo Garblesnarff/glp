@@ -5,6 +5,7 @@ import {
   getDashboardMealRecommendations,
   getDashboardMessages,
   getConstipationSupportPlan,
+  getDailyChecklistSummary,
   getDaysSinceLastBowelMovement,
   getEmergencyFoods,
   getHydrationRiskSummary,
@@ -70,11 +71,15 @@ describe("dashboard support", () => {
     first.hydrationOz = 40;
     first.symptoms.nausea = "mild";
     first.foodNoiseLevel = 2;
+    first.supplements = ["Protein supplement", "Magnesium"];
+    first.movement = ["10-minute walk"];
     const second = createDefaultDailyLog("2026-03-06");
     second.hydrationOz = 64;
     second.appetiteLevel = "low";
     second.foodMood = "anxious";
     second.foodNoiseLevel = 4;
+    second.supplements = ["Multivitamin"];
+    second.movement = ["Strength session"];
 
     const summary = getRecentLogTrendSummary([first, second]);
 
@@ -83,6 +88,21 @@ describe("dashboard support", () => {
     expect(summary.lowAppetiteDays).toBe(1);
     expect(summary.avgFoodNoise).toBe(3);
     expect(summary.difficultFoodMoodDays).toBe(1);
+    expect(summary.supplementDays).toBe(2);
+    expect(summary.proteinSupplementDays).toBe(1);
+    expect(summary.movementDays).toBe(2);
+    expect(summary.strengthDays).toBe(1);
+  });
+
+  test("summarizes supplement and movement checklist state", () => {
+    const log = createDefaultDailyLog("2026-03-07");
+    log.supplements = ["Protein supplement", "Magnesium"];
+    log.movement = ["Strength session"];
+
+    const summary = getDailyChecklistSummary(log);
+
+    expect(summary.supplementTargetCount).toBe(5);
+    expect(summary.movementSummary).toBe("Strength work is logged today.");
   });
 
   test("explains why a recipe was recommended", () => {

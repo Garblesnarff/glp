@@ -235,6 +235,10 @@ export function getRecentLogTrendSummary(recentLogs: DailyLog[]) {
       lowAppetiteDays: 0,
       avgFoodNoise: 0,
       difficultFoodMoodDays: 0,
+      supplementDays: 0,
+      proteinSupplementDays: 0,
+      movementDays: 0,
+      strengthDays: 0,
     };
   }
 
@@ -256,6 +260,18 @@ export function getRecentLogTrendSummary(recentLogs: DailyLog[]) {
       if (log.foodMood === "anxious" || log.foodMood === "sad" || log.foodMood === "overwhelmed") {
         acc.difficultFoodMoodDays += 1;
       }
+      if (log.supplements.length > 0) {
+        acc.supplementDays += 1;
+      }
+      if (log.supplements.includes("Protein supplement")) {
+        acc.proteinSupplementDays += 1;
+      }
+      if (log.movement.length > 0) {
+        acc.movementDays += 1;
+      }
+      if (log.movement.includes("Strength session")) {
+        acc.strengthDays += 1;
+      }
       acc.totalHydrationOz += log.hydrationOz;
       acc.totalFoodNoise += log.foodNoiseLevel;
       return acc;
@@ -268,6 +284,10 @@ export function getRecentLogTrendSummary(recentLogs: DailyLog[]) {
       totalHydrationOz: 0,
       difficultFoodMoodDays: 0,
       totalFoodNoise: 0,
+      supplementDays: 0,
+      proteinSupplementDays: 0,
+      movementDays: 0,
+      strengthDays: 0,
     },
   );
 
@@ -279,6 +299,28 @@ export function getRecentLogTrendSummary(recentLogs: DailyLog[]) {
     lowAppetiteDays: totals.lowAppetiteDays,
     avgFoodNoise: Math.round((totals.totalFoodNoise / recentLogs.length) * 10) / 10,
     difficultFoodMoodDays: totals.difficultFoodMoodDays,
+    supplementDays: totals.supplementDays,
+    proteinSupplementDays: totals.proteinSupplementDays,
+    movementDays: totals.movementDays,
+    strengthDays: totals.strengthDays,
+  };
+}
+
+export function getDailyChecklistSummary(log: DailyLog) {
+  const supplementTargetCount = 5;
+  const movementDone = log.movement.length > 0;
+  const strengthDone = log.movement.includes("Strength session");
+
+  let movementSummary = "No movement logged yet.";
+  if (strengthDone) {
+    movementSummary = "Strength work is logged today.";
+  } else if (movementDone) {
+    movementSummary = "Light movement is logged today.";
+  }
+
+  return {
+    supplementTargetCount,
+    movementSummary,
   };
 }
 

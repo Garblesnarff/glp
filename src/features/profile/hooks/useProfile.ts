@@ -158,6 +158,18 @@ export function useProfile() {
     });
   }
 
+  async function toggleSupplement(name: string) {
+    const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
+    const nextSupplements = currentLog.supplements.includes(name)
+      ? currentLog.supplements.filter((item) => item !== name)
+      : [...currentLog.supplements, name];
+
+    await saveTodayLog({
+      ...currentLog,
+      supplements: nextSupplements,
+    });
+  }
+
   return {
     isLoading,
     profile: profile ?? defaultUserProfile,
@@ -179,5 +191,6 @@ export function useProfile() {
     saveMedicationLog,
     setBowelMovement,
     toggleMovementActivity,
+    toggleSupplement,
   };
 }

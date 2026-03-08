@@ -9,6 +9,10 @@ export function RecentTrendsCard({
   lowAppetiteDays,
   avgFoodNoise,
   difficultFoodMoodDays,
+  supplementDays,
+  proteinSupplementDays,
+  movementDays,
+  strengthDays,
 }: {
   symptomDays: number;
   avgHydrationOz: number;
@@ -17,6 +21,10 @@ export function RecentTrendsCard({
   lowAppetiteDays: number;
   avgFoodNoise: number;
   difficultFoodMoodDays: number;
+  supplementDays: number;
+  proteinSupplementDays: number;
+  movementDays: number;
+  strengthDays: number;
 }) {
   return (
     <div style={{ display: "grid", gap: 12 }}>
@@ -27,9 +35,11 @@ export function RecentTrendsCard({
         <TrendMetric label="Low appetite days" value={`${lowAppetiteDays}`} />
         <TrendMetric label="Avg food noise" value={`${avgFoodNoise}/5`} />
         <TrendMetric label="Hard food days" value={`${difficultFoodMoodDays}`} />
+        <TrendMetric label="Supplement days" value={`${supplementDays}/7`} />
+        <TrendMetric label="Movement days" value={`${movementDays}/7`} />
       </div>
       <div style={{ fontFamily: sans, color: palette.textMuted, fontSize: 13, lineHeight: 1.6 }}>
-        Constipation was logged on {constipationDays} of the last 7 tracked days. Use this trend to decide whether to push fluids, gentler fiber, or movement support next.
+        Constipation was logged on {constipationDays} of the last 7 tracked days. Protein supplement support was logged on {proteinSupplementDays} day{proteinSupplementDays === 1 ? "" : "s"}, and strength work on {strengthDays} day{strengthDays === 1 ? "" : "s"}.
       </div>
     </div>
   );
