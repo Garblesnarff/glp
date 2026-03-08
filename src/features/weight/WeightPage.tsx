@@ -2,6 +2,7 @@ import { useMemo, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { font, palette, sans } from "../meal-planner/constants";
 import { DashboardPanel } from "../dashboard/components/DashboardPanel";
+import { getConsistencySummary } from "../dashboard/consistency";
 import { useProfile } from "../profile/hooks/useProfile";
 import { getWeightTrendSummary } from "./weight";
 import type { WeightLog } from "../../domain/types";
@@ -18,6 +19,7 @@ export function WeightPage() {
   const [note, setNote] = useState("");
 
   const summary = useMemo(() => getWeightTrendSummary(weightLogs, recentLogs), [weightLogs, recentLogs]);
+  const consistency = useMemo(() => getConsistencySummary(profile, recentLogs), [profile, recentLogs]);
 
   if (isLoading) {
     return <div style={{ padding: 24, fontFamily: sans }}>Loading weight tracking...</div>;
@@ -90,8 +92,20 @@ export function WeightPage() {
             <MetricRow label="Goal weight" value={profile.goalWeight ? `${profile.goalWeight} lbs` : "Not set"} />
             <MetricRow label="Hydration consistency" value={`${summary.hydrationDays}/7 days at 64+ oz`} />
             <MetricRow label="Protein consistency" value={`${summary.proteinDays}/7 days at 100+ g`} />
+            <MetricRow label="Hydration streak" value={`${consistency.hydrationStreak} day${consistency.hydrationStreak === 1 ? "" : "s"}`} />
+            <MetricRow label="Protein streak" value={`${consistency.proteinStreak} day${consistency.proteinStreak === 1 ? "" : "s"}`} />
             <div style={contextBoxStyle}>{summary.framing}</div>
           </div>
+        </DashboardPanel>
+      </div>
+
+      <div style={{ marginTop: 16 }}>
+        <DashboardPanel title="Celebrate consistency">
+          <ul style={{ margin: 0, paddingLeft: 18, fontFamily: sans, color: palette.textMuted, lineHeight: 1.8, fontSize: 14 }}>
+            {consistency.wins.map((message) => (
+              <li key={message}>{message}</li>
+            ))}
+          </ul>
         </DashboardPanel>
       </div>
 

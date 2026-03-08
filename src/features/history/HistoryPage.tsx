@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { font, palette, sans } from "../meal-planner/constants";
 import { DashboardPanel } from "../dashboard/components/DashboardPanel";
+import { getConsistencySummary } from "../dashboard/consistency";
 import { useProfile } from "../profile/hooks/useProfile";
 import { getActiveSymptoms, getHydrationRiskSummary, getRecentLogTrendSummary, getRecentMealFeedbackSummary } from "../dashboard/support";
 import type { DailyLog } from "../../domain/types";
@@ -19,6 +20,7 @@ export function HistoryPage() {
   const mealFeedbackSummary = getRecentMealFeedbackSummary(recentLogs);
   const patternSummary = getHistoryPatternSummary(recentLogs, medicationLogs);
   const correlationSeries = getDailyCorrelationSeries(recentLogs, medicationLogs);
+  const consistency = getConsistencySummary(profile, recentLogs);
 
   return (
     <div style={{ maxWidth: 960, margin: "0 auto", padding: "24px 16px 80px" }}>
@@ -55,7 +57,19 @@ export function HistoryPage() {
             <SnapshotMetric label="Meals logged" value={`${mealFeedbackSummary.loggedMeals}`} />
             <SnapshotMetric label="Easy meals" value={`${mealFeedbackSummary.easyMeals}`} />
             <SnapshotMetric label="Rough meals" value={`${mealFeedbackSummary.roughMeals}`} />
+            <SnapshotMetric label="Hydration streak" value={`${consistency.hydrationStreak}`} />
+            <SnapshotMetric label="Protein streak" value={`${consistency.proteinStreak}`} />
           </div>
+        </DashboardPanel>
+      </div>
+
+      <div style={{ marginTop: 16 }}>
+        <DashboardPanel title="Consistency wins">
+          <ul style={{ margin: 0, paddingLeft: 18, fontFamily: sans, color: palette.textMuted, lineHeight: 1.8, fontSize: 14 }}>
+            {consistency.wins.map((message) => (
+              <li key={message}>{message}</li>
+            ))}
+          </ul>
         </DashboardPanel>
       </div>
 

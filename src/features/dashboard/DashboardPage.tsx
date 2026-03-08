@@ -14,6 +14,7 @@ import { DashboardPanel } from "./components/DashboardPanel";
 import { EmergencySupportCard } from "./components/EmergencySupportCard";
 import { HydrationCard } from "./components/HydrationCard";
 import { QuickCheckInCard } from "./components/QuickCheckInCard";
+import { getConsistencySummary } from "./consistency";
 import { getCompanionReminders } from "./reminders";
 import {
   getActiveSymptoms,
@@ -60,6 +61,7 @@ export function DashboardPage() {
   const roughDayAlertActive = activeAlerts.some((alert) => alert.kind === "rough_day");
   const reminders = getCompanionReminders(profile, todayLog, recentLogs, medicationLogs);
   const supportHabits = getSupportHabitsSummary(todayLog, recentLogs);
+  const consistency = getConsistencySummary(profile, recentLogs);
 
   if (isLoading) {
     return <div style={{ padding: 24, fontFamily: sans }}>Loading dashboard...</div>;
@@ -208,6 +210,32 @@ export function DashboardPage() {
               </Link>
               <Link to="/history" style={secondaryLinkStyle}>
                 Review habit trend
+              </Link>
+            </div>
+          </div>
+        </DashboardPanel>
+      </div>
+
+      <div style={{ marginTop: 18 }}>
+        <DashboardPanel title="Consistency wins">
+          <div style={{ display: "grid", gap: 10 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <span style={supportBadgeStyle(consistency.hydrationStreak >= 3)}>{consistency.hydrationStreak} hydration days</span>
+              <span style={supportBadgeStyle(consistency.proteinStreak >= 3)}>{consistency.proteinStreak} protein days</span>
+              <span style={supportBadgeStyle(consistency.movementStreak >= 2)}>{consistency.movementStreak} movement days</span>
+              <span style={supportBadgeStyle(consistency.loggingStreak >= 3)}>{consistency.loggingStreak} logging days</span>
+            </div>
+            <ul style={{ margin: 0, paddingLeft: 18, fontFamily: sans, color: palette.textMuted, lineHeight: 1.8, fontSize: 14 }}>
+              {consistency.wins.map((message) => (
+                <li key={message}>{message}</li>
+              ))}
+            </ul>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              <Link to="/weight" style={secondaryLinkStyle}>
+                See weight in context
+              </Link>
+              <Link to="/history" style={secondaryLinkStyle}>
+                Review recent trend
               </Link>
             </div>
           </div>

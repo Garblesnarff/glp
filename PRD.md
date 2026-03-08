@@ -178,6 +178,12 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - Saving a new weigh-in updates the current profile weight and recalculates protein targets from the newer body weight
    - Supabase and local persistence paths now exist for durable weight-log storage
 
+22. **Consistency streak and celebration foundation**
+   - Dashboard now derives hydration, protein, movement, and logging streaks from the recent log window
+   - A dedicated “Consistency wins” layer now highlights streak-based behavior wins instead of only raw symptom or scale data
+   - History and weight views now reuse the same celebration framing so progress is reinforced across the app
+   - This is the first implementation step toward the PRD’s “streaks, not perfection” motivational model
+
 ### What is still scaffolded vs complete
 
 - **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early tolerance-aware ranking, but still not yet personalized by deeper long-term correlation modeling
@@ -186,7 +192,7 @@ The codebase has moved beyond the original single-screen artifact and now includ
 - **Medication timeline**: dedicated route and first logging workflow now exist, but there is still no automatic recurring schedule, missed-dose reminders, or true correlation/visual analytics with symptoms and food tolerance yet
 - **Trend analysis**: first pattern and correlation summaries now exist in history, but there are still no true charts, longitudinal scoring models, or recommendation loops driven by these correlations yet
 - **Constipation workflow**: first bowel-movement tracking and support prompts now exist, but there is still no Bristol stool scale, persistent escalation timer beyond recent logs, or automated reminder scheduling yet
-- **Food relationship tracking**: food noise and food mood are now active parts of the daily workflow and trends, but there is still no dedicated coaching layer, celebration framing, or recommendation logic based on these signals yet
+- **Food relationship tracking**: food noise and food mood are now active parts of the daily workflow and trends, but there is still no dedicated coaching layer or recommendation logic based on these signals yet
 - **Reminder system**: in-app reminders now exist for core companion workflows, but there is still no scheduling engine, push delivery, refill reminders, or user-configurable reminder preferences yet
 - **Supplement and movement support**: checklist logging, first adherence nudges, and basic coaching now exist, but there is still no clinician-configurable regimen, custom supplement library, or scheduled reminder delivery yet
 - **Emergency support**: dashboard emergency card, red-flag route, and first-pass partner rough-day alerts now exist, but there is still no push delivery, reminder scheduling, or escalation logic beyond the in-app account alert
@@ -194,7 +200,7 @@ The codebase has moved beyond the original single-screen artifact and now includ
 - **Planner/grocery sharing**: account-scoped persistence is now wired for Supabase-backed sessions, but local mode remains personal-only and there is not yet explicit conflict handling or audit/history for shared edits
 - **Recommendation engine**: now partially structured, explainable, and lightly personalized via recent tolerance feedback, but still not powered by true symptom correlations, durable preference memory, or longer-term longitudinal modeling
 - **History/trends**: recent history exists as a browsable view, but not yet charted or analyzed beyond summary logic
-- **Weight tracking**: dedicated logging and better framing now exist, but there is still no charting, celebration system, waist/clothes-fit trend visualization, or deeper correlation with medication phases yet
+- **Weight tracking**: dedicated logging, framing, and consistency celebration now exist, but there is still no charting, waist/clothes-fit trend visualization, or deeper correlation with medication phases yet
 
 ---
 
