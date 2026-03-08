@@ -298,6 +298,52 @@ export function getRecentMealFeedbackSummary(recentLogs: DailyLog[]) {
   );
 }
 
+export function getDaysSinceLastBowelMovement(log: DailyLog, recentLogs: DailyLog[]) {
+  if (log.bowelMovement) {
+    return 0;
+  }
+
+  const sortedLogs = [log, ...recentLogs.filter((entry) => entry.date !== log.date)].sort((a, b) => b.date.localeCompare(a.date));
+  const lastIndex = sortedLogs.findIndex((entry) => entry.bowelMovement);
+
+  return lastIndex === -1 ? null : lastIndex;
+}
+
+export function getConstipationSupportPlan(profile: UserProfile, log: DailyLog, recentLogs: DailyLog[], recipes: Recipe[] = RECIPES) {
+  const daysSinceBowelMovement = getDaysSinceLastBowelMovement(log, recentLogs);
+  const constipationActive = severityScore[log.symptoms.constipation] >= 1;
+  const escalationActive = daysSinceBowelMovement !== null ? daysSinceBowelMovement >= 3 : constipationActive;
+  const movementDone = log.movement.includes("10-minute walk");
+
+  const prompts = [
+    `${Math.max(0, profile.hydrationGoal - log.hydrationOz)} oz remain toward today's hydration goal.`,
+    movementDone ? "Short movement is already logged today." : "A short walk can help move things along when constipation is active.",
+    escalationActive
+      ? "Constipation has persisted long enough that it may need escalation instead of just waiting it out."
+      : "Favor gentle fiber today instead of forcing very heavy foods if your stomach feels sensitive.",
+  ];
+
+  const recipeSuggestions = recipes
+    .filter((recipe) => recipe.glp1.constipationSupport === "medium" || recipe.glp1.constipationSupport === "high")
+    .filter((recipe) => recipe.glp1.appetiteLevel.includes(log.appetiteLevel))
+    .sort((a, b) => {
+      const supportRank = supportValue(b.glp1.constipationSupport) - supportValue(a.glp1.constipationSupport);
+      if (supportRank !== 0) {
+        return supportRank;
+      }
+      return a.glp1.heaviness - b.glp1.heaviness;
+    })
+    .slice(0, 3);
+
+  return {
+    daysSinceBowelMovement,
+    escalationActive,
+    movementDone,
+    prompts,
+    recipeSuggestions,
+  };
+}
+
 function getRecipeToleranceScores(recentLogs: DailyLog[]) {
   const scores = new Map<string, number>();
 
@@ -327,4 +373,17 @@ function getMealEntryScore(meal: DailyLogMealEntry) {
   }
 
   return score;
+}
+
+function supportValue(level: "none" | "low" | "medium" | "high") {
+  if (level === "high") {
+    return 3;
+  }
+  if (level === "medium") {
+    return 2;
+  }
+  if (level === "low") {
+    return 1;
+  }
+  return 0;
 }

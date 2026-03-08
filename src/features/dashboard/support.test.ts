@@ -4,6 +4,8 @@ import {
   getActiveSymptoms,
   getDashboardMealRecommendations,
   getDashboardMessages,
+  getConstipationSupportPlan,
+  getDaysSinceLastBowelMovement,
   getEmergencyFoods,
   getHydrationRiskSummary,
   getRecentMealFeedbackSummary,
@@ -161,5 +163,28 @@ describe("dashboard support", () => {
     expect(summary.easyMeals).toBe(1);
     expect(summary.roughMeals).toBe(1);
     expect(summary.repeatYesMeals).toBe(1);
+  });
+
+  test("tracks days since last bowel movement", () => {
+    const today = createDefaultDailyLog("2026-03-07");
+    const yesterday = createDefaultDailyLog("2026-03-06");
+    const twoDaysAgo = createDefaultDailyLog("2026-03-05");
+    twoDaysAgo.bowelMovement = true;
+
+    const days = getDaysSinceLastBowelMovement(today, [yesterday, twoDaysAgo]);
+
+    expect(days).toBe(2);
+  });
+
+  test("builds a constipation support plan with escalation", () => {
+    const profile = defaultUserProfile;
+    const today = createDefaultDailyLog("2026-03-07");
+    today.symptoms.constipation = "moderate";
+    const previous = createDefaultDailyLog("2026-03-06");
+
+    const plan = getConstipationSupportPlan(profile, today, [previous]);
+
+    expect(plan.escalationActive).toBe(true);
+    expect(plan.recipeSuggestions.length).toBeGreaterThan(0);
   });
 });

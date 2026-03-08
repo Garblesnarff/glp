@@ -122,6 +122,26 @@ export function useProfile() {
     await profileRepository.saveMedicationLogs(nextLogs);
   }
 
+  async function setBowelMovement(hasBowelMovement: boolean) {
+    const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
+    await saveTodayLog({
+      ...currentLog,
+      bowelMovement: hasBowelMovement,
+    });
+  }
+
+  async function toggleMovementActivity(activity: string) {
+    const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
+    const nextMovement = currentLog.movement.includes(activity)
+      ? currentLog.movement.filter((item) => item !== activity)
+      : [...currentLog.movement, activity];
+
+    await saveTodayLog({
+      ...currentLog,
+      movement: nextMovement,
+    });
+  }
+
   return {
     isLoading,
     profile: profile ?? defaultUserProfile,
@@ -139,5 +159,7 @@ export function useProfile() {
     saveMealEntry,
     removeMealEntry,
     saveMedicationLog,
+    setBowelMovement,
+    toggleMovementActivity,
   };
 }

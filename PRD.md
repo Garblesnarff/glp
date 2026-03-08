@@ -141,6 +141,12 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - The codebase now has explicit analysis helpers for medication/tolerance correlations instead of only raw summary cards
    - This is the first implementation step toward the PRD’s food-tolerance and dose-correlation trend layer
 
+16. **Constipation support workflow foundation**
+   - Daily log now includes a dedicated constipation support card instead of treating constipation as only a symptom toggle
+   - Users can log a bowel movement, mark a short walk complete, and get hydration plus gentler-fiber prompts in one place
+   - The app now estimates days since last bowel movement from recent logs and raises an escalation state when constipation persists
+   - Constipation support now surfaces fiber-friendly recipe suggestions from the enriched meal metadata
+
 ### What is still scaffolded vs complete
 
 - **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early tolerance-aware ranking, but still not yet personalized by deeper long-term correlation modeling
@@ -148,6 +154,7 @@ The codebase has moved beyond the original single-screen artifact and now includ
 - **Hydration tracker**: tap-based increments and hydration-risk logic exist, but not yet full bottle/glass visualization, reminders, or notification logic
 - **Medication timeline**: dedicated route and first logging workflow now exist, but there is still no automatic recurring schedule, missed-dose reminders, or true correlation/visual analytics with symptoms and food tolerance yet
 - **Trend analysis**: first pattern and correlation summaries now exist in history, but there are still no true charts, longitudinal scoring models, or recommendation loops driven by these correlations yet
+- **Constipation workflow**: first bowel-movement tracking and support prompts now exist, but there is still no Bristol stool scale, persistent escalation timer beyond recent logs, or automated reminder scheduling yet
 - **Emergency support**: dashboard emergency card, red-flag route, and first-pass partner rough-day alerts now exist, but there is still no push delivery, reminder scheduling, or escalation logic beyond the in-app account alert
 - **Prep partner model**: route, invite UI, linked-primary shared reads, first-pass invite acceptance, and rough-day support alerts now exist, but there is still no polished invite acceptance UX, account unlink/recovery flow, or broader notification system yet
 - **Planner/grocery sharing**: account-scoped persistence is now wired for Supabase-backed sessions, but local mode remains personal-only and there is not yet explicit conflict handling or audit/history for shared edits

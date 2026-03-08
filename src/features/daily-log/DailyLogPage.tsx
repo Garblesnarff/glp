@@ -7,9 +7,11 @@ import { HydrationCard } from "../dashboard/components/HydrationCard";
 import { QuickCheckInCard } from "../dashboard/components/QuickCheckInCard";
 import { RecentTrendsCard } from "./components/RecentTrendsCard";
 import { MealResponseCard } from "./components/MealResponseCard";
+import { ConstipationSupportCard } from "./components/ConstipationSupportCard";
 import { RECIPES } from "../meal-planner/data/recipes";
 import {
   getActiveSymptoms,
+  getConstipationSupportPlan,
   getDashboardMealRecommendations,
   getDashboardMessages,
   getHydrationRiskSummary,
@@ -20,8 +22,19 @@ import {
 } from "../dashboard/support";
 
 export function DailyLogPage() {
-  const { profile, todayLog, recentLogs, isLoading, addHydration, setAppetiteLevel, setSymptomSeverity, saveMealEntry, removeMealEntry } =
-    useProfile();
+  const {
+    profile,
+    todayLog,
+    recentLogs,
+    isLoading,
+    addHydration,
+    setAppetiteLevel,
+    setSymptomSeverity,
+    saveMealEntry,
+    removeMealEntry,
+    setBowelMovement,
+    toggleMovementActivity,
+  } = useProfile();
 
   if (isLoading) {
     return <div style={{ padding: 24, fontFamily: sans }}>Loading daily log...</div>;
@@ -35,6 +48,7 @@ export function DailyLogPage() {
   const redFlagActive = hasRedFlagSymptoms(todayLog);
   const trendSummary = getRecentLogTrendSummary(recentLogs);
   const mealRecommendations = getDashboardMealRecommendations(profile, todayLog, RECIPES, recentLogs);
+  const constipationPlan = getConstipationSupportPlan(profile, todayLog, recentLogs, RECIPES);
 
   return (
     <div style={{ maxWidth: 920, margin: "0 auto", padding: "24px 16px 80px" }}>
@@ -125,6 +139,21 @@ export function DailyLogPage() {
       </div>
 
       <div style={{ marginTop: 16 }}>
+        <DashboardPanel title="Constipation support">
+          <ConstipationSupportCard
+            daysSinceBowelMovement={constipationPlan.daysSinceBowelMovement}
+            escalationActive={constipationPlan.escalationActive}
+            movementDone={constipationPlan.movementDone}
+            bowelMovementToday={Boolean(todayLog.bowelMovement)}
+            recipeSuggestions={constipationPlan.recipeSuggestions}
+            prompts={constipationPlan.prompts}
+            onToggleBowelMovement={(value) => void setBowelMovement(value)}
+            onToggleMovement={() => void toggleMovementActivity("10-minute walk")}
+          />
+        </DashboardPanel>
+      </div>
+
+      <div style={{ marginTop: 16 }}>
         <DashboardPanel title="Meal response">
           <MealResponseCard
             entries={todayLog.mealsConsumed}
@@ -145,7 +174,7 @@ export function DailyLogPage() {
           />
         </DashboardPanel>
       </div>
-
+      
       <div style={{ marginTop: 16 }}>
         <DashboardPanel title="Last 7 days">
           <RecentTrendsCard
