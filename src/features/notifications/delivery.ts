@@ -57,8 +57,10 @@ export function buildNotificationDelivery(job: NotificationJob, deliveredAt: str
     title: job.title,
     body: job.body,
     linkTo: job.linkTo,
+    requestedChannel: job.requestedChannel,
     deliveredAt,
     channel: job.channel,
     status: "new",
+    fallbackReason: job.fallbackReason,
   };
 }

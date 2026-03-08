@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { SupabaseNotificationRepository } from "../src/features/notifications/repository/SupabaseNotificationRepository";
+import { getWorkerNotificationTransportStatuses } from "../src/features/notifications/transports";
 
 const referenceDate = process.argv[2] ?? new Date().toISOString();
 const supabaseUrl = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
@@ -28,6 +29,7 @@ if (error) {
 
 const userIds = [...new Set((data ?? []).map((row) => row.user_id).filter(Boolean))];
 let deliveredCount = 0;
+const transportStatus = getWorkerNotificationTransportStatuses(process.env);
 
 for (const userId of userIds) {
   const repository = new SupabaseNotificationRepository(client, userId);
@@ -41,6 +43,7 @@ console.log(
       referenceDate,
       usersProcessed: userIds.length,
       deliveredCount,
+      transportStatus,
     },
     null,
     2,

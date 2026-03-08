@@ -8,6 +8,7 @@ import { CompanionRemindersPanel } from "../dashboard/components/CompanionRemind
 import type { ReminderPreferences } from "../../domain/types";
 import { getRefillSummary } from "./refill";
 import { useNotificationQueue } from "../notifications/hooks/useNotificationQueue";
+import { getNotificationChannelPlan } from "../notifications/channels";
 
 const shotDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const injectionSites = ["Left abdomen", "Right abdomen", "Left thigh", "Right thigh", "Left arm", "Right arm"];
@@ -45,6 +46,7 @@ export function MedicationTimelinePage() {
   const nextSuggestedSite = useMemo(() => getNextInjectionSite(latestLog?.injectionSite), [latestLog?.injectionSite]);
   const reminders = getCompanionReminders(profile, todayLog, recentLogs, medicationLogs);
   const refill = getRefillSummary(profile);
+  const channelPlan = getNotificationChannelPlan({ reminderPreferences: preferenceDraft });
 
   useEffect(() => {
     setPreferenceDraft(profile.reminderPreferences);
@@ -271,9 +273,15 @@ export function MedicationTimelinePage() {
                     <div>
                       <div style={{ fontFamily: sans, fontSize: 13, fontWeight: 700, color: palette.text }}>{job.title}</div>
                       <div style={{ fontFamily: sans, fontSize: 12, color: palette.textMuted, marginTop: 4 }}>
-                        {formatDateTime(job.sendAt)} · {job.channel} · {job.status}
+                        {formatDateTime(job.sendAt)} · via {formatChannel(job.channel)} · {job.status}
                       </div>
+                      {job.requestedChannel !== job.channel ? (
+                        <div style={{ fontFamily: sans, fontSize: 12, color: palette.textMuted, marginTop: 4 }}>
+                          Requested {formatChannel(job.requestedChannel)}
+                        </div>
+                      ) : null}
                       <div style={{ fontFamily: sans, fontSize: 12, color: palette.text, marginTop: 6, lineHeight: 1.5 }}>{job.body}</div>
+                      {job.fallbackReason ? <div style={{ ...scheduleInfoStyle, marginTop: 8 }}>{job.fallbackReason}</div> : null}
                     </div>
                   </div>
                 ))}
@@ -333,6 +341,65 @@ export function MedicationTimelinePage() {
                   style={inputStyle}
                 />
               </Field>
+              <Field label="Preferred channel">
+                <select
+                  value={preferenceDraft.preferredChannel}
+                  onChange={(event) =>
+                    setPreferenceDraft((current) => ({ ...current, preferredChannel: event.target.value as ReminderPreferences["preferredChannel"] }))
+                  }
+                  style={inputStyle}
+                >
+                  <option value="in_app">In-app inbox</option>
+                  <option value="email">Email</option>
+                  <option value="sms">SMS</option>
+                </select>
+              </Field>
+            </div>
+            <label style={checkboxLabelStyle}>
+              <input
+                type="checkbox"
+                checked={preferenceDraft.fallbackToInApp}
+                onChange={(event) => setPreferenceDraft((current) => ({ ...current, fallbackToInApp: event.target.checked }))}
+              />
+              <span>Fall back to the in-app inbox when the preferred channel is incomplete</span>
+            </label>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
+              <label style={checkboxLabelStyle}>
+                <input
+                  type="checkbox"
+                  checked={preferenceDraft.emailEnabled}
+                  onChange={(event) => setPreferenceDraft((current) => ({ ...current, emailEnabled: event.target.checked }))}
+                />
+                <span>Email reminders</span>
+              </label>
+              <label style={checkboxLabelStyle}>
+                <input
+                  type="checkbox"
+                  checked={preferenceDraft.smsEnabled}
+                  onChange={(event) => setPreferenceDraft((current) => ({ ...current, smsEnabled: event.target.checked }))}
+                />
+                <span>SMS reminders</span>
+              </label>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
+              <Field label="Reminder email">
+                <input
+                  type="email"
+                  value={preferenceDraft.emailAddress}
+                  onChange={(event) => setPreferenceDraft((current) => ({ ...current, emailAddress: event.target.value }))}
+                  placeholder="name@example.com"
+                  style={inputStyle}
+                />
+              </Field>
+              <Field label="Reminder SMS number">
+                <input
+                  type="tel"
+                  value={preferenceDraft.smsNumber}
+                  onChange={(event) => setPreferenceDraft((current) => ({ ...current, smsNumber: event.target.value }))}
+                  placeholder="+1 555 123 4567"
+                  style={inputStyle}
+                />
+              </Field>
             </div>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
               {([
@@ -354,6 +421,12 @@ export function MedicationTimelinePage() {
                   {preferenceDraft[key] ? "✓ " : ""}{label}
                 </button>
               ))}
+            </div>
+            <div style={scheduleInfoStyle}>
+              Planned channel: {formatChannel(channelPlan.requestedChannel)}.
+              {" "}
+              Current delivery path: {formatChannel(channelPlan.deliveryChannel)}{channelPlan.destinationLabel ? ` (${channelPlan.destinationLabel})` : ""}.
+              {channelPlan.fallbackReason ? ` ${channelPlan.fallbackReason}` : ""}
             </div>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
               <button
@@ -417,6 +490,14 @@ function formatDateTime(value: string) {
     hour: "numeric",
     minute: "2-digit",
   });
+}
+
+function formatChannel(value: "in_app" | "email" | "sms") {
+  if (value === "in_app") {
+    return "In-app inbox";
+  }
+
+  return value.toUpperCase();
 }
 
 const secondaryLinkStyle: CSSProperties = {

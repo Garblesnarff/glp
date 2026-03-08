@@ -20,5 +20,26 @@ describe("notification scheduling", () => {
 
     expect(jobs.length).toBeGreaterThan(0);
     expect(jobs[0]?.sendAt.includes("T13:00:00")).toBe(true);
+    expect(jobs[0]?.requestedChannel).toBe("in_app");
+  });
+
+  test("preserves the requested external channel while planning in-app fallback", () => {
+    const profile: UserProfile = {
+      ...defaultUserProfile,
+      reminderPreferences: {
+        ...defaultUserProfile.reminderPreferences,
+        preferredChannel: "email",
+        emailEnabled: true,
+        emailAddress: "user@example.com",
+      },
+    };
+    const log = createDefaultDailyLog("2026-03-08");
+    log.hydrationOz = 12;
+
+    const jobs = buildScheduledNotificationJobs(profile, log, [], [], new Date("2026-03-08T08:00:00"));
+
+    expect(jobs[0]?.requestedChannel).toBe("email");
+    expect(jobs[0]?.channel).toBe("in_app");
+    expect(jobs[0]?.fallbackReason).toContain("Email transport");
   });
 });

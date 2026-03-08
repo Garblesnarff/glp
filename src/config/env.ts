@@ -3,6 +3,10 @@ type EnvSource = Record<string, string | undefined>;
 export type AppEnv = {
   appEnv: string;
   appUrl: string;
+  notifications: {
+    emailAvailable: boolean;
+    smsAvailable: boolean;
+  };
   workos: {
     clientId: string;
     redirectUri: string;
@@ -27,6 +31,10 @@ export function readAppEnv(source: EnvSource): AppEnv {
   return {
     appEnv: source.VITE_APP_ENV ?? "development",
     appUrl: source.VITE_APP_URL ?? DEFAULT_APP_URL,
+    notifications: {
+      emailAvailable: source.VITE_NOTIFICATION_EMAIL_AVAILABLE === "true",
+      smsAvailable: source.VITE_NOTIFICATION_SMS_AVAILABLE === "true",
+    },
     workos: {
       clientId: source.VITE_WORKOS_CLIENT_ID ?? "",
       redirectUri: source.VITE_WORKOS_REDIRECT_URI ?? `${source.VITE_APP_URL ?? DEFAULT_APP_URL}/auth/callback`,

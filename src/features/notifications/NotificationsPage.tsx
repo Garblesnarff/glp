@@ -1,12 +1,16 @@
 import { useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
+import { useAppServices } from "../../app/providers/AppServices";
 import { DashboardPanel } from "../dashboard/components/DashboardPanel";
 import { font, palette, sans } from "../meal-planner/constants";
+import { getAppNotificationTransportStatuses } from "./transports";
 import { useNotificationCenter } from "./hooks/useNotificationCenter";
 
 export function NotificationsPage() {
+  const { env } = useAppServices();
   const { deliveries, isLoading, runDeliveryCycle, acknowledgeDelivery } = useNotificationCenter();
   const [running, setRunning] = useState(false);
+  const transportStatuses = getAppNotificationTransportStatuses(env);
 
   async function handleRunCycle() {
     setRunning(true);
@@ -56,6 +60,22 @@ export function NotificationsPage() {
       </div>
 
       <div style={{ marginTop: 16 }}>
+        <DashboardPanel title="Transport readiness">
+          <div style={{ display: "grid", gap: 10 }}>
+            {transportStatuses.map((status) => (
+              <div key={status.channel} style={transportRowStyle(status.available)}>
+                <div>
+                  <div style={{ fontFamily: sans, fontSize: 13, fontWeight: 700, color: palette.text }}>{formatChannel(status.channel)}</div>
+                  <div style={{ fontFamily: sans, fontSize: 12, color: palette.textMuted, marginTop: 4 }}>{status.summary}</div>
+                </div>
+                <span style={transportBadgeStyle(status.available)}>{status.available ? "Available" : "Not ready"}</span>
+              </div>
+            ))}
+          </div>
+        </DashboardPanel>
+      </div>
+
+      <div style={{ marginTop: 16 }}>
         <DashboardPanel title="Inbox">
           {isLoading ? (
             <div style={{ fontFamily: sans, fontSize: 13, color: palette.textMuted }}>Loading inbox...</div>
@@ -80,9 +100,15 @@ export function NotificationsPage() {
                       <span style={statusBadgeStyle(delivery.status)}>{delivery.status === "new" ? "New" : "Acknowledged"}</span>
                     </div>
                     <div style={{ fontFamily: sans, fontSize: 12, color: palette.textMuted }}>
-                      {formatDateTime(delivery.deliveredAt)} · {delivery.channel}
+                      {formatDateTime(delivery.deliveredAt)} · delivered via {formatChannel(delivery.channel)}
                     </div>
+                    {delivery.requestedChannel !== delivery.channel ? (
+                      <div style={{ fontFamily: sans, fontSize: 12, color: palette.textMuted }}>
+                        Requested {formatChannel(delivery.requestedChannel)}
+                      </div>
+                    ) : null}
                     <div style={{ fontFamily: sans, fontSize: 13, color: palette.text, lineHeight: 1.6 }}>{delivery.body}</div>
+                    {delivery.fallbackReason ? <div style={fallbackNoteStyle}>{delivery.fallbackReason}</div> : null}
                   </div>
                   <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                     {delivery.linkTo ? (
@@ -125,6 +151,14 @@ function formatDateTime(value: string) {
   });
 }
 
+function formatChannel(value: "in_app" | "email" | "sms") {
+  if (value === "in_app") {
+    return "in-app inbox";
+  }
+
+  return value.toUpperCase();
+}
+
 function deliveryRowStyle(isNew: boolean): CSSProperties {
   return {
     display: "flex",
@@ -139,6 +173,20 @@ function deliveryRowStyle(isNew: boolean): CSSProperties {
   };
 }
 
+function transportRowStyle(available: boolean): CSSProperties {
+  return {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+    flexWrap: "wrap",
+    borderRadius: 12,
+    border: `1px solid ${available ? palette.accentLight : palette.border}`,
+    background: "#fff",
+    padding: "12px 14px",
+  };
+}
+
 function statusBadgeStyle(status: "new" | "acknowledged"): CSSProperties {
   return {
     borderRadius: 999,
@@ -146,6 +194,19 @@ function statusBadgeStyle(status: "new" | "acknowledged"): CSSProperties {
     background: status === "new" ? palette.accentSoft : "#f5f5f5",
     border: `1px solid ${status === "new" ? palette.accentLight : palette.border}`,
     color: status === "new" ? palette.accent : palette.textMuted,
+    fontFamily: sans,
+    fontSize: 12,
+    fontWeight: 700,
+  };
+}
+
+function transportBadgeStyle(available: boolean): CSSProperties {
+  return {
+    borderRadius: 999,
+    padding: "5px 10px",
+    background: available ? palette.accentSoft : "#f5f5f5",
+    border: `1px solid ${available ? palette.accentLight : palette.border}`,
+    color: available ? palette.accent : palette.textMuted,
     fontFamily: sans,
     fontSize: 12,
     fontWeight: 700,
@@ -185,4 +246,14 @@ const secondaryLinkStyle: CSSProperties = {
   padding: "11px 16px",
   fontFamily: sans,
   fontWeight: 600,
+};
+
+const fallbackNoteStyle: CSSProperties = {
+  borderRadius: 10,
+  background: "#faf6ef",
+  border: "1px solid #ecd9b8",
+  padding: "8px 10px",
+  fontFamily: sans,
+  fontSize: 12,
+  color: palette.text,
 };

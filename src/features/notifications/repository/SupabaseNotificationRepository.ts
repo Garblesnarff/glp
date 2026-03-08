@@ -22,9 +22,11 @@ export class SupabaseNotificationRepository implements NotificationRepository {
       title: row.title,
       body: row.body,
       linkTo: row.link_to ?? undefined,
+      requestedChannel: row.requested_channel ?? "in_app",
       sendAt: row.send_at,
       channel: row.channel,
       status: row.status,
+      fallbackReason: row.fallback_reason ?? undefined,
     }));
   }
 
@@ -47,9 +49,11 @@ export class SupabaseNotificationRepository implements NotificationRepository {
         title: job.title,
         body: job.body,
         link_to: job.linkTo ?? null,
+        requested_channel: job.requestedChannel,
         send_at: job.sendAt,
         channel: job.channel,
         status: job.status,
+        fallback_reason: job.fallbackReason ?? null,
       })),
     );
 
@@ -76,9 +80,11 @@ export class SupabaseNotificationRepository implements NotificationRepository {
       title: row.title,
       body: row.body,
       linkTo: row.link_to ?? undefined,
+      requestedChannel: row.requested_channel ?? "in_app",
       deliveredAt: row.delivered_at,
       channel: row.channel,
       status: row.status,
+      fallbackReason: row.fallback_reason ?? undefined,
     }));
   }
 
@@ -120,9 +126,11 @@ export class SupabaseNotificationRepository implements NotificationRepository {
           title: row.title,
           body: row.body,
           linkTo: row.link_to ?? undefined,
+          requestedChannel: row.requested_channel ?? "in_app",
           sendAt: row.send_at,
           channel: row.channel,
           status: row.status,
+          fallbackReason: row.fallback_reason ?? undefined,
         },
         referenceDate,
       ),
@@ -141,9 +149,11 @@ export class SupabaseNotificationRepository implements NotificationRepository {
         title: delivery.title,
         body: delivery.body,
         link_to: delivery.linkTo ?? null,
+        requested_channel: delivery.requestedChannel,
         delivered_at: delivery.deliveredAt,
         channel: delivery.channel,
         status: delivery.status,
+        fallback_reason: delivery.fallbackReason ?? null,
       })),
     );
 

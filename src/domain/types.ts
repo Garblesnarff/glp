@@ -1,11 +1,18 @@
 export type AccountRole = "primary" | "prep_partner";
 export type ReminderDeliveryWindow = "morning" | "afternoon" | "evening";
+export type NotificationChannel = "in_app" | "email" | "sms";
 
 export type ReminderPreferences = {
   enabled: boolean;
   deliveryWindow: ReminderDeliveryWindow;
   quietHoursStart: string;
   quietHoursEnd: string;
+  preferredChannel: NotificationChannel;
+  fallbackToInApp: boolean;
+  emailEnabled: boolean;
+  emailAddress: string;
+  smsEnabled: boolean;
+  smsNumber: string;
   shotPrep: boolean;
   refill: boolean;
   hydration: boolean;
@@ -139,9 +146,11 @@ export type NotificationJob = {
   title: string;
   body: string;
   linkTo?: string;
+  requestedChannel: NotificationChannel;
   sendAt: string;
   channel: "in_app";
   status: NotificationJobStatus;
+  fallbackReason?: string;
 };
 
 export type NotificationDelivery = {
@@ -151,7 +160,9 @@ export type NotificationDelivery = {
   title: string;
   body: string;
   linkTo?: string;
+  requestedChannel: NotificationChannel;
   deliveredAt: string;
   channel: "in_app";
   status: NotificationDeliveryStatus;
+  fallbackReason?: string;
 };

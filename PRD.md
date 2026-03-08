@@ -238,6 +238,18 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - Users can review delivered reminders in a dedicated inbox route and mark them acknowledged inside the app
    - This establishes the first end-to-end execution path from reminder logic to queued job to delivered in-app notification, even though push transport is still not implemented
 
+32. **Notification channel planning foundation**
+   - Reminder preferences now include channel intent, so users can choose in-app, email, or SMS as the preferred path instead of the system being hardcoded to in-app only
+   - The notification planner now records both the requested channel and the currently executable delivery channel, with explicit fallback reasons when transport is not connected
+   - Medication settings now show a channel-resolution summary, and the notification inbox shows requested-versus-actual delivery behavior for transparency
+   - This gives the product a real channel-management model before external email/SMS delivery adapters are added
+
+33. **Notification transport readiness foundation**
+   - The app now has explicit transport-readiness modeling for in-app, email, and SMS instead of leaving delivery providers implicit
+   - Public app config can now expose whether email and SMS are expected to be available in a deployment, and the inbox surfaces that readiness state directly
+   - The Bun worker now reports transport readiness based on real provider env vars, so delivery operations have a concrete preflight summary instead of only a delivered-count output
+   - This establishes the provider/orchestration boundary needed before wiring real external sends through services like Resend or Twilio
+
 ### What is still scaffolded vs complete
 
 - **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early history-aware scoring, but still not yet personalized by deeper long-term correlation modeling
@@ -247,7 +259,7 @@ The codebase has moved beyond the original single-screen artifact and now includ
 - **Trend analysis**: first pattern and correlation summaries now exist in history, but there are still no true charts, longitudinal scoring models, or recommendation loops driven by these correlations yet
 - **Constipation workflow**: bowel-movement tracking, support prompts, and reminder generation now exist, but there is still no Bristol stool scale, persistent escalation timer beyond recent logs, or richer clinical constipation assessment yet
 - **Food relationship tracking**: food noise and food mood now have dedicated coaching and light recommendation influence, but there is still no deeper guided journaling, celebration workflow, or long-horizon emotional pattern model yet
-- **Reminder system**: in-app reminders, persisted reminder preferences, refill reminders, notification-job scheduling, a Bun delivery worker, and an in-app inbox now exist, but there is still no push delivery, channel fan-out, or background scheduling orchestration on the server yet
+- **Reminder system**: in-app reminders, persisted reminder preferences, refill reminders, channel planning, transport-readiness modeling, notification-job scheduling, a Bun delivery worker, and an in-app inbox now exist, but there is still no real email/SMS transport, push delivery, or fully automated server-side scheduling orchestration yet
 - **Supplement and movement support**: checklist logging, adherence nudges, coaching, and reminder generation now exist, but there is still no clinician-configurable regimen or custom supplement library yet
 - **Emergency support**: dashboard emergency card, red-flag route, and first-pass partner rough-day alerts now exist, but there is still no push delivery or escalation logic beyond the in-app account alert
 - **Prep partner model**: route, invite UI, linked-primary shared reads, invite acceptance, unlink/recovery actions, rough-day support alerts, and shared planner state now exist, but there is still no richer conflict handling or broader household notification coordination yet

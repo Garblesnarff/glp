@@ -1,5 +1,6 @@
 import type { DailyLog, MedicationLog, NotificationJob, ReminderDeliveryWindow, UserProfile } from "../../domain/types";
 import { getCompanionReminders } from "../dashboard/reminders";
+import { getNotificationChannelPlan } from "./channels";
 
 const windowHours: Record<ReminderDeliveryWindow, number> = {
   morning: 9,
@@ -15,6 +16,7 @@ export function buildScheduledNotificationJobs(
   referenceDate = new Date(),
 ) {
   const reminders = getCompanionReminders(profile, log, recentLogs, medicationLogs);
+  const channelPlan = getNotificationChannelPlan(profile);
 
   return reminders.map((reminder) => ({
     id: `notification:${reminder.id}`,
@@ -22,9 +24,11 @@ export function buildScheduledNotificationJobs(
     title: reminder.title,
     body: reminder.body,
     linkTo: reminder.link?.to,
+    requestedChannel: channelPlan.requestedChannel,
     sendAt: getScheduledTime(profile, referenceDate),
-    channel: "in_app",
+    channel: channelPlan.deliveryChannel,
     status: "scheduled",
+    fallbackReason: channelPlan.fallbackReason,
   })) satisfies NotificationJob[];
 }
 
