@@ -73,6 +73,47 @@ export function RecipeModal({ recipe, onClose }: { recipe: Recipe; onClose: () =
           </div>
         ) : null}
 
+        <h3 style={{ fontFamily: font, fontSize: 16, color: palette.accent, margin: "16px 0 8px" }}>GLP-1 support</h3>
+        <div style={{ display: "grid", gap: 10 }}>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {getSupportBadges(recipe).map((badge) => (
+              <span
+                key={badge}
+                style={{
+                  background: "#f4fbf6",
+                  color: palette.accent,
+                  fontSize: 11,
+                  padding: "4px 10px",
+                  borderRadius: 999,
+                  fontFamily: sans,
+                  fontWeight: 600,
+                  border: `1px solid ${palette.accentLight}`,
+                }}
+              >
+                {badge}
+              </span>
+            ))}
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+              gap: 10,
+            }}
+          >
+            <SupportStat label="Recommended portion" value={capitalize(recipe.recommendedPortion)} />
+            <SupportStat label="Texture" value={recipe.glp1.texture.map(capitalize).join(", ")} />
+            <SupportStat label="Constipation support" value={capitalize(recipe.glp1.constipationSupport)} />
+            <SupportStat label="Leftovers" value={`${recipe.leftoverDays} day${recipe.leftoverDays === 1 ? "" : "s"}`} />
+          </div>
+
+          {recipe.glp1.avoidWhen.length > 0 ? (
+            <SupportNote label="Use caution when" value={recipe.glp1.avoidWhen.join(", ")} tone="warm" />
+          ) : null}
+          {recipe.allergens.length > 0 ? <SupportNote label="Contains" value={recipe.allergens.join(", ")} tone="neutral" /> : null}
+        </div>
+
         <h3 style={{ fontFamily: font, fontSize: 16, color: palette.accent, margin: "16px 0 8px" }}>Ingredients</h3>
         <ul style={{ fontFamily: sans, fontSize: 13, lineHeight: 1.8, paddingLeft: 20, color: palette.text }}>
           {recipe.ingredients.map((ingredient) => (
@@ -109,4 +150,52 @@ export function RecipeModal({ recipe, onClose }: { recipe: Recipe; onClose: () =
       </div>
     </div>
   );
+}
+
+function SupportStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div
+      style={{
+        borderRadius: 12,
+        border: `1px solid ${palette.border}`,
+        background: palette.card,
+        padding: "10px 12px",
+      }}
+    >
+      <div style={{ fontFamily: sans, fontSize: 11, textTransform: "uppercase", letterSpacing: 1, color: palette.textMuted }}>{label}</div>
+      <div style={{ fontFamily: sans, fontSize: 13, color: palette.text, fontWeight: 600, marginTop: 4 }}>{value}</div>
+    </div>
+  );
+}
+
+function SupportNote({ label, value, tone }: { label: string; value: string; tone: "warm" | "neutral" }) {
+  return (
+    <div
+      style={{
+        borderRadius: 12,
+        border: `1px solid ${tone === "warm" ? palette.warmLight : palette.border}`,
+        background: tone === "warm" ? `${palette.warmLight}33` : palette.card,
+        padding: "10px 12px",
+        fontFamily: sans,
+        fontSize: 13,
+        color: palette.text,
+      }}
+    >
+      <strong>{label}:</strong> {value}
+    </div>
+  );
+}
+
+function getSupportBadges(recipe: Recipe) {
+  return [
+    ...(recipe.glp1.shotDayFriendly ? ["Shot-day friendly"] : []),
+    ...(recipe.glp1.nauseaFriendly ? ["Nausea-friendly"] : []),
+    ...(recipe.glp1.refluxFriendly ? ["Reflux-friendlier"] : []),
+    ...(recipe.canBlendOrSip ? ["Sip or blend"] : []),
+    ...(recipe.freezesWell ? ["Freezes well"] : []),
+  ];
+}
+
+function capitalize(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }

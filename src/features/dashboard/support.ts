@@ -123,6 +123,43 @@ export function getDashboardMealRecommendations(profile: UserProfile, log: Daily
     .slice(0, 3);
 }
 
+export function getRecipeRecommendationReasons(recipe: Recipe, profile: UserProfile, log: DailyLog) {
+  const reasons: string[] = [];
+  const shotDay = isShotDaySupportActive(profile);
+
+  if (shotDay && recipe.glp1.shotDayFriendly) {
+    reasons.push("Shot-day friendly");
+  }
+
+  if (log.appetiteLevel === "none" && recipe.canBlendOrSip) {
+    reasons.push("Easy to sip");
+  } else if (log.appetiteLevel !== "normal" && recipe.glp1.appetiteLevel.includes(log.appetiteLevel)) {
+    reasons.push("Fits low appetite");
+  }
+
+  if (severityScore[log.symptoms.nausea] >= 1 && recipe.glp1.nauseaFriendly) {
+    reasons.push("Gentler on nausea");
+  }
+
+  if (severityScore[log.symptoms.reflux] >= 1 && recipe.glp1.refluxFriendly) {
+    reasons.push("Reflux-friendlier");
+  }
+
+  if (severityScore[log.symptoms.constipation] >= 1 && recipe.glp1.constipationSupport !== "none") {
+    reasons.push(`${recipe.glp1.constipationSupport} fiber support`);
+  }
+
+  if (reasons.length === 0 && recipe.glp1.heaviness <= 2) {
+    reasons.push("Lighter option");
+  }
+
+  if (reasons.length === 0 && recipe.recommendedPortion !== "full") {
+    reasons.push(`${recipe.recommendedPortion} portion fit`);
+  }
+
+  return reasons.slice(0, 3);
+}
+
 export function getHydrationStatus(profile: UserProfile, log: DailyLog) {
   const remaining = Math.max(0, profile.hydrationGoal - log.hydrationOz);
 

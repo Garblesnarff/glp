@@ -7,11 +7,13 @@ export function RecipeCard({
   onClick,
   compact = false,
   onAssign,
+  contextBadges = [],
 }: {
   recipe: Recipe;
   onClick: () => void;
   compact?: boolean;
   onAssign?: (recipeId: string) => void;
+  contextBadges?: string[];
 }) {
   return (
     <div
@@ -79,6 +81,27 @@ export function RecipeCard({
         <span style={{ color: palette.warm, fontWeight: 700 }}>{recipe.fiber}g fiber</span>
         <span style={{ color: palette.textMuted }}>{recipe.calories} cal</span>
       </div>
+      {contextBadges.length > 0 ? (
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
+          {contextBadges.map((badge) => (
+            <span
+              key={badge}
+              style={{
+                background: "#f4fbf6",
+                color: palette.accent,
+                fontSize: 10,
+                padding: "3px 8px",
+                borderRadius: 999,
+                fontFamily: sans,
+                fontWeight: 600,
+                border: `1px solid ${palette.accentLight}`,
+              }}
+            >
+              {badge}
+            </span>
+          ))}
+        </div>
+      ) : null}
       {!compact ? (
         <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 8 }}>
           {recipe.tags.slice(0, 4).map((tag) => (

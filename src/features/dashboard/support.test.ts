@@ -6,8 +6,10 @@ import {
   getEmergencyFoods,
   getHydrationRiskSummary,
   getRecentLogTrendSummary,
+  getRecipeRecommendationReasons,
   needsElectrolytePrompt,
 } from "./support";
+import { RECIPES } from "../meal-planner/data/recipes";
 
 describe("dashboard support", () => {
   test("sorts active symptoms by severity", () => {
@@ -72,5 +74,20 @@ describe("dashboard support", () => {
     expect(summary.avgHydrationOz).toBe(52);
     expect(summary.nauseaDays).toBe(1);
     expect(summary.lowAppetiteDays).toBe(1);
+  });
+
+  test("explains why a recipe was recommended", () => {
+    const profile = { ...defaultUserProfile, shotDay: "Saturday" };
+    const log = createDefaultDailyLog("2026-03-07");
+    log.appetiteLevel = "none";
+    log.symptoms.nausea = "mild";
+
+    const recipe = RECIPES.find((candidate) => candidate.id === "b5");
+    expect(recipe).toBeDefined();
+
+    const reasons = getRecipeRecommendationReasons(recipe!, profile, log);
+
+    expect(reasons.length).toBeGreaterThan(0);
+    expect(reasons).toContain("Shot-day friendly");
   });
 });

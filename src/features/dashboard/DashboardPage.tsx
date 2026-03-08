@@ -1,8 +1,10 @@
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { getDaysSince, getNextShotLabel } from "../../domain/utils";
 import { palette, sans, font } from "../meal-planner/constants";
 import { RecipeCard } from "../meal-planner/components/RecipeCard";
+import { RecipeModal } from "../meal-planner/components/RecipeModal";
+import type { Recipe } from "../meal-planner/types";
 import { useProfile } from "../profile/hooks/useProfile";
 import { DashboardMetricCard } from "./components/DashboardMetricCard";
 import { DashboardPanel } from "./components/DashboardPanel";
@@ -15,11 +17,13 @@ import {
   getDashboardMessages,
   getEmergencyFoods,
   getHydrationStatus,
+  getRecipeRecommendationReasons,
   hasRedFlagSymptoms,
   isShotDaySupportActive,
 } from "./support";
 
 export function DashboardPage() {
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const { profile, profileReady, todayLog, isLoading, addHydration, setAppetiteLevel, setSymptomSeverity } = useProfile();
   const daysSinceStart = profile.medicationStartDate ? getDaysSince(profile.medicationStartDate) : 0;
   const nextShot = getNextShotLabel(profile.shotDay);
@@ -132,11 +136,17 @@ export function DashboardPage() {
       <div style={{ marginTop: 18 }}>
         <DashboardPanel title="Recommended meals for today">
           <p style={{ margin: "0 0 12px", fontFamily: sans, color: palette.textMuted, lineHeight: 1.6 }}>
-            These suggestions now react to shot-day support and appetite level. They are still heuristic-based until the richer GLP-1 recipe schema is added.
+            These suggestions now react to shot-day support, symptoms, and the enriched GLP-1 recipe profile. Open a recipe to see the support fit in more detail.
           </p>
           <div style={{ display: "grid", gap: 10 }}>
             {mealRecommendations.map((recipe) => (
-              <RecipeCard key={recipe.id} recipe={recipe} onClick={() => {}} compact />
+              <RecipeCard
+                key={recipe.id}
+                recipe={recipe}
+                onClick={() => setSelectedRecipe(recipe)}
+                compact
+                contextBadges={getRecipeRecommendationReasons(recipe, profile, todayLog)}
+              />
             ))}
           </div>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 12 }}>
@@ -152,6 +162,8 @@ export function DashboardPage() {
           </div>
         </DashboardPanel>
       </div>
+
+      {selectedRecipe ? <RecipeModal recipe={selectedRecipe} onClose={() => setSelectedRecipe(null)} /> : null}
     </div>
   );
 }

@@ -95,15 +95,17 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - All existing recipes now pass through an enrichment layer that attaches explicit GLP-1 metadata
    - Structured fields now exist in code for shot-day friendliness, nausea/reflux handling, constipation support, appetite fit, portion flexibility, heaviness, texture, contraindications, leftover behavior, and sip/blend friendliness
    - Dashboard recommendations now use structured recipe metadata instead of only name/notes heuristics
+   - Recipe detail screens now expose GLP-1 support metadata so recommendations are explainable in the UI
+   - Dashboard recommendation cards now show short rationale badges for why a meal fits today's context
 
 ### What is still scaffolded vs complete
 
-- **Dashboard**: implemented as the default route with live daily-state interactions, but still heuristic-driven and not yet powered by enriched recipe metadata
+- **Dashboard**: implemented as the default route with live daily-state interactions and recommendation rationale badges, but still not yet personalized by true learned tolerance patterns
 - **Symptom tracker**: dedicated daily log and history views now exist, but no charting, export, or clinician-style trend review yet
 - **Hydration tracker**: tap-based increments and hydration-risk logic exist, but not yet full bottle/glass visualization, reminders, or notification logic
 - **Emergency support**: dashboard emergency card and standalone red-flag route now exist, but no partner notification flow yet
 - **Prep partner model**: database/domain scaffold exists, but no dedicated UI or invite flow yet
-- **Recommendation engine**: now partially structured via enriched recipe metadata, but still not personalized by true symptom correlations, explicit tolerance learning, or longer-term longitudinal modeling
+- **Recommendation engine**: now partially structured and explainable via enriched recipe metadata, but still not personalized by true symptom correlations, explicit tolerance learning, or longer-term longitudinal modeling
 - **History/trends**: recent history exists as a browsable view, but not yet charted or analyzed beyond summary logic
 
 ---
