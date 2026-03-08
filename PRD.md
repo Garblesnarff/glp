@@ -214,6 +214,12 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - Refill reminders are now part of the reminder engine and respect the saved reminder preferences
    - This adds the first concrete refill-support flow without requiring external notification delivery yet
 
+28. **Food relationship coaching foundation**
+   - Dashboard now includes a dedicated food-relationship support layer instead of only exposing food mood and food noise as raw metrics
+   - Coaching now reflects both today's food mood/noise state and the recent pattern, including lower-food-noise progress and emotionally harder stretches
+   - Recommendation scoring and rationale can now respond lightly to anxious, overwhelmed, or low-food-noise days by favoring lower-pressure meal fits
+   - History analysis now reinforces lower-food-noise progress as a meaningful outcome instead of only flagging hard days
+
 ### What is still scaffolded vs complete
 
 - **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early history-aware scoring, but still not yet personalized by deeper long-term correlation modeling
@@ -222,7 +228,7 @@ The codebase has moved beyond the original single-screen artifact and now includ
 - **Medication timeline**: dedicated route and first logging workflow now exist, but there is still no automatic recurring schedule, missed-dose reminders, or true correlation/visual analytics with symptoms and food tolerance yet
 - **Trend analysis**: first pattern and correlation summaries now exist in history, but there are still no true charts, longitudinal scoring models, or recommendation loops driven by these correlations yet
 - **Constipation workflow**: first bowel-movement tracking and support prompts now exist, but there is still no Bristol stool scale, persistent escalation timer beyond recent logs, or automated reminder scheduling yet
-- **Food relationship tracking**: food noise and food mood are now active parts of the daily workflow and trends, but there is still no dedicated coaching layer or recommendation logic based on these signals yet
+- **Food relationship tracking**: food noise and food mood now have dedicated coaching and light recommendation influence, but there is still no deeper guided journaling, celebration workflow, or long-horizon emotional pattern model yet
 - **Reminder system**: in-app reminders now exist for core companion workflows, but there is still no scheduling engine, push delivery, refill reminders, or user-configurable reminder preferences yet
 - **Reminder system**: in-app reminders, persisted reminder preferences, and refill reminders now exist, but there is still no actual scheduler, push delivery, or notification channel management yet
 - **Supplement and movement support**: checklist logging, first adherence nudges, and basic coaching now exist, but there is still no clinician-configurable regimen, custom supplement library, or scheduled reminder delivery yet

@@ -8,6 +8,7 @@ import {
   getDailyChecklistSummary,
   getDaysSinceLastBowelMovement,
   getEmergencyFoods,
+  getFoodRelationshipSupport,
   getHydrationRiskSummary,
   getRecentMealFeedbackSummary,
   getRecentLogTrendSummary,
@@ -187,6 +188,20 @@ describe("dashboard support", () => {
 
     expect((scores.get("b5") ?? 0)).toBeGreaterThan(scores.get("d3") ?? 0);
     expect(getRecipeRecommendationReasons(smoothie!, profile, log, [historicalOne, historicalTwo])).toContain("Matches recent nausea pattern");
+  });
+
+  test("builds food relationship coaching from current and recent signals", () => {
+    const today = createDefaultDailyLog("2026-03-07");
+    today.foodMood = "anxious";
+    today.foodNoiseLevel = 2;
+    const previous = createDefaultDailyLog("2026-03-06");
+    previous.foodMood = "overwhelmed";
+    previous.foodNoiseLevel = 4;
+
+    const support = getFoodRelationshipSupport(today, [today, previous]);
+
+    expect(support.messages.length).toBeGreaterThan(0);
+    expect(support.messages.some((message) => message.includes("Food noise is lower"))).toBe(true);
   });
 
   test("summarizes recent meal feedback", () => {

@@ -47,6 +47,10 @@ export function getHistoryPatternSummary(recentLogs: DailyLog[], medicationLogs:
     insights.push(`Food felt emotionally harder on ${difficultFoodMoodDays} logged day(s), with average food noise at ${averageFoodNoise}/5.`);
   }
 
+  if (averageFoodNoise <= 2.5) {
+    insights.push("Food noise is running lower lately. That is progress, even if the experience feels unfamiliar or emotionally flat.");
+  }
+
   if (proteinSupplementDays === 0) {
     insights.push("No protein supplement support is logged in the recent window. On lower-appetite stretches, that is often the easiest protein gap to close.");
   }

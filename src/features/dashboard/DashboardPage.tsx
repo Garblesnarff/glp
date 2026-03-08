@@ -21,6 +21,7 @@ import {
   getDashboardMealRecommendations,
   getDashboardMessages,
   getEmergencyFoods,
+  getFoodRelationshipSupport,
   getHydrationStatus,
   getRecipeRecommendationReasons,
   getSupportHabitsSummary,
@@ -62,6 +63,7 @@ export function DashboardPage() {
   const reminders = getCompanionReminders(profile, todayLog, recentLogs, medicationLogs);
   const supportHabits = getSupportHabitsSummary(todayLog, recentLogs);
   const consistency = getConsistencySummary(profile, recentLogs);
+  const foodRelationshipSupport = getFoodRelationshipSupport(todayLog, recentLogs);
 
   if (isLoading) {
     return <div style={{ padding: 24, fontFamily: sans }}>Loading dashboard...</div>;
@@ -239,6 +241,33 @@ export function DashboardPage() {
               </Link>
               <Link to="/history" style={secondaryLinkStyle}>
                 Review recent trend
+              </Link>
+            </div>
+          </div>
+        </DashboardPanel>
+      </div>
+
+      <div style={{ marginTop: 18 }}>
+        <DashboardPanel title="Food relationship support">
+          <div style={{ display: "grid", gap: 10 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <span style={supportBadgeStyle(todayLog.foodNoiseLevel <= 2)}>Food noise {todayLog.foodNoiseLevel}/5</span>
+              <span style={supportBadgeStyle(todayLog.foodMood === "neutral" || todayLog.foodMood === "excited")}>{todayLog.foodMood}</span>
+              <span style={supportBadgeStyle(foodRelationshipSupport.previousAverageNoise >= todayLog.foodNoiseLevel)}>
+                Recent avg {foodRelationshipSupport.previousAverageNoise}/5
+              </span>
+            </div>
+            <ul style={{ margin: 0, paddingLeft: 18, fontFamily: sans, color: palette.textMuted, lineHeight: 1.8, fontSize: 14 }}>
+              {foodRelationshipSupport.messages.map((message) => (
+                <li key={message}>{message}</li>
+              ))}
+            </ul>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              <Link to="/social-eating" style={secondaryLinkStyle}>
+                Open social eating playbook
+              </Link>
+              <Link to="/today" style={secondaryLinkStyle}>
+                Update food check-in
               </Link>
             </div>
           </div>

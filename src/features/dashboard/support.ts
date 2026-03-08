@@ -168,6 +168,14 @@ export function getRecipeRecommendationReasons(recipe: Recipe, profile: UserProf
     reasons.push("Matches recent reflux pattern");
   }
 
+  if ((log.foodMood === "anxious" || log.foodMood === "sad" || log.foodMood === "overwhelmed") && recipe.glp1.heaviness <= 2) {
+    reasons.push("Lower-pressure option");
+  }
+
+  if (log.foodNoiseLevel <= 2 && recipe.recommendedPortion !== "full") {
+    reasons.push("Fits low food-noise day");
+  }
+
   if (toleranceScore > 0) {
     reasons.push("Previously tolerated");
   }
@@ -229,6 +237,12 @@ export function getRecipeRecommendationScores(
     if (recentSignals.lowAppetiteDays >= 3 && recipe.glp1.heaviness <= 2) {
       score += 1;
     }
+    if ((log.foodMood === "anxious" || log.foodMood === "sad" || log.foodMood === "overwhelmed") && recipe.glp1.heaviness <= 2) {
+      score += 1;
+    }
+    if (log.foodNoiseLevel <= 2 && recipe.recommendedPortion !== "full") {
+      score += 1;
+    }
 
     if (recipe.glp1.heaviness >= 4 && (severityScore[log.symptoms.nausea] >= 1 || recentSignals.nauseaDays >= 2)) {
       score -= 2;
@@ -241,6 +255,47 @@ export function getRecipeRecommendationScores(
   });
 
   return scores;
+}
+
+export function getFoodRelationshipSupport(log: DailyLog, recentLogs: DailyLog[]) {
+  const previousLogs = recentLogs.filter((entry) => entry.date !== log.date);
+  const previousAverageNoise =
+    previousLogs.length === 0 ? log.foodNoiseLevel : previousLogs.reduce((sum, entry) => sum + entry.foodNoiseLevel, 0) / previousLogs.length;
+  const difficultRecentDays = previousLogs.filter(
+    (entry) => entry.foodMood === "anxious" || entry.foodMood === "sad" || entry.foodMood === "overwhelmed",
+  ).length;
+
+  const messages: string[] = [];
+
+  if (log.foodMood === "anxious" || log.foodMood === "overwhelmed") {
+    messages.push("Food feels emotionally heavier today. Make the decision smaller: pick one gentle protein option and stop there.");
+  }
+
+  if (log.foodMood === "sad") {
+    messages.push("If food is not giving the usual comfort, aim for something steady and familiar rather than chasing the old reward feeling.");
+  }
+
+  if (log.foodNoiseLevel <= 2) {
+    messages.push("Food noise is low today. That can be a real win, even if it also feels unfamiliar.");
+  }
+
+  if (log.foodNoiseLevel < previousAverageNoise) {
+    messages.push("Food noise is lower than your recent average. That is meaningful progress worth noticing.");
+  }
+
+  if ((log.foodMood === "neutral" || log.foodMood === "excited") && difficultRecentDays >= 2) {
+    messages.push("Food feels a bit easier today than it has recently. Treat that as a sign of adjustment, not something you need to test.");
+  }
+
+  if (messages.length === 0) {
+    messages.push("Keep logging food mood and food noise. The goal is to notice the relationship shift without judging it.");
+  }
+
+  return {
+    previousAverageNoise: Math.round(previousAverageNoise * 10) / 10,
+    difficultRecentDays,
+    messages: messages.slice(0, 3),
+  };
 }
 
 export function getHydrationStatus(profile: UserProfile, log: DailyLog) {
