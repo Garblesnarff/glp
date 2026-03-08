@@ -1,4 +1,5 @@
 import type { DailyLog, WeightLog } from "../../domain/types";
+import type { TrendPoint } from "../history/components/LineTrendChart";
 
 export function getWeightTrendSummary(weightLogs: WeightLog[], recentLogs: DailyLog[]) {
   const latest = weightLogs[0] ?? null;
@@ -24,4 +25,21 @@ export function getWeightTrendSummary(weightLogs: WeightLog[], recentLogs: Daily
     proteinDays,
     framing,
   };
+}
+
+export function getWeightChartSeries(weightLogs: WeightLog[]) {
+  return [...weightLogs]
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .map((entry) => ({
+      label: formatShortDate(entry.date),
+      value: entry.weight,
+      note: entry.clothesFit ? `${entry.clothesFit} fit` : undefined,
+    })) satisfies TrendPoint[];
+}
+
+function formatShortDate(date: string) {
+  return new Date(`${date}T12:00:00`).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
 }

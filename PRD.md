@@ -184,9 +184,21 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - History and weight views now reuse the same celebration framing so progress is reinforced across the app
    - This is the first implementation step toward the PRD’s “streaks, not perfection” motivational model
 
+23. **Charted trends foundation**
+   - History now includes lightweight visual charts for hydration, protein, symptom load, and food noise across the recent tracking window
+   - Weight now has a basic visual trend line instead of only a list of weigh-ins
+   - Chart data is generated through explicit derived helpers, so future AI work can extend visual analytics without hardcoding UI state
+   - This is the first step from summary-only history toward the PRD’s longitudinal trend and correlation experience
+
+24. **History-aware recommendation scoring foundation**
+   - Dashboard meal recommendations now use an explicit score layer instead of relying mostly on heuristics plus a simple tolerance sort
+   - Recommendation scoring now considers current symptoms, recent symptom frequency, appetite patterns, shot-day state, and logged meal tolerance
+   - Recommendation badges can now explain when a meal fits not only today's symptoms but also recent nausea or reflux patterns
+   - This is the first real move toward the PRD’s smart recommendation engine driven by longitudinal companion data
+
 ### What is still scaffolded vs complete
 
-- **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early tolerance-aware ranking, but still not yet personalized by deeper long-term correlation modeling
+- **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early history-aware scoring, but still not yet personalized by deeper long-term correlation modeling
 - **Symptom tracker**: dedicated daily log and history views now exist, and meal-response capture is now attached to the daily workflow, but no charting, export, or clinician-style trend review yet
 - **Hydration tracker**: tap-based increments and hydration-risk logic exist, but not yet full bottle/glass visualization, reminders, or notification logic
 - **Medication timeline**: dedicated route and first logging workflow now exist, but there is still no automatic recurring schedule, missed-dose reminders, or true correlation/visual analytics with symptoms and food tolerance yet
@@ -198,8 +210,8 @@ The codebase has moved beyond the original single-screen artifact and now includ
 - **Emergency support**: dashboard emergency card, red-flag route, and first-pass partner rough-day alerts now exist, but there is still no push delivery, reminder scheduling, or escalation logic beyond the in-app account alert
 - **Prep partner model**: route, invite UI, linked-primary shared reads, first-pass invite acceptance, and rough-day support alerts now exist, but there is still no polished invite acceptance UX, account unlink/recovery flow, or broader notification system yet
 - **Planner/grocery sharing**: account-scoped persistence is now wired for Supabase-backed sessions, but local mode remains personal-only and there is not yet explicit conflict handling or audit/history for shared edits
-- **Recommendation engine**: now partially structured, explainable, and lightly personalized via recent tolerance feedback, but still not powered by true symptom correlations, durable preference memory, or longer-term longitudinal modeling
-- **History/trends**: recent history exists as a browsable view, but not yet charted or analyzed beyond summary logic
+- **Recommendation engine**: now structured, explainable, and partly history-aware via recent symptom and tolerance scoring, but still not powered by durable preference memory, broader lifestyle context, or longer-term longitudinal modeling
+- **History/trends**: recent history is now both browsable and lightly charted, but there are still no richer visual correlation dashboards, clinician-style exports, or deeper long-term trend models yet
 - **Weight tracking**: dedicated logging, framing, and consistency celebration now exist, but there is still no charting, waist/clothes-fit trend visualization, or deeper correlation with medication phases yet
 
 ---

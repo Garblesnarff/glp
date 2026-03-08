@@ -1,4 +1,5 @@
 import type { DailyLog, MedicationLog } from "../../domain/types";
+import type { TrendPoint } from "./components/LineTrendChart";
 
 const severityScore = {
   none: 0,
@@ -94,5 +95,35 @@ export function getDailyCorrelationSeries(recentLogs: DailyLog[], medicationLogs
       medicationStatuses: medicationEvents.map((event) => event.status ?? "completed"),
       doseIncrease: medicationEvents.some((event) => event.isDoseIncrease),
     };
+  });
+}
+
+export function getTrendChartSeries(recentLogs: DailyLog[]) {
+  const ordered = [...recentLogs].sort((a, b) => a.date.localeCompare(b.date));
+
+  return {
+    hydration: ordered.map((log) => ({
+      label: formatShortDate(log.date),
+      value: log.hydrationOz,
+    })) satisfies TrendPoint[],
+    symptomLoad: ordered.map((log) => ({
+      label: formatShortDate(log.date),
+      value: getSymptomLoad(log),
+    })) satisfies TrendPoint[],
+    protein: ordered.map((log) => ({
+      label: formatShortDate(log.date),
+      value: log.mealsConsumed.reduce((sum, meal) => sum + meal.actualProtein, 0),
+    })) satisfies TrendPoint[],
+    foodNoise: ordered.map((log) => ({
+      label: formatShortDate(log.date),
+      value: log.foodNoiseLevel,
+    })) satisfies TrendPoint[],
+  };
+}
+
+function formatShortDate(date: string) {
+  return new Date(`${date}T12:00:00`).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
   });
 }

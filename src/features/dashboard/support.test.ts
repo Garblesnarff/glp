@@ -11,6 +11,7 @@ import {
   getHydrationRiskSummary,
   getRecentMealFeedbackSummary,
   getRecentLogTrendSummary,
+  getRecipeRecommendationScores,
   getRecipeRecommendationReasons,
   getSupportHabitsSummary,
   needsElectrolytePrompt,
@@ -169,6 +170,23 @@ describe("dashboard support", () => {
     expect(ids).not.toContain("d3");
     expect(toleratedRecipe).toBeDefined();
     expect(getRecipeRecommendationReasons(toleratedRecipe!, profile, log, [historicalLog])).toContain("Previously tolerated");
+  });
+
+  test("uses recent symptom patterns to score gentler recipes higher", () => {
+    const profile = { ...defaultUserProfile, shotDay: "Wednesday" };
+    const log = createDefaultDailyLog("2026-03-07");
+    log.appetiteLevel = "low";
+    log.symptoms.nausea = "mild";
+    const historicalOne = createDefaultDailyLog("2026-03-06");
+    historicalOne.symptoms.nausea = "moderate";
+    const historicalTwo = createDefaultDailyLog("2026-03-05");
+    historicalTwo.symptoms.nausea = "mild";
+
+    const scores = getRecipeRecommendationScores(profile, log, [historicalOne, historicalTwo], RECIPES);
+    const smoothie = RECIPES.find((recipe) => recipe.id === "b5");
+
+    expect((scores.get("b5") ?? 0)).toBeGreaterThan(scores.get("d3") ?? 0);
+    expect(getRecipeRecommendationReasons(smoothie!, profile, log, [historicalOne, historicalTwo])).toContain("Matches recent nausea pattern");
   });
 
   test("summarizes recent meal feedback", () => {

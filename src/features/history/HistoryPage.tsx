@@ -7,7 +7,8 @@ import { useProfile } from "../profile/hooks/useProfile";
 import { getActiveSymptoms, getHydrationRiskSummary, getRecentLogTrendSummary, getRecentMealFeedbackSummary } from "../dashboard/support";
 import type { DailyLog } from "../../domain/types";
 import { RECIPES } from "../meal-planner/data/recipes";
-import { getDailyCorrelationSeries, getHistoryPatternSummary } from "./analysis";
+import { getDailyCorrelationSeries, getHistoryPatternSummary, getTrendChartSeries } from "./analysis";
+import { LineTrendChart } from "./components/LineTrendChart";
 
 export function HistoryPage() {
   const { profile, recentLogs, medicationLogs, isLoading } = useProfile();
@@ -21,6 +22,7 @@ export function HistoryPage() {
   const patternSummary = getHistoryPatternSummary(recentLogs, medicationLogs);
   const correlationSeries = getDailyCorrelationSeries(recentLogs, medicationLogs);
   const consistency = getConsistencySummary(profile, recentLogs);
+  const chartSeries = getTrendChartSeries(recentLogs);
 
   return (
     <div style={{ maxWidth: 960, margin: "0 auto", padding: "24px 16px 80px" }}>
@@ -70,6 +72,17 @@ export function HistoryPage() {
               <li key={message}>{message}</li>
             ))}
           </ul>
+        </DashboardPanel>
+      </div>
+
+      <div style={{ marginTop: 16 }}>
+        <DashboardPanel title="Trend charts">
+          <div style={chartGridStyle}>
+            <LineTrendChart title="Hydration" points={chartSeries.hydration} color={palette.accent} valueSuffix=" oz" />
+            <LineTrendChart title="Protein" points={chartSeries.protein} color={palette.warm} valueSuffix=" g" />
+            <LineTrendChart title="Symptom load" points={chartSeries.symptomLoad} color={palette.danger} />
+            <LineTrendChart title="Food noise" points={chartSeries.foodNoise} color="#8b6f47" />
+          </div>
         </DashboardPanel>
       </div>
 
@@ -291,6 +304,12 @@ const snapshotGridStyle: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
   gap: 10,
+};
+
+const chartGridStyle: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+  gap: 12,
 };
 
 const correlationRowStyle: CSSProperties = {

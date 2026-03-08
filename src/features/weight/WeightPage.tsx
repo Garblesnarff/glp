@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import { font, palette, sans } from "../meal-planner/constants";
 import { DashboardPanel } from "../dashboard/components/DashboardPanel";
 import { getConsistencySummary } from "../dashboard/consistency";
+import { LineTrendChart } from "../history/components/LineTrendChart";
 import { useProfile } from "../profile/hooks/useProfile";
-import { getWeightTrendSummary } from "./weight";
+import { getWeightChartSeries, getWeightTrendSummary } from "./weight";
 import type { WeightLog } from "../../domain/types";
 
 function todayIsoDate() {
@@ -20,6 +21,7 @@ export function WeightPage() {
 
   const summary = useMemo(() => getWeightTrendSummary(weightLogs, recentLogs), [weightLogs, recentLogs]);
   const consistency = useMemo(() => getConsistencySummary(profile, recentLogs), [profile, recentLogs]);
+  const weightSeries = useMemo(() => getWeightChartSeries(weightLogs), [weightLogs]);
 
   if (isLoading) {
     return <div style={{ padding: 24, fontFamily: sans }}>Loading weight tracking...</div>;
@@ -112,6 +114,7 @@ export function WeightPage() {
       <div style={{ marginTop: 16 }}>
         <DashboardPanel title="Recent trend">
           <div style={{ display: "grid", gap: 10 }}>
+            <LineTrendChart title="Weight trend" points={weightSeries} color="#6d597a" valueSuffix=" lbs" />
             {summary.latest ? (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
                 <MetricCard label="Latest weigh-in" value={`${summary.latest.weight} lbs`} detail={summary.latest.date} />

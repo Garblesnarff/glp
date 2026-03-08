@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { createDefaultDailyLog } from "../../domain/defaults";
-import { getWeightTrendSummary } from "./weight";
+import { getWeightChartSeries, getWeightTrendSummary } from "./weight";
 
 describe("weight tracking", () => {
   test("frames weight against consistency signals", () => {
@@ -27,5 +27,15 @@ describe("weight tracking", () => {
     expect(summary.hydrationDays).toBe(2);
     expect(summary.proteinDays).toBe(2);
     expect(summary.framing.toLowerCase()).toContain("consistency");
+  });
+
+  test("builds chart-ready weight series", () => {
+    const series = getWeightChartSeries([
+      { id: "w2", date: "2026-03-08", weight: 212.4, clothesFit: "looser" },
+      { id: "w1", date: "2026-03-01", weight: 214.1 },
+    ]);
+
+    expect(series[0]?.value).toBe(214.1);
+    expect(series[1]?.note).toBe("looser fit");
   });
 });

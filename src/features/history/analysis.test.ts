@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { createDefaultDailyLog } from "../../domain/defaults";
 import type { MedicationLog } from "../../domain/types";
-import { getDailyCorrelationSeries, getHistoryPatternSummary } from "./analysis";
+import { getDailyCorrelationSeries, getHistoryPatternSummary, getTrendChartSeries } from "./analysis";
 
 describe("history analysis", () => {
   test("summarizes dose increase and rough-day signals", () => {
@@ -79,5 +79,23 @@ describe("history analysis", () => {
     expect(series[0]?.foodMood).toBe("overwhelmed");
     expect(series[0]?.supplementCount).toBe(0);
     expect(series[0]?.strengthLogged).toBe(false);
+  });
+
+  test("builds chart-friendly trend series", () => {
+    const first = createDefaultDailyLog("2026-03-07");
+    first.hydrationOz = 48;
+    first.foodNoiseLevel = 4;
+    first.mealsConsumed = [
+      { recipeId: "b5", mealType: "breakfast", portion: "full", actualProtein: 30, actualFiber: 6, actualCalories: 320 },
+    ];
+    const second = createDefaultDailyLog("2026-03-08");
+    second.hydrationOz = 72;
+    second.foodNoiseLevel = 2;
+
+    const series = getTrendChartSeries([second, first]);
+
+    expect(series.hydration[0]?.value).toBe(48);
+    expect(series.hydration[1]?.value).toBe(72);
+    expect(series.foodNoise[0]?.value).toBe(4);
   });
 });

@@ -91,12 +91,12 @@ export function getEmergencyFoods(profile: UserProfile, log: DailyLog, recipes: 
 export function getDashboardMealRecommendations(profile: UserProfile, log: DailyLog, recipes: Recipe[] = RECIPES, recentLogs: DailyLog[] = []) {
   const appetite = log.appetiteLevel;
   const shotDay = isShotDaySupportActive(profile);
-  const toleranceScores = getRecipeToleranceScores(recentLogs);
+  const recommendationScores = getRecipeRecommendationScores(profile, log, recentLogs, recipes);
 
   return recipes
     .filter((recipe) => recipe.tags.includes("high-protein") || recipe.protein >= 24)
     .filter((recipe) => {
-      if ((toleranceScores.get(recipe.id) ?? 0) <= -2) {
+      if ((recommendationScores.get(recipe.id) ?? 0) <= -2) {
         return false;
       }
 
@@ -119,9 +119,9 @@ export function getDashboardMealRecommendations(profile: UserProfile, log: Daily
       return recipe.meal !== "snack" && !recipe.glp1.avoidWhen.includes("severe reflux");
     })
     .sort((a, b) => {
-      const toleranceDelta = (toleranceScores.get(b.id) ?? 0) - (toleranceScores.get(a.id) ?? 0);
-      if (toleranceDelta !== 0) {
-        return toleranceDelta;
+      const scoreDelta = (recommendationScores.get(b.id) ?? 0) - (recommendationScores.get(a.id) ?? 0);
+      if (scoreDelta !== 0) {
+        return scoreDelta;
       }
       const heavinessDelta = a.glp1.heaviness - b.glp1.heaviness;
       if (heavinessDelta !== 0) {
@@ -136,6 +136,7 @@ export function getRecipeRecommendationReasons(recipe: Recipe, profile: UserProf
   const reasons: string[] = [];
   const shotDay = isShotDaySupportActive(profile);
   const toleranceScore = getRecipeToleranceScores(recentLogs).get(recipe.id) ?? 0;
+  const recentSignals = getRecentSymptomSignals(recentLogs);
 
   if (shotDay && recipe.glp1.shotDayFriendly) {
     reasons.push("Shot-day friendly");
@@ -159,6 +160,14 @@ export function getRecipeRecommendationReasons(recipe: Recipe, profile: UserProf
     reasons.push(`${recipe.glp1.constipationSupport} fiber support`);
   }
 
+  if (recentSignals.nauseaDays >= 2 && recipe.glp1.nauseaFriendly) {
+    reasons.push("Matches recent nausea pattern");
+  }
+
+  if (recentSignals.refluxDays >= 2 && recipe.glp1.refluxFriendly) {
+    reasons.push("Matches recent reflux pattern");
+  }
+
   if (toleranceScore > 0) {
     reasons.push("Previously tolerated");
   }
@@ -172,6 +181,66 @@ export function getRecipeRecommendationReasons(recipe: Recipe, profile: UserProf
   }
 
   return reasons.slice(0, 3);
+}
+
+export function getRecipeRecommendationScores(
+  profile: UserProfile,
+  log: DailyLog,
+  recentLogs: DailyLog[],
+  recipes: Recipe[] = RECIPES,
+) {
+  const shotDay = isShotDaySupportActive(profile);
+  const toleranceScores = getRecipeToleranceScores(recentLogs);
+  const recentSignals = getRecentSymptomSignals(recentLogs);
+  const scores = new Map<string, number>();
+
+  recipes.forEach((recipe) => {
+    let score = toleranceScores.get(recipe.id) ?? 0;
+
+    if (shotDay && recipe.glp1.shotDayFriendly) {
+      score += 2;
+    }
+    if (shotDay && recipe.glp1.heaviness <= 2) {
+      score += 1;
+    }
+
+    if (log.appetiteLevel === "none" && recipe.canBlendOrSip) {
+      score += 3;
+    } else if (log.appetiteLevel !== "normal" && recipe.glp1.appetiteLevel.includes(log.appetiteLevel)) {
+      score += 2;
+    }
+
+    if (severityScore[log.symptoms.nausea] >= 1 && recipe.glp1.nauseaFriendly) {
+      score += 2;
+    }
+    if (severityScore[log.symptoms.reflux] >= 1 && recipe.glp1.refluxFriendly) {
+      score += 2;
+    }
+    if (severityScore[log.symptoms.constipation] >= 1) {
+      score += supportValue(recipe.glp1.constipationSupport);
+    }
+
+    if (recentSignals.nauseaDays >= 2 && recipe.glp1.nauseaFriendly) {
+      score += 1;
+    }
+    if (recentSignals.refluxDays >= 2 && recipe.glp1.refluxFriendly) {
+      score += 1;
+    }
+    if (recentSignals.lowAppetiteDays >= 3 && recipe.glp1.heaviness <= 2) {
+      score += 1;
+    }
+
+    if (recipe.glp1.heaviness >= 4 && (severityScore[log.symptoms.nausea] >= 1 || recentSignals.nauseaDays >= 2)) {
+      score -= 2;
+    }
+    if (!recipe.glp1.refluxFriendly && (severityScore[log.symptoms.reflux] >= 1 || recentSignals.refluxDays >= 2)) {
+      score -= 2;
+    }
+
+    scores.set(recipe.id, score);
+  });
+
+  return scores;
 }
 
 export function getHydrationStatus(profile: UserProfile, log: DailyLog) {
@@ -480,4 +549,26 @@ function supportValue(level: "none" | "low" | "medium" | "high") {
     return 1;
   }
   return 0;
+}
+
+function getRecentSymptomSignals(recentLogs: DailyLog[]) {
+  return recentLogs.reduce(
+    (acc, log) => {
+      if (severityScore[log.symptoms.nausea] >= 1) {
+        acc.nauseaDays += 1;
+      }
+      if (severityScore[log.symptoms.reflux] >= 1) {
+        acc.refluxDays += 1;
+      }
+      if (log.appetiteLevel !== "normal") {
+        acc.lowAppetiteDays += 1;
+      }
+      return acc;
+    },
+    {
+      nauseaDays: 0,
+      refluxDays: 0,
+      lowAppetiteDays: 0,
+    },
+  );
 }
