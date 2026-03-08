@@ -1,0 +1,14 @@
+# Secrets
+docker/.env
+
+# PostgreSQL data directory
+docker/volumes/db/data/
+
+# Storage uploads
+docker/volumes/storage/
+
+# Edge function build artifacts
+docker/volumes/functions/
+
+# Logs
+docker/volumes/logs/
