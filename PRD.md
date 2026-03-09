@@ -256,6 +256,18 @@ The codebase has moved beyond the original single-screen artifact and now includ
    - This creates the execution-planning boundary needed to add real external sends without rewriting the reminder, scheduling, or inbox layers
    - External delivery is still not live, but the provider abstraction and orchestration seam are now present in the codebase
 
+35. **Dynamic nutrition target foundation**
+   - Protein targets now derive from current body weight using the PRD-style `1.2-1.5 g/kg` formula instead of relying on a fixed placeholder range
+   - Fiber guidance now ramps by medication week, with gentler targets in weeks 1-2, a building phase in weeks 3-4, and the full target by week 5+
+   - Onboarding, dashboard, and constipation support now surface those live targets so users see the current goal rather than a static number
+   - This makes the nutrition layer materially closer to the product intent around preserving lean mass and easing early GI burden
+
+36. **Bristol stool tracking foundation**
+   - The daily log now supports optional Bristol stool scale tracking alongside the simpler bowel-movement yes/no toggle
+   - Constipation support can now use stool-form context to adjust its prompts instead of relying only on symptom severity and days since last bowel movement
+   - This gives the constipation workflow the PRD’s requested stool-form signal without forcing extra logging when users do not want it
+   - The support remains lightweight, but the underlying data shape is now present for deeper constipation coaching later
+
 ### What is still scaffolded vs complete
 
 - **Dashboard**: implemented as the default route with live daily-state interactions, recommendation rationale badges, and early history-aware scoring, but still not yet personalized by deeper long-term correlation modeling
@@ -263,7 +275,7 @@ The codebase has moved beyond the original single-screen artifact and now includ
 - **Hydration tracker**: tap-based increments, hydration-risk logic, and reminder scheduling now exist, but not yet full bottle/glass visualization or richer adherence visualization
 - **Medication timeline**: dedicated route and first logging workflow now exist, but there is still no automatic recurring schedule, missed-dose reminders, or true correlation/visual analytics with symptoms and food tolerance yet
 - **Trend analysis**: first pattern and correlation summaries now exist in history, but there are still no true charts, longitudinal scoring models, or recommendation loops driven by these correlations yet
-- **Constipation workflow**: bowel-movement tracking, support prompts, and reminder generation now exist, but there is still no Bristol stool scale, persistent escalation timer beyond recent logs, or richer clinical constipation assessment yet
+- **Constipation workflow**: bowel-movement tracking, Bristol stool scale logging, support prompts, and reminder generation now exist, but there is still no persistent escalation timer beyond recent logs or richer clinical constipation assessment yet
 - **Food relationship tracking**: food noise and food mood now have dedicated coaching and light recommendation influence, but there is still no deeper guided journaling, celebration workflow, or long-horizon emotional pattern model yet
 - **Reminder system**: in-app reminders, persisted reminder preferences, refill reminders, channel planning, transport-readiness modeling, provider adapters, notification-job scheduling, a Bun delivery worker, and an in-app inbox now exist, but there is still no live email/SMS send execution, push delivery, or fully automated server-side scheduling orchestration yet
 - **Supplement and movement support**: checklist logging, adherence nudges, coaching, and reminder generation now exist, but there is still no clinician-configurable regimen or custom supplement library yet
@@ -271,6 +283,7 @@ The codebase has moved beyond the original single-screen artifact and now includ
 - **Prep partner model**: route, invite UI, linked-primary shared reads, invite acceptance, unlink/recovery actions, rough-day support alerts, and shared planner state now exist, but there is still no richer conflict handling or broader household notification coordination yet
 - **Planner/grocery sharing**: account-scoped persistence is now wired for Supabase-backed sessions, but local mode remains personal-only and there is not yet explicit conflict handling or audit/history for shared edits
 - **Recommendation engine**: now structured, explainable, and partly history-aware via recent symptom and tolerance scoring, but still not powered by durable preference memory, broader lifestyle context, or longer-term longitudinal modeling
+- **Nutrition targeting**: protein and fiber targets are now dynamic and medication-phase aware, but there is still no clinician-adjustable target logic or lab-informed personalization yet
 - **History/trends**: recent history is now both browsable and lightly charted, but there are still no richer visual correlation dashboards, clinician-style exports, or deeper long-term trend models yet
 - **Weight tracking**: dedicated logging, framing, consistency celebration, and a simple trend chart now exist, but there is still no richer waist/clothes-fit visualization or deeper correlation with medication phases yet
 - **Social eating playbook**: first dining-out guidance now exists, but it still lacks more cuisines, restaurant-search integration, and event-specific coaching flows

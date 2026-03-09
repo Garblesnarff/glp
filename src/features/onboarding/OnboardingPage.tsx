@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { font, palette, sans } from "../meal-planner/constants";
 import { useProfile } from "../profile/hooks/useProfile";
 import type { UserProfile } from "../../domain/types";
+import { calculateProteinTargetRange, getFiberRampTarget } from "../../domain/utils";
 
 const restrictionOptions = ["egg-free", "gluten-free", "dairy-free", "no seafood", "no sausage"];
 const shotDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -34,6 +35,9 @@ export function OnboardingPage() {
         : [...current.dietaryRestrictions, restriction],
     }));
   }
+
+  const proteinTarget = calculateProteinTargetRange(draft.currentWeight);
+  const fiberRamp = getFiberRampTarget(draft.fiberTarget, draft.medicationStartDate);
 
   return (
     <div style={{ maxWidth: 760, margin: "0 auto", padding: "32px 16px 80px" }}>
@@ -72,6 +76,9 @@ export function OnboardingPage() {
               style={inputStyle}
             />
           </Field>
+          <div style={supportTextStyle}>
+            Protein target auto-calculates from current weight using 1.2-1.5 g/kg: {proteinTarget.min}-{proteinTarget.max} g/day.
+          </div>
           <Field label="Goal weight (optional)">
             <input
               type="number"
@@ -113,6 +120,9 @@ export function OnboardingPage() {
               style={inputStyle}
             />
           </Field>
+          <div style={supportTextStyle}>
+            Fiber ramp is based on medication week: week {fiberRamp.week} is {fiberRamp.stageLabel.toLowerCase()}, so the current target is {fiberRamp.currentTarget} g/day on the way to {fiberRamp.fullTarget} g/day.
+          </div>
         </Section>
 
         <Section title="Restrictions">
@@ -216,6 +226,13 @@ const inputStyle: CSSProperties = {
   fontFamily: sans,
   fontSize: 14,
   background: "#fff",
+};
+
+const supportTextStyle: CSSProperties = {
+  fontFamily: sans,
+  fontSize: 13,
+  color: palette.textMuted,
+  lineHeight: 1.6,
 };
 
 const primaryButtonStyle: CSSProperties = {

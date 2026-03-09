@@ -9,6 +9,51 @@ export function calculateProteinTargetRange(weightLbs: number) {
   };
 }
 
+export function getMedicationWeek(startDate: string, referenceDate = new Date()) {
+  if (!startDate) {
+    return 1;
+  }
+
+  const daysSinceStart = getDaysSince(startDate, referenceDate);
+  return Math.max(1, Math.floor(daysSinceStart / 7) + 1);
+}
+
+export function getFiberRampTarget(fullTarget: number, startDate: string, referenceDate = new Date()) {
+  const week = getMedicationWeek(startDate, referenceDate);
+
+  if (week <= 2) {
+    return {
+      currentTarget: Math.min(fullTarget, 18),
+      fullTarget,
+      week,
+      stageLabel: "Gentle ramp",
+    };
+  }
+
+  if (week <= 4) {
+    return {
+      currentTarget: Math.min(fullTarget, 22),
+      fullTarget,
+      week,
+      stageLabel: "Building ramp",
+    };
+  }
+
+  return {
+    currentTarget: fullTarget,
+    fullTarget,
+    week,
+    stageLabel: "Full target",
+  };
+}
+
+export function normalizeUserProfileTargets(profile: UserProfile) {
+  return {
+    ...profile,
+    proteinTarget: calculateProteinTargetRange(profile.currentWeight),
+  };
+}
+
 export function isProfileComplete(profile: UserProfile | null) {
   if (!profile) {
     return false;

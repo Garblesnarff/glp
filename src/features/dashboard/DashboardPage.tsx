@@ -1,6 +1,6 @@
 import { useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
-import { getDaysSince, getNextShotLabel } from "../../domain/utils";
+import { getDaysSince, getFiberRampTarget, getNextShotLabel } from "../../domain/utils";
 import { palette, sans, font } from "../meal-planner/constants";
 import { RecipeCard } from "../meal-planner/components/RecipeCard";
 import { RecipeModal } from "../meal-planner/components/RecipeModal";
@@ -52,6 +52,7 @@ export function DashboardPage() {
   const hydrationPct = Math.min((todayLog.hydrationOz / profile.hydrationGoal) * 100, 100);
   const proteinTotal = todayLog.mealsConsumed.reduce((sum, meal) => sum + meal.actualProtein, 0);
   const proteinPct = Math.min((proteinTotal / profile.proteinTarget.min) * 100, 100);
+  const fiberRamp = getFiberRampTarget(profile.fiberTarget, profile.medicationStartDate);
   const activeSymptoms = getActiveSymptoms(todayLog);
   const dashboardMessages = getDashboardMessages(profile, todayLog);
   const shotDayActive = isShotDaySupportActive(profile);
@@ -96,6 +97,7 @@ export function DashboardPage() {
         <DashboardMetricCard title="Shot status" value={`${daysSinceStart} days in`} detail={`Next shot: ${nextShot}`} />
         <DashboardMetricCard title="Hydration" value={`${todayLog.hydrationOz} oz`} detail={`Goal: ${profile.hydrationGoal} oz`} progress={hydrationPct} />
         <DashboardMetricCard title="Protein" value={`${proteinTotal} g`} detail={`Target: ${profile.proteinTarget.min}-${profile.proteinTarget.max} g`} progress={proteinPct} />
+        <DashboardMetricCard title="Fiber ramp" value={`${fiberRamp.currentTarget} g`} detail={`${fiberRamp.stageLabel} · full ${fiberRamp.fullTarget} g`} />
         <DashboardMetricCard title="Appetite" value={todayLog.appetiteLevel} detail="Updated in quick check-in" />
         <DashboardMetricCard title="Food noise" value={`${todayLog.foodNoiseLevel}/5`} detail={todayLog.foodMood} />
       </div>

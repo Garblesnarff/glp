@@ -1,4 +1,5 @@
 import type { DailyLog, ReminderPreferences, SymptomType, UserProfile } from "./types";
+import { calculateProteinTargetRange } from "./utils";
 
 export const defaultSymptoms = Object.freeze(
   {
@@ -38,11 +39,8 @@ export const defaultUserProfile: UserProfile = {
   name: "",
   role: "primary",
   currentWeight: 180,
-  proteinTarget: {
-    min: 114,
-    max: 143,
-  },
-  fiberTarget: 25,
+  proteinTarget: calculateProteinTargetRange(180),
+  fiberTarget: 28,
   hydrationGoal: 64,
   dietaryRestrictions: ["egg-free", "gluten-free", "no seafood", "no sausage"],
   medicationName: "",
@@ -67,6 +65,7 @@ export function createDefaultDailyLog(date: string): DailyLog {
     supplements: [],
     movement: [],
     bowelMovement: false,
+    bristolStoolType: undefined,
     notes: "",
   };
 }

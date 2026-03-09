@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { defaultReminderPreferences } from "../../../domain/defaults";
+import { normalizeUserProfileTargets } from "../../../domain/utils";
 import type { DailyLog, UserProfile } from "../../../domain/types";
 import type { HouseholdRepository, LinkedPrimaryContext } from "./HouseholdRepository";
 
@@ -51,7 +52,7 @@ export class SupabaseHouseholdRepository implements HouseholdRepository {
 }
 
 function mapProfile(data: Record<string, unknown>): UserProfile {
-  return {
+  return normalizeUserProfileTargets({
     name: String(data.name ?? ""),
     role: data.role === "prep_partner" ? "prep_partner" : "primary",
     currentWeight: Number(data.current_weight ?? 0),
@@ -71,5 +72,5 @@ function mapProfile(data: Record<string, unknown>): UserProfile {
     lastRefillDate: "",
     prepPartnerEmail: data.prep_partner_email ? String(data.prep_partner_email) : undefined,
     reminderPreferences: defaultReminderPreferences,
-  };
+  });
 }

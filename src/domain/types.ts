@@ -38,6 +38,7 @@ export type Severity = "none" | "mild" | "moderate" | "severe";
 export type AppetiteLevel = "none" | "low" | "normal";
 
 export type FoodMood = "excited" | "neutral" | "anxious" | "sad" | "overwhelmed";
+export type BristolStoolType = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 export type PortionSize = "mini" | "half" | "full";
 export type MealTolerance = "easy" | "okay" | "rough";
@@ -114,6 +115,7 @@ export type DailyLog = {
   supplements: string[];
   movement: string[];
   bowelMovement?: boolean;
+  bristolStoolType?: BristolStoolType;
   notes?: string;
 };
 

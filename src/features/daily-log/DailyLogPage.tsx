@@ -22,6 +22,7 @@ import {
   hasRedFlagSymptoms,
   needsElectrolytePrompt,
 } from "../dashboard/support";
+import { getFiberRampTarget } from "../../domain/utils";
 
 export function DailyLogPage() {
   const {
@@ -37,6 +38,7 @@ export function DailyLogPage() {
     saveMealEntry,
     removeMealEntry,
     setBowelMovement,
+    setBristolStoolType,
     toggleMovementActivity,
     toggleSupplement,
   } = useProfile();
@@ -55,6 +57,7 @@ export function DailyLogPage() {
   const mealRecommendations = getDashboardMealRecommendations(profile, todayLog, RECIPES, recentLogs);
   const constipationPlan = getConstipationSupportPlan(profile, todayLog, recentLogs, RECIPES);
   const checklistSummary = getDailyChecklistSummary(todayLog);
+  const fiberRamp = getFiberRampTarget(profile.fiberTarget, profile.medicationStartDate);
 
   return (
     <div style={{ maxWidth: 920, margin: "0 auto", padding: "24px 16px 80px" }}>
@@ -166,9 +169,13 @@ export function DailyLogPage() {
             escalationActive={constipationPlan.escalationActive}
             movementDone={constipationPlan.movementDone}
             bowelMovementToday={Boolean(todayLog.bowelMovement)}
+            bristolStoolType={todayLog.bristolStoolType}
             recipeSuggestions={constipationPlan.recipeSuggestions}
             prompts={constipationPlan.prompts}
+            currentFiberTarget={fiberRamp.currentTarget}
+            fiberStageLabel={fiberRamp.stageLabel}
             onToggleBowelMovement={(value) => void setBowelMovement(value)}
+            onSetBristolStoolType={(value) => void setBristolStoolType(value)}
             onToggleMovement={() => void toggleMovementActivity("10-minute walk")}
           />
         </DashboardPanel>

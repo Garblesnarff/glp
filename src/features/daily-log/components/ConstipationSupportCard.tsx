@@ -1,24 +1,33 @@
 import type { CSSProperties } from "react";
 import { palette, sans } from "../../meal-planner/constants";
 import type { Recipe } from "../../meal-planner/types";
+import type { BristolStoolType } from "../../../domain/types";
 
 export function ConstipationSupportCard({
   daysSinceBowelMovement,
   escalationActive,
   movementDone,
   bowelMovementToday,
+  bristolStoolType,
   recipeSuggestions,
   prompts,
+  currentFiberTarget,
+  fiberStageLabel,
   onToggleBowelMovement,
+  onSetBristolStoolType,
   onToggleMovement,
 }: {
   daysSinceBowelMovement: number | null;
   escalationActive: boolean;
   movementDone: boolean;
   bowelMovementToday: boolean;
+  bristolStoolType?: BristolStoolType;
   recipeSuggestions: Recipe[];
   prompts: string[];
+  currentFiberTarget: number;
+  fiberStageLabel: string;
   onToggleBowelMovement: (value: boolean) => void;
+  onSetBristolStoolType: (value: BristolStoolType | undefined) => void;
   onToggleMovement: (value: boolean) => void;
 }) {
   return (
@@ -39,6 +48,32 @@ export function ConstipationSupportCard({
         <button onClick={() => onToggleMovement(!movementDone)} style={pillButtonStyle(movementDone)}>
           {movementDone ? "Short walk done" : "Log 10-min walk"}
         </button>
+      </div>
+
+      <div style={{ display: "grid", gap: 8 }}>
+        <div style={{ fontFamily: sans, fontSize: 12, textTransform: "uppercase", letterSpacing: 1.2, color: palette.textMuted }}>
+          Bristol stool scale (optional)
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {[1, 2, 3, 4, 5, 6, 7].map((value) => (
+            <button
+              key={value}
+              onClick={() => onSetBristolStoolType(bristolStoolType === value ? undefined : (value as BristolStoolType))}
+              style={stoolButtonStyle(bristolStoolType === value)}
+            >
+              {value}
+            </button>
+          ))}
+        </div>
+        <div style={{ fontFamily: sans, fontSize: 12, color: palette.textMuted, lineHeight: 1.6 }}>
+          {bristolStoolType
+            ? `Logged type ${bristolStoolType}: ${getBristolDescription(bristolStoolType)}`
+            : "Optional: add stool type when a bowel movement happens so constipation support can be more specific."}
+        </div>
+      </div>
+
+      <div style={infoBoxStyle}>
+        Fiber ramp: {fiberStageLabel} at {currentFiberTarget}g/day right now.
       </div>
 
       <ul style={{ margin: 0, paddingLeft: 18, fontFamily: sans, color: palette.textMuted, lineHeight: 1.8, fontSize: 14 }}>
@@ -103,6 +138,21 @@ function pillButtonStyle(active: boolean): CSSProperties {
   };
 }
 
+function stoolButtonStyle(active: boolean): CSSProperties {
+  return {
+    width: 36,
+    height: 36,
+    borderRadius: 999,
+    border: `1px solid ${active ? palette.accent : palette.border}`,
+    background: active ? palette.accentSoft : "#fff",
+    color: active ? palette.accent : palette.text,
+    fontFamily: sans,
+    fontSize: 12,
+    fontWeight: 700,
+    cursor: "pointer",
+  };
+}
+
 const recipeRowStyle: CSSProperties = {
   display: "flex",
   justifyContent: "space-between",
@@ -131,4 +181,14 @@ function fiberBadgeStyle(level: "none" | "low" | "medium" | "high"): CSSProperti
     textTransform: "capitalize",
     whiteSpace: "nowrap",
   };
+}
+
+function getBristolDescription(value: BristolStoolType) {
+  if (value <= 2) {
+    return "harder stool, often consistent with constipation";
+  }
+  if (value <= 4) {
+    return "more typical stool form";
+  }
+  return "looser stool form";
 }

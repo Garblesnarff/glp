@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createDefaultDailyLog, defaultUserProfile } from "../../../domain/defaults";
-import { calculateProteinTargetRange, isProfileComplete } from "../../../domain/utils";
-import type { AppetiteLevel, DailyLog, DailyLogMealEntry, FoodMood, MedicationLog, Severity, SymptomType, UserProfile, WeightLog } from "../../../domain/types";
+import { isProfileComplete, normalizeUserProfileTargets } from "../../../domain/utils";
+import type { AppetiteLevel, BristolStoolType, DailyLog, DailyLogMealEntry, FoodMood, MedicationLog, Severity, SymptomType, UserProfile, WeightLog } from "../../../domain/types";
 import { useAppServices } from "../../../app/providers/AppServices";
 
 function todayIsoDate() {
@@ -27,7 +27,7 @@ export function useProfile() {
         profileRepository.loadWeightLogs(),
       ]);
 
-      setProfile(loadedProfile);
+      setProfile(loadedProfile ? normalizeUserProfileTargets(loadedProfile) : null);
       setTodayLog(loadedTodayLog ?? createDefaultDailyLog(todayIsoDate()));
       setRecentLogs(loadedRecentLogs);
       setMedicationLogs(loadedMedicationLogs);
@@ -39,10 +39,7 @@ export function useProfile() {
   const profileReady = useMemo(() => isProfileComplete(profile), [profile]);
 
   async function saveProfile(input: UserProfile) {
-    const normalizedProfile = {
-      ...input,
-      proteinTarget: calculateProteinTargetRange(input.currentWeight),
-    };
+    const normalizedProfile = normalizeUserProfileTargets(input);
 
     setProfile(normalizedProfile);
     await profileRepository.saveUserProfile(normalizedProfile);
@@ -148,11 +145,10 @@ export function useProfile() {
 
     if (log.weight !== profile?.currentWeight) {
       const currentProfile = profile ?? defaultUserProfile;
-      const nextProfile = {
+      const nextProfile = normalizeUserProfileTargets({
         ...currentProfile,
         currentWeight: log.weight,
-        proteinTarget: calculateProteinTargetRange(log.weight),
-      };
+      });
       setProfile(nextProfile);
       await profileRepository.saveUserProfile(nextProfile);
     }
@@ -163,6 +159,16 @@ export function useProfile() {
     await saveTodayLog({
       ...currentLog,
       bowelMovement: hasBowelMovement,
+      bristolStoolType: hasBowelMovement ? currentLog.bristolStoolType : undefined,
+    });
+  }
+
+  async function setBristolStoolType(bristolStoolType: BristolStoolType | undefined) {
+    const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
+    await saveTodayLog({
+      ...currentLog,
+      bowelMovement: bristolStoolType ? true : currentLog.bowelMovement,
+      bristolStoolType,
     });
   }
 
@@ -212,6 +218,7 @@ export function useProfile() {
     saveMedicationLog,
     saveWeightLog,
     setBowelMovement,
+    setBristolStoolType,
     toggleMovementActivity,
     toggleSupplement,
   };

@@ -1,6 +1,7 @@
 import { RECIPES } from "../meal-planner/data/recipes";
 import type { Recipe } from "../meal-planner/types";
 import type { AppetiteLevel, DailyLog, DailyLogMealEntry, Severity, SymptomType, UserProfile } from "../../domain/types";
+import { getFiberRampTarget } from "../../domain/utils";
 
 const severityScore: Record<Severity, number> = {
   none: 0,
@@ -532,10 +533,19 @@ export function getConstipationSupportPlan(profile: UserProfile, log: DailyLog, 
   const constipationActive = severityScore[log.symptoms.constipation] >= 1;
   const escalationActive = daysSinceBowelMovement !== null ? daysSinceBowelMovement >= 3 : constipationActive;
   const movementDone = log.movement.includes("10-minute walk");
+  const fiberRamp = getFiberRampTarget(profile.fiberTarget, profile.medicationStartDate);
+  const bristolPrompt =
+    log.bristolStoolType && log.bristolStoolType <= 2
+      ? "Most recent stool form looks harder. Increase fluids and keep fiber gentle rather than forcing a big jump."
+      : log.bristolStoolType && log.bristolStoolType >= 6
+        ? "Most recent stool form looks loose. Keep hydration steady and avoid aggressively pushing fiber upward today."
+        : "Aim for the current fiber ramp target rather than jumping straight to the full end goal.";
 
   const prompts = [
     `${Math.max(0, profile.hydrationGoal - log.hydrationOz)} oz remain toward today's hydration goal.`,
+    `${fiberRamp.currentTarget}g fiber target right now (${fiberRamp.stageLabel.toLowerCase()}, week ${fiberRamp.week}).`,
     movementDone ? "Short movement is already logged today." : "A short walk can help move things along when constipation is active.",
+    bristolPrompt,
     escalationActive
       ? "Constipation has persisted long enough that it may need escalation instead of just waiting it out."
       : "Favor gentle fiber today instead of forcing very heavy foods if your stomach feels sensitive.",
