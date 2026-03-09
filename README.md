@@ -38,3 +38,18 @@ A production-oriented Bun + React + TypeScript scaffold for a deployable GLP-1 m
 - Meal-planner persistence is abstracted behind a repository interface so local storage can be replaced by Supabase without rewriting feature code.
 - Add `.env` values from `.env.example` before wiring WorkOS and Supabase clients.
 - WorkOS is the auth source of truth. Supabase is configured to accept WorkOS JWTs through the client `accessToken` callback.
+
+## Deployment
+
+- Hetzner deployment runbook: [deploy/hetzner/DEPLOYMENT_RUNBOOK.md](/Volumes/T7/Claude-workspaces/glp/deploy/hetzner/DEPLOYMENT_RUNBOOK.md)
+- Hetzner production env template: [deploy/hetzner/.env.production.example](/Volumes/T7/Claude-workspaces/glp/deploy/hetzner/.env.production.example)
+- Nginx site template: [deploy/hetzner/nginx.glp.conf.example](/Volumes/T7/Claude-workspaces/glp/deploy/hetzner/nginx.glp.conf.example)
+- PM2 worker config: [deploy/hetzner/ecosystem.config.cjs](/Volumes/T7/Claude-workspaces/glp/deploy/hetzner/ecosystem.config.cjs)
+
+## QA
+
+- Bug bash checklist: [BUG_BASH_CHECKLIST.md](/Volumes/T7/Claude-workspaces/glp/BUG_BASH_CHECKLIST.md)
+- Manual QA checklist: [MANUAL_QA_CHECKLIST.md](/Volumes/T7/Claude-workspaces/glp/MANUAL_QA_CHECKLIST.md)
+- QA run log template: [QA_RUN_LOG_TEMPLATE.md](/Volumes/T7/Claude-workspaces/glp/QA_RUN_LOG_TEMPLATE.md)
+- Example QA run log: [qa-runs/2026-03-08-local-bug-bash.md](/Volumes/T7/Claude-workspaces/glp/qa-runs/2026-03-08-local-bug-bash.md)
+- Production readiness checklist: [PRODUCTION_READINESS_CHECKLIST.md](/Volumes/T7/Claude-workspaces/glp/PRODUCTION_READINESS_CHECKLIST.md)

@@ -1,0 +1,27 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name glp.infiniterealms.tech;
+
+    root /var/www/glp/dist;
+    index index.html;
+
+    access_log /var/log/nginx/glp.access.log;
+    error_log /var/log/nginx/glp.error.log;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    location = /favicon.ico {
+        try_files $uri =404;
+        access_log off;
+        log_not_found off;
+    }
+}
