@@ -25,7 +25,7 @@ export type EnvReadiness = {
   missingKeys: string[];
 };
 
-const DEFAULT_APP_URL = "http://localhost:5173";
+const DEFAULT_APP_URL = "http://127.0.0.1:5533";
 
 export function readAppEnv(source: EnvSource): AppEnv {
   return {
