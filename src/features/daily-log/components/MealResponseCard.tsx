@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import type { DailyLogMealEntry, MealTolerance, PortionSize } from "../../../domain/types";
+import { primaryButtonStyle } from "../../../components/ui/styles";
 import { palette, sans } from "../../meal-planner/constants";
 import { RECIPES } from "../../meal-planner/data/recipes";
 import type { Recipe } from "../../meal-planner/types";
@@ -39,7 +40,7 @@ export function MealResponseCard({
                     {capitalize(recipe.meal)} · default {recipe.recommendedPortion} portion
                   </div>
                 </div>
-                <button onClick={() => onAddRecipe(recipe)} style={primaryButtonStyle}>
+                <button onClick={() => onAddRecipe(recipe)} style={quickAddButtonStyle}>
                   Log meal
                 </button>
               </div>
@@ -180,16 +181,10 @@ const quickAddRowStyle: CSSProperties = {
   background: "#fff",
 };
 
-const primaryButtonStyle: CSSProperties = {
-  border: "none",
-  borderRadius: 999,
+const quickAddButtonStyle: CSSProperties = {
+  ...primaryButtonStyle,
   padding: "9px 14px",
-  background: palette.accent,
-  color: "#fff",
-  fontFamily: sans,
   fontSize: 12,
-  fontWeight: 700,
-  cursor: "pointer",
   whiteSpace: "nowrap",
 };
 

@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { Link } from "react-router-dom";
+import { secondaryLinkStyle } from "../../components/ui/styles";
 import { font, palette, sans } from "../meal-planner/constants";
 
 const redFlags = [
@@ -67,17 +68,4 @@ const sectionStyle: CSSProperties = {
   padding: 20,
   background: "#ffffffdb",
   border: `1px solid ${palette.border}`,
-};
-
-const secondaryLinkStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  borderRadius: 999,
-  border: `1px solid ${palette.border}`,
-  color: palette.text,
-  textDecoration: "none",
-  padding: "11px 16px",
-  fontFamily: sans,
-  fontWeight: 600,
 };

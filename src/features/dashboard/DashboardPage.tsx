@@ -1,5 +1,6 @@
 import { useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
+import { secondaryLinkStyle } from "../../components/ui/styles";
 import { getDaysSince, getFiberRampTarget, getNextShotLabel } from "../../domain/utils";
 import { palette, sans, font } from "../meal-planner/constants";
 import { RecipeCard } from "../meal-planner/components/RecipeCard";
@@ -335,19 +336,6 @@ const ctaLinkStyle: CSSProperties = {
   padding: "12px 18px",
   fontFamily: sans,
   fontWeight: 700,
-};
-
-const secondaryLinkStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  borderRadius: 999,
-  border: `1px solid ${palette.border}`,
-  color: palette.text,
-  textDecoration: "none",
-  padding: "11px 16px",
-  fontFamily: sans,
-  fontWeight: 600,
 };
 
 function supportBadgeStyle(complete: boolean): CSSProperties {

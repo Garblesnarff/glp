@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { Link } from "react-router-dom";
+import { secondaryLinkStyle } from "../../components/ui/styles";
 import { font, palette, sans } from "../meal-planner/constants";
 import { DashboardPanel } from "../dashboard/components/DashboardPanel";
 import { useProfile } from "../profile/hooks/useProfile";
@@ -88,19 +89,6 @@ export function SocialEatingPage() {
     </div>
   );
 }
-
-const secondaryLinkStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  borderRadius: 999,
-  border: `1px solid ${palette.border}`,
-  color: palette.text,
-  textDecoration: "none",
-  padding: "11px 16px",
-  fontFamily: sans,
-  fontWeight: 600,
-};
 
 const cardGridStyle: CSSProperties = {
   display: "grid",

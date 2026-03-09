@@ -1,6 +1,7 @@
 import type { PropsWithChildren } from "react";
 import { useAppAuth } from "../providers/app-auth-context";
 import { envReadiness } from "../../config/env";
+import { primaryButtonStyle } from "../../components/ui/styles";
 import { font, palette, sans } from "../../features/meal-planner/constants";
 
 export function AuthGate({ children }: PropsWithChildren) {
@@ -94,17 +95,6 @@ function CenteredMessage({ title, body }: { title: string; body: string }) {
     </div>
   );
 }
-
-const primaryButtonStyle: React.CSSProperties = {
-  background: palette.accent,
-  color: "#fff",
-  border: "none",
-  borderRadius: 999,
-  padding: "12px 20px",
-  fontFamily: sans,
-  fontWeight: 700,
-  cursor: "pointer",
-};
 
 const secondaryButtonStyle: React.CSSProperties = {
   background: "#fff",
