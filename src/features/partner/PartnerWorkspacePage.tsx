@@ -30,6 +30,8 @@ export function PartnerWorkspacePage() {
   const { activeAlerts, isLoading: alertsLoading, resolveAlert } = useSupportAlerts();
   const [inviteEmail, setInviteEmail] = useState(profile.prepPartnerEmail ?? auth.user?.email ?? "");
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [statusTone, setStatusTone] = useState<"success" | "error">("success");
 
   useEffect(() => {
     setInviteEmail(profile.prepPartnerEmail ?? auth.user?.email ?? "");
@@ -52,11 +54,20 @@ export function PartnerWorkspacePage() {
   async function handleInviteSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!inviteEmail.trim()) {
+      setStatusTone("error");
+      setStatusMessage("Enter an email address before sending an invite.");
       return;
     }
-
-    await createInvite(inviteEmail.trim());
-    setInviteEmail("");
+    setStatusMessage(null);
+    try {
+      await createInvite(inviteEmail.trim());
+      setInviteEmail("");
+      setStatusTone("success");
+      setStatusMessage("Partner invite sent.");
+    } catch {
+      setStatusTone("error");
+      setStatusMessage("Partner invite could not be sent. Try again.");
+    }
   }
 
   if (profileLoading || invitesLoading || linkedLoading || accountLoading || alertsLoading) {
@@ -67,6 +78,7 @@ export function PartnerWorkspacePage() {
 
   return (
     <div style={{ maxWidth: 980, margin: "0 auto", padding: "24px 16px 80px" }}>
+      {statusMessage ? <PartnerNotice tone={statusTone}>{statusMessage}</PartnerNotice> : null}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap" }}>
         <div>
           <div style={{ fontFamily: sans, fontSize: 11, textTransform: "uppercase", letterSpacing: 2, color: palette.accent }}>
@@ -117,7 +129,21 @@ export function PartnerWorkspacePage() {
                 <Link to="/planner" style={secondaryLinkStyle}>
                   Open shared planner
                 </Link>
-                <button onClick={() => void leaveHousehold()} style={revokeButtonStyle}>
+                <button
+                  onClick={() =>
+                    void (async () => {
+                      try {
+                        await leaveHousehold();
+                        setStatusTone("success");
+                        setStatusMessage("Household link removed.");
+                      } catch {
+                        setStatusTone("error");
+                        setStatusMessage("Household link could not be removed. Try again.");
+                      }
+                    })()
+                  }
+                  style={revokeButtonStyle}
+                >
                   Leave household link
                 </button>
               </div>
@@ -139,10 +165,38 @@ export function PartnerWorkspacePage() {
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    <button onClick={() => void acceptInvite(invite.id)} style={primaryButtonStyle}>
+                    <button
+                      onClick={() =>
+                        void (async () => {
+                          try {
+                            await acceptInvite(invite.id);
+                            setStatusTone("success");
+                            setStatusMessage("Partner invite accepted.");
+                          } catch {
+                            setStatusTone("error");
+                            setStatusMessage("Partner invite could not be accepted. Try again.");
+                          }
+                        })()
+                      }
+                      style={primaryButtonStyle}
+                    >
                       Accept invite
                     </button>
-                    <button onClick={() => void declineInvite(invite.id)} style={revokeButtonStyle}>
+                    <button
+                      onClick={() =>
+                        void (async () => {
+                          try {
+                            await declineInvite(invite.id);
+                            setStatusTone("success");
+                            setStatusMessage("Partner invite declined.");
+                          } catch {
+                            setStatusTone("error");
+                            setStatusMessage("Partner invite could not be declined. Try again.");
+                          }
+                        })()
+                      }
+                      style={revokeButtonStyle}
+                    >
                       Decline
                     </button>
                   </div>
@@ -170,7 +224,21 @@ export function PartnerWorkspacePage() {
                       <div style={{ fontFamily: sans, fontSize: 12, color: palette.text, marginTop: 6, lineHeight: 1.5 }}>{alert.note}</div>
                     ) : null}
                   </div>
-                  <button onClick={() => void resolveAlert(alert.id)} style={primaryButtonStyle}>
+                  <button
+                    onClick={() =>
+                      void (async () => {
+                        try {
+                          await resolveAlert(alert.id);
+                          setStatusTone("success");
+                          setStatusMessage("Support alert marked handled.");
+                        } catch {
+                          setStatusTone("error");
+                          setStatusMessage("Support alert could not be updated. Try again.");
+                        }
+                      })()
+                    }
+                    style={primaryButtonStyle}
+                  >
                     Mark handled
                   </button>
                 </div>
@@ -252,7 +320,21 @@ export function PartnerWorkspacePage() {
                         </div>
                       </div>
                       {invite.status === "pending" ? (
-                        <button onClick={() => void revokeInvite(invite.id)} style={revokeButtonStyle}>
+                        <button
+                          onClick={() =>
+                            void (async () => {
+                              try {
+                                await revokeInvite(invite.id);
+                                setStatusTone("success");
+                                setStatusMessage("Partner invite revoked.");
+                              } catch {
+                                setStatusTone("error");
+                                setStatusMessage("Partner invite could not be revoked. Try again.");
+                              }
+                            })()
+                          }
+                          style={revokeButtonStyle}
+                        >
                           Revoke
                         </button>
                       ) : invite.status === "accepted" ? (
@@ -284,6 +366,28 @@ export function PartnerWorkspacePage() {
       </div>
 
       {selectedRecipe ? <RecipeModal recipe={selectedRecipe} onClose={() => setSelectedRecipe(null)} /> : null}
+    </div>
+  );
+}
+
+function PartnerNotice({ tone, children }: { tone: "success" | "error"; children: React.ReactNode }) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
+        marginBottom: 16,
+        borderRadius: 14,
+        padding: "12px 14px",
+        background: tone === "success" ? "#f4fbf6" : "#fff4f5",
+        border: `1px solid ${tone === "success" ? palette.accentLight : "#f4c2c7"}`,
+        color: tone === "success" ? palette.text : palette.danger,
+        fontFamily: sans,
+        fontSize: 13,
+        lineHeight: 1.6,
+      }}
+    >
+      {children}
     </div>
   );
 }

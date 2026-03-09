@@ -12,6 +12,9 @@ export function OnboardingPage() {
   const navigate = useNavigate();
   const { profile, saveProfile } = useProfile();
   const [draft, setDraft] = useState<UserProfile>(profile);
+  const [isSaving, setIsSaving] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [statusTone, setStatusTone] = useState<"success" | "error">("success");
 
   useEffect(() => {
     setDraft(profile);
@@ -19,8 +22,19 @@ export function OnboardingPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    await saveProfile(draft);
-    navigate("/");
+    setIsSaving(true);
+    setStatusMessage(null);
+    try {
+      await saveProfile(draft);
+      setStatusTone("success");
+      setStatusMessage("Profile saved. Redirecting to the dashboard.");
+      navigate("/");
+    } catch {
+      setStatusTone("error");
+      setStatusMessage("Profile could not be saved. Try again.");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   function setField<Key extends keyof UserProfile>(key: Key, value: UserProfile[Key]) {
@@ -52,6 +66,7 @@ export function OnboardingPage() {
       </div>
 
       <form onSubmit={handleSubmit} style={{ display: "grid", gap: 18 }}>
+        {statusMessage ? <StatusNotice tone={statusTone}>{statusMessage}</StatusNotice> : null}
         <Section title="Role">
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <RoleButton active={draft.role === "primary"} onClick={() => setField("role", "primary")}>
@@ -160,14 +175,35 @@ export function OnboardingPage() {
         </Section>
 
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 8 }}>
-          <button type="submit" style={primaryButtonStyle}>
-            Save profile
+          <button type="submit" style={primaryButtonStyle} disabled={isSaving}>
+            {isSaving ? "Saving profile..." : "Save profile"}
           </button>
           <Link to="/" style={secondaryLinkStyle}>
             Back to dashboard
           </Link>
         </div>
       </form>
+    </div>
+  );
+}
+
+function StatusNotice({ tone, children }: { tone: "success" | "error"; children: ReactNode }) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
+        borderRadius: 14,
+        padding: "12px 14px",
+        fontFamily: sans,
+        fontSize: 13,
+        lineHeight: 1.6,
+        background: tone === "success" ? "#f4fbf6" : "#fff4f5",
+        border: `1px solid ${tone === "success" ? palette.accentLight : "#f4c2c7"}`,
+        color: tone === "success" ? palette.text : palette.danger,
+      }}
+    >
+      {children}
     </div>
   );
 }

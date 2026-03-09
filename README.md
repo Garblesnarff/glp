@@ -45,6 +45,7 @@ A production-oriented Bun + React + TypeScript scaffold for a deployable GLP-1 m
 - Hetzner production env template: [deploy/hetzner/.env.production.example](/Volumes/T7/Claude-workspaces/glp/deploy/hetzner/.env.production.example)
 - Nginx site template: [deploy/hetzner/nginx.glp.conf.example](/Volumes/T7/Claude-workspaces/glp/deploy/hetzner/nginx.glp.conf.example)
 - PM2 worker config: [deploy/hetzner/ecosystem.config.cjs](/Volumes/T7/Claude-workspaces/glp/deploy/hetzner/ecosystem.config.cjs)
+- Hetzner cutover checklist: [HETZNER_CUTOVER_CHECKLIST.md](/Volumes/T7/Claude-workspaces/glp/HETZNER_CUTOVER_CHECKLIST.md)
 
 ## QA
 

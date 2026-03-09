@@ -19,6 +19,9 @@ export function WeightPage() {
   const [waist, setWaist] = useState("");
   const [clothesFit, setClothesFit] = useState<WeightLog["clothesFit"]>("same");
   const [note, setNote] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [statusTone, setStatusTone] = useState<"success" | "error">("success");
 
   const summary = useMemo(() => getWeightTrendSummary(weightLogs, recentLogs), [weightLogs, recentLogs]);
   const consistency = useMemo(() => getConsistencySummary(profile, recentLogs), [profile, recentLogs]);
@@ -75,21 +78,38 @@ export function WeightPage() {
               onClick={() => {
                 const parsedWeight = Number(weight);
                 if (!Number.isFinite(parsedWeight) || parsedWeight <= 0) {
+                  setStatusTone("error");
+                  setStatusMessage("Enter a valid weight before saving.");
                   return;
                 }
-                void saveWeightLog({
-                  id: `weight:${todayIsoDate()}`,
-                  date: todayIsoDate(),
-                  weight: parsedWeight,
-                  waistInches: waist ? Number(waist) : undefined,
-                  clothesFit,
-                  note: note || undefined,
-                });
+                void (async () => {
+                  setIsSaving(true);
+                  setStatusMessage(null);
+                  try {
+                    await saveWeightLog({
+                      id: `weight:${todayIsoDate()}`,
+                      date: todayIsoDate(),
+                      weight: parsedWeight,
+                      waistInches: waist ? Number(waist) : undefined,
+                      clothesFit,
+                      note: note || undefined,
+                    });
+                    setStatusTone("success");
+                    setStatusMessage("Weigh-in saved.");
+                  } catch {
+                    setStatusTone("error");
+                    setStatusMessage("Weigh-in could not be saved. Try again.");
+                  } finally {
+                    setIsSaving(false);
+                  }
+                })();
               }}
               style={primaryButtonStyle}
+              disabled={isSaving}
             >
-              Save weigh-in
+              {isSaving ? "Saving weigh-in..." : "Save weigh-in"}
             </button>
+            {statusMessage ? <InlineNotice tone={statusTone}>{statusMessage}</InlineNotice> : null}
           </div>
         </DashboardPanel>
 
@@ -148,6 +168,26 @@ export function WeightPage() {
           </div>
         </DashboardPanel>
       </div>
+    </div>
+  );
+}
+
+function InlineNotice({ tone, children }: { tone: "success" | "error"; children: React.ReactNode }) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
+        borderRadius: 12,
+        padding: "10px 12px",
+        background: tone === "success" ? "#f4fbf6" : "#fff4f5",
+        border: `1px solid ${tone === "success" ? palette.accentLight : "#f4c2c7"}`,
+        color: tone === "success" ? palette.text : palette.danger,
+        fontFamily: sans,
+        fontSize: 13,
+      }}
+    >
+      {children}
     </div>
   );
 }

@@ -10,12 +10,24 @@ export function NotificationsPage() {
   const { env } = useAppServices();
   const { deliveries, isLoading, runDeliveryCycle, acknowledgeDelivery } = useNotificationCenter();
   const [running, setRunning] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [statusTone, setStatusTone] = useState<"success" | "error">("success");
   const transportStatuses = getAppNotificationTransportStatuses(env);
 
   async function handleRunCycle() {
     setRunning(true);
+    setStatusMessage(null);
     try {
-      await runDeliveryCycle();
+      const delivered = await runDeliveryCycle();
+      setStatusTone("success");
+      setStatusMessage(
+        delivered.length === 0
+          ? "Delivery cycle finished. No due jobs were ready."
+          : `Delivery cycle finished. ${delivered.length} notification${delivered.length === 1 ? "" : "s"} delivered.`,
+      );
+    } catch {
+      setStatusTone("error");
+      setStatusMessage("Delivery cycle could not be completed. Try again.");
     } finally {
       setRunning(false);
     }
@@ -23,6 +35,7 @@ export function NotificationsPage() {
 
   return (
     <div style={{ maxWidth: 920, margin: "0 auto", padding: "24px 16px 80px" }}>
+      {statusMessage ? <StatusBanner tone={statusTone}>{statusMessage}</StatusBanner> : null}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap" }}>
         <div>
           <div style={{ fontFamily: sans, fontSize: 11, textTransform: "uppercase", letterSpacing: 2, color: palette.accent }}>
@@ -130,6 +143,28 @@ export function NotificationsPage() {
           )}
         </DashboardPanel>
       </div>
+    </div>
+  );
+}
+
+function StatusBanner({ tone, children }: { tone: "success" | "error"; children: React.ReactNode }) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
+        marginBottom: 16,
+        borderRadius: 14,
+        padding: "12px 14px",
+        background: tone === "success" ? "#f4fbf6" : "#fff4f5",
+        border: `1px solid ${tone === "success" ? palette.accentLight : "#f4c2c7"}`,
+        color: tone === "success" ? palette.text : palette.danger,
+        fontFamily: sans,
+        fontSize: 13,
+        lineHeight: 1.6,
+      }}
+    >
+      {children}
     </div>
   );
 }

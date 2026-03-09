@@ -21,6 +21,7 @@ html {
 body {
   margin: 0;
   min-width: 320px;
+  overflow-x: hidden;
 }
 
 button,
@@ -28,6 +29,35 @@ input,
 select,
 textarea {
   font: inherit;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  transition:
+    box-shadow 0.15s ease,
+    outline-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(45, 106, 79, 0.28);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.12);
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
 }
 
 #root {

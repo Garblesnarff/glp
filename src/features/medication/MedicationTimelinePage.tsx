@@ -39,6 +39,11 @@ export function MedicationTimelinePage() {
     notes: "",
   });
   const [preferenceDraft, setPreferenceDraft] = useState<ReminderPreferences>(profile.reminderPreferences);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [statusTone, setStatusTone] = useState<"success" | "error">("success");
+  const [isSubmittingMedication, setIsSubmittingMedication] = useState(false);
+  const [isSavingPreferences, setIsSavingPreferences] = useState(false);
+  const [isRefreshingQueue, setIsRefreshingQueue] = useState(false);
 
   const latestLog = medicationLogs[0] ?? null;
   const symptomDays = recentLogs.filter((log) => Object.values(log.symptoms).some((severity) => severity !== "none")).length;
@@ -68,32 +73,43 @@ export function MedicationTimelinePage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setStatusMessage(null);
+    setIsSubmittingMedication(true);
+    try {
+      await saveMedicationLog({
+        id: crypto.randomUUID(),
+        medication: draft.medication || profile.medicationName,
+        dose: draft.dose,
+        shotDay: draft.shotDay,
+        injectionSite: draft.injectionSite,
+        date: draft.date,
+        status: draft.status,
+        isDoseIncrease: draft.isDoseIncrease,
+        notes: draft.notes || undefined,
+      });
 
-    await saveMedicationLog({
-      id: crypto.randomUUID(),
-      medication: draft.medication || profile.medicationName,
-      dose: draft.dose,
-      shotDay: draft.shotDay,
-      injectionSite: draft.injectionSite,
-      date: draft.date,
-      status: draft.status,
-      isDoseIncrease: draft.isDoseIncrease,
-      notes: draft.notes || undefined,
-    });
-
-    setDraft((current) => ({
-      ...current,
-      dose: "",
-      date: getLocalIsoDate(),
-      status: "completed",
-      isDoseIncrease: false,
-      notes: "",
-      injectionSite: nextSuggestedSite,
-    }));
+      setDraft((current) => ({
+        ...current,
+        dose: "",
+        date: getLocalIsoDate(),
+        status: "completed",
+        isDoseIncrease: false,
+        notes: "",
+        injectionSite: nextSuggestedSite,
+      }));
+      setStatusTone("success");
+      setStatusMessage("Medication log saved.");
+    } catch {
+      setStatusTone("error");
+      setStatusMessage("Medication log could not be saved. Try again.");
+    } finally {
+      setIsSubmittingMedication(false);
+    }
   }
 
   return (
     <div style={{ maxWidth: 980, margin: "0 auto", padding: "24px 16px 80px" }}>
+      {statusMessage ? <PageNotice tone={statusTone}>{statusMessage}</PageNotice> : null}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap" }}>
         <div>
           <div style={{ fontFamily: sans, fontSize: 11, textTransform: "uppercase", letterSpacing: 2, color: palette.accent }}>
@@ -181,8 +197,8 @@ export function MedicationTimelinePage() {
             <Field label="Notes">
               <textarea value={draft.notes} onChange={(event) => setDraft((current) => ({ ...current, notes: event.target.value }))} rows={4} style={textareaStyle} />
             </Field>
-            <button type="submit" style={primaryButtonStyle}>
-              Save medication log
+            <button type="submit" style={primaryButtonStyle} disabled={isSubmittingMedication}>
+              {isSubmittingMedication ? "Saving medication log..." : "Save medication log"}
             </button>
           </form>
         </DashboardPanel>
@@ -262,8 +278,27 @@ export function MedicationTimelinePage() {
               This is the delivery boundary for future scheduled or push reminders. It turns your reminder preferences plus current reminder logic into queued notification jobs.
             </div>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <button onClick={() => void refreshSchedule(profile, todayLog, recentLogs, medicationLogs)} style={primaryButtonStyle}>
-                Refresh scheduled jobs
+              <button
+                onClick={() =>
+                  void (async () => {
+                    setStatusMessage(null);
+                    setIsRefreshingQueue(true);
+                    try {
+                      await refreshSchedule(profile, todayLog, recentLogs, medicationLogs);
+                      setStatusTone("success");
+                      setStatusMessage("Scheduled jobs refreshed.");
+                    } catch {
+                      setStatusTone("error");
+                      setStatusMessage("Scheduled jobs could not be refreshed. Try again.");
+                    } finally {
+                      setIsRefreshingQueue(false);
+                    }
+                  })()
+                }
+                style={primaryButtonStyle}
+                disabled={isRefreshingQueue}
+              >
+                {isRefreshingQueue ? "Refreshing queue..." : "Refresh scheduled jobs"}
               </button>
               <Link to="/notifications" style={secondaryLinkStyle}>
                 Open inbox
@@ -442,9 +477,25 @@ export function MedicationTimelinePage() {
               <button
                 type="button"
                 style={primaryButtonStyle}
-                onClick={() => void saveProfile({ ...profile, reminderPreferences: preferenceDraft })}
+                disabled={isSavingPreferences}
+                onClick={() =>
+                  void (async () => {
+                    setStatusMessage(null);
+                    setIsSavingPreferences(true);
+                    try {
+                      await saveProfile({ ...profile, reminderPreferences: preferenceDraft });
+                      setStatusTone("success");
+                      setStatusMessage("Reminder preferences saved.");
+                    } catch {
+                      setStatusTone("error");
+                      setStatusMessage("Reminder preferences could not be saved. Try again.");
+                    } finally {
+                      setIsSavingPreferences(false);
+                    }
+                  })()
+                }
               >
-                Save reminder preferences
+                {isSavingPreferences ? "Saving reminder preferences..." : "Save reminder preferences"}
               </button>
               <div style={{ fontFamily: sans, fontSize: 12, color: palette.textMuted, alignSelf: "center" }}>
                 Current window: {capitalize(preferenceDraft.deliveryWindow)} · Quiet hours {preferenceDraft.quietHoursStart}-{preferenceDraft.quietHoursEnd}
@@ -453,6 +504,28 @@ export function MedicationTimelinePage() {
           </div>
         </DashboardPanel>
       </div>
+    </div>
+  );
+}
+
+function PageNotice({ tone, children }: { tone: "success" | "error"; children: React.ReactNode }) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
+        marginBottom: 16,
+        borderRadius: 14,
+        padding: "12px 14px",
+        background: tone === "success" ? "#f4fbf6" : "#fff4f5",
+        border: `1px solid ${tone === "success" ? palette.accentLight : "#f4c2c7"}`,
+        color: tone === "success" ? palette.text : palette.danger,
+        fontFamily: sans,
+        fontSize: 13,
+        lineHeight: 1.6,
+      }}
+    >
+      {children}
     </div>
   );
 }
