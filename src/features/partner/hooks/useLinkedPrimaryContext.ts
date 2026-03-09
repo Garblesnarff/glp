@@ -4,9 +4,10 @@ import { createDefaultDailyLog } from "../../../domain/defaults";
 import type { DailyLog } from "../../../domain/types";
 import { useAppServices } from "../../../app/providers/AppServices";
 import type { LinkedPrimaryContext } from "../repository/HouseholdRepository";
+import { getLocalIsoDate } from "../../../lib/dates";
 
 function todayIsoDate() {
-  return new Date().toISOString().slice(0, 10);
+  return getLocalIsoDate();
 }
 
 export function useLinkedPrimaryContext(enabled: boolean) {

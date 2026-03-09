@@ -1,4 +1,5 @@
 import type { UserProfile } from "../../domain/types";
+import { getLocalIsoDate } from "../../lib/dates";
 
 export function getRefillSummary(profile: UserProfile, referenceDate = new Date()) {
   if (!profile.lastRefillDate) {
@@ -28,7 +29,7 @@ export function getRefillSummary(profile: UserProfile, referenceDate = new Date(
   }
 
   return {
-    nextRefillDate: nextRefillDate.toISOString().slice(0, 10),
+    nextRefillDate: getLocalIsoDate(nextRefillDate),
     daysUntilRefill,
     refillDueSoon,
     refillOverdue,

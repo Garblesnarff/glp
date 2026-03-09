@@ -1,9 +1,8 @@
-import { DAILY_TARGETS } from "../data/recipes";
 import { font, palette, sans } from "../constants";
-import type { WeeklyStats } from "../types";
+import type { DailyTargets, WeeklyStats } from "../types";
 import { MacroBar } from "./MacroBar";
 
-export function TrackerTab({ weeklyStats }: { weeklyStats: WeeklyStats }) {
+export function TrackerTab({ weeklyStats, dailyTargets }: { weeklyStats: WeeklyStats; dailyTargets: DailyTargets }) {
   return (
     <div>
       <h2 style={{ fontFamily: font, fontSize: 20, margin: "0 0 16px" }}>Weekly Nutrition Tracker</h2>
@@ -23,9 +22,9 @@ export function TrackerTab({ weeklyStats }: { weeklyStats: WeeklyStats }) {
               }}
             >
               <h3 style={{ fontFamily: font, fontSize: 15, margin: "0 0 10px" }}>{day}</h3>
-              <MacroBar value={stats.protein} target={DAILY_TARGETS.protein} color={palette.accent} label="Protein (g)" />
-              <MacroBar value={stats.fiber} target={DAILY_TARGETS.fiber} color={palette.warm} label="Fiber (g)" />
-              <MacroBar value={stats.calories} target={DAILY_TARGETS.calories} color={palette.warmLight} label="Calories" />
+              <MacroBar value={stats.protein} target={dailyTargets.protein} color={palette.accent} label="Protein (g)" />
+              <MacroBar value={stats.fiber} target={dailyTargets.fiber} color={palette.warm} label="Fiber (g)" />
+              <MacroBar value={stats.calories} target={dailyTargets.calories} color={palette.warmLight} label="Calories" />
               {!hasMeals ? <div style={{ fontSize: 11, color: palette.textMuted, marginTop: 4, fontFamily: sans }}>No meals planned</div> : null}
             </div>
           );
@@ -57,9 +56,9 @@ export function TrackerTab({ weeklyStats }: { weeklyStats: WeeklyStats }) {
             <h3 style={{ fontFamily: font, fontSize: 15, margin: "0 0 10px", color: palette.accent }}>
               Weekly Average ({days.length} day{days.length > 1 ? "s" : ""} planned)
             </h3>
-            <MacroBar value={average.protein} target={DAILY_TARGETS.protein} color={palette.accent} label="Avg Protein" />
-            <MacroBar value={average.fiber} target={DAILY_TARGETS.fiber} color={palette.warm} label="Avg Fiber" />
-            <MacroBar value={average.calories} target={DAILY_TARGETS.calories} color={palette.warmLight} label="Avg Calories" />
+            <MacroBar value={average.protein} target={dailyTargets.protein} color={palette.accent} label="Avg Protein" />
+            <MacroBar value={average.fiber} target={dailyTargets.fiber} color={palette.warm} label="Avg Fiber" />
+            <MacroBar value={average.calories} target={dailyTargets.calories} color={palette.warmLight} label="Avg Calories" />
           </div>
         );
       })()}

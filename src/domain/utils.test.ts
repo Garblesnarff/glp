@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { calculateProteinTargetRange, getFiberRampTarget } from "./utils";
+import { calculateProteinTargetRange, getDaysSince, getFiberRampTarget } from "./utils";
 
 describe("domain utils", () => {
   test("calculates protein targets from current weight using 1.2-1.5 g/kg", () => {
@@ -14,5 +14,9 @@ describe("domain utils", () => {
     expect(early.stageLabel).toBe("Gentle ramp");
     expect(late.currentTarget).toBe(28);
     expect(late.stageLabel).toBe("Full target");
+  });
+
+  test("treats YYYY-MM-DD inputs as local calendar days for day math", () => {
+    expect(getDaysSince("2026-03-07", new Date("2026-03-08T00:30:00-06:00"))).toBe(1);
   });
 });

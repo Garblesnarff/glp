@@ -42,8 +42,25 @@ function getScheduledTime(profile: UserProfile, referenceDate: Date) {
 
   const quietEndHour = Number(profile.reminderPreferences.quietHoursEnd.split(":")[0] ?? "7");
   const quietEndMinute = Number(profile.reminderPreferences.quietHoursEnd.split(":")[1] ?? "0");
+  const quietStartHour = Number(profile.reminderPreferences.quietHoursStart.split(":")[0] ?? "21");
+  const quietStartMinute = Number(profile.reminderPreferences.quietHoursStart.split(":")[1] ?? "0");
 
-  if (scheduled.getHours() < quietEndHour || (scheduled.getHours() === quietEndHour && scheduled.getMinutes() < quietEndMinute)) {
+  const scheduledMinutes = scheduled.getHours() * 60 + scheduled.getMinutes();
+  const quietStartMinutes = quietStartHour * 60 + quietStartMinute;
+  const quietEndMinutes = quietEndHour * 60 + quietEndMinute;
+  const crossesMidnight = quietStartMinutes > quietEndMinutes;
+  const insideQuietHours =
+    quietStartMinutes === quietEndMinutes
+      ? false
+      : crossesMidnight
+        ? scheduledMinutes >= quietStartMinutes || scheduledMinutes < quietEndMinutes
+        : scheduledMinutes >= quietStartMinutes && scheduledMinutes < quietEndMinutes;
+
+  if (insideQuietHours) {
+    if (crossesMidnight && scheduledMinutes >= quietStartMinutes) {
+      scheduled.setDate(scheduled.getDate() + 1);
+    }
+
     scheduled.setHours(quietEndHour, quietEndMinute, 0, 0);
   }
 

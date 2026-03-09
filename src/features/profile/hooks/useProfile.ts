@@ -1,14 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { createContext, createElement, useContext, useEffect, useMemo, useState, type PropsWithChildren } from "react";
 import { createDefaultDailyLog, defaultUserProfile } from "../../../domain/defaults";
 import { isProfileComplete, normalizeUserProfileTargets } from "../../../domain/utils";
 import type { AppetiteLevel, BristolStoolType, DailyLog, DailyLogMealEntry, FoodMood, MedicationLog, Severity, SymptomType, UserProfile, WeightLog } from "../../../domain/types";
 import { useAppServices } from "../../../app/providers/AppServices";
+import { getLocalIsoDate } from "../../../lib/dates";
 
 function todayIsoDate() {
-  return new Date().toISOString().slice(0, 10);
+  return getLocalIsoDate();
 }
 
-export function useProfile() {
+function useProfileState() {
   const { profileRepository, accountRepository } = useAppServices();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [todayLog, setTodayLog] = useState<DailyLog | null>(null);
@@ -222,4 +223,23 @@ export function useProfile() {
     toggleMovementActivity,
     toggleSupplement,
   };
+}
+
+type ProfileState = ReturnType<typeof useProfileState>;
+
+const ProfileContext = createContext<ProfileState | null>(null);
+
+export function ProfileProvider({ children }: PropsWithChildren) {
+  const value = useProfileState();
+  return createElement(ProfileContext.Provider, { value }, children);
+}
+
+export function useProfile() {
+  const context = useContext(ProfileContext);
+
+  if (!context) {
+    throw new Error("useProfile must be used within a ProfileProvider");
+  }
+
+  return context;
 }

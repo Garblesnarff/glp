@@ -1,3 +1,4 @@
+import { getLocalIsoDate, parseLocalIsoDate } from "../lib/dates";
 import type { UserProfile } from "./types";
 
 export function calculateProteinTargetRange(weightLbs: number) {
@@ -69,8 +70,9 @@ export function isProfileComplete(profile: UserProfile | null) {
 }
 
 export function getDaysSince(startDate: string, referenceDate = new Date()) {
-  const start = new Date(startDate);
-  const diffMs = referenceDate.getTime() - start.getTime();
+  const start = parseLocalIsoDate(startDate);
+  const reference = parseLocalIsoDate(getLocalIsoDate(referenceDate));
+  const diffMs = reference.getTime() - start.getTime();
 
   return Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
 }

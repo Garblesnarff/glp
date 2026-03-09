@@ -14,6 +14,7 @@ import { LocalProfileRepository } from "../../features/profile/repository/localP
 import { SupabaseProfileRepository } from "../../features/profile/repository/SupabaseProfileRepository";
 import { LocalSupportAlertRepository } from "../../features/support-alerts/repository/localSupportAlertRepository";
 import { SupabaseSupportAlertRepository } from "../../features/support-alerts/repository/SupabaseSupportAlertRepository";
+import { ProfileProvider } from "../../features/profile/hooks/useProfile";
 import { createSupabaseBrowserClient } from "../../integrations/supabase/client";
 import { AppAuthProvider } from "./AppAuth";
 import { AppServicesContext, createAppServices } from "./AppServices";
@@ -69,5 +70,9 @@ function AppServicesProvider({ children }: PropsWithChildren) {
     });
   }, [auth.getAccessToken, auth.mode, auth.user]);
 
-  return <AppServicesContext.Provider value={services}>{children}</AppServicesContext.Provider>;
+  return (
+    <AppServicesContext.Provider value={services}>
+      <ProfileProvider>{children}</ProfileProvider>
+    </AppServicesContext.Provider>
+  );
 }

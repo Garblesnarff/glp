@@ -1,4 +1,4 @@
-import { useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { font, palette, sans } from "../meal-planner/constants";
 import { DashboardPanel } from "../dashboard/components/DashboardPanel";
@@ -7,9 +7,10 @@ import { LineTrendChart } from "../history/components/LineTrendChart";
 import { useProfile } from "../profile/hooks/useProfile";
 import { getWeightChartSeries, getWeightTrendSummary } from "./weight";
 import type { WeightLog } from "../../domain/types";
+import { getLocalIsoDate } from "../../lib/dates";
 
 function todayIsoDate() {
-  return new Date().toISOString().slice(0, 10);
+  return getLocalIsoDate();
 }
 
 export function WeightPage() {
@@ -22,6 +23,10 @@ export function WeightPage() {
   const summary = useMemo(() => getWeightTrendSummary(weightLogs, recentLogs), [weightLogs, recentLogs]);
   const consistency = useMemo(() => getConsistencySummary(profile, recentLogs), [profile, recentLogs]);
   const weightSeries = useMemo(() => getWeightChartSeries(weightLogs), [weightLogs]);
+
+  useEffect(() => {
+    setWeight(String(profile.currentWeight || ""));
+  }, [profile.currentWeight]);
 
   if (isLoading) {
     return <div style={{ padding: 24, fontFamily: sans }}>Loading weight tracking...</div>;

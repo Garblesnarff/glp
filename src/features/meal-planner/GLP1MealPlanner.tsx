@@ -1,4 +1,3 @@
-import { DAILY_TARGETS } from "./data/recipes";
 import { font, palette, sans } from "./constants";
 import { useMealPlanner } from "./hooks/useMealPlanner";
 import { GroceryTab } from "./components/GroceryTab";
@@ -7,9 +6,18 @@ import { RecipeModal } from "./components/RecipeModal";
 import { RecipesTab } from "./components/RecipesTab";
 import { TabButton } from "./components/TabButton";
 import { TrackerTab } from "./components/TrackerTab";
+import { useProfile } from "../profile/hooks/useProfile";
+import { getFiberRampTarget } from "../../domain/utils";
 
 export function GLP1MealPlanner({ initialTab = "recipes" }: { initialTab?: "recipes" | "planner" | "grocery" | "tracker" }) {
   const planner = useMealPlanner(initialTab);
+  const { profile } = useProfile();
+  const fiberRamp = getFiberRampTarget(profile.fiberTarget, profile.medicationStartDate);
+  const plannerTargets = {
+    protein: profile.proteinTarget.min,
+    fiber: fiberRamp.currentTarget,
+    calories: 1600,
+  };
 
   return (
     <div style={{ fontFamily: sans, background: palette.bg, minHeight: "100vh", color: palette.text }}>
@@ -30,7 +38,7 @@ export function GLP1MealPlanner({ initialTab = "recipes" }: { initialTab?: "reci
         </div>
         <h1 style={{ fontFamily: font, fontSize: 26, margin: "4px 0 2px", fontWeight: 700 }}>Meal Planner</h1>
         <div style={{ fontSize: 12, fontFamily: sans, opacity: 0.8 }}>
-          Daily targets: {DAILY_TARGETS.protein}g protein · {DAILY_TARGETS.fiber}g fiber · ~{DAILY_TARGETS.calories} cal
+          Daily targets: {profile.proteinTarget.min}-{profile.proteinTarget.max}g protein · {fiberRamp.currentTarget}g fiber · ~{plannerTargets.calories} cal
         </div>
         <div style={{ fontSize: 11, fontFamily: sans, opacity: 0.6, marginTop: 2 }}>
           Egg-free · Gluten-free · No seafood · No sausage
@@ -95,7 +103,7 @@ export function GLP1MealPlanner({ initialTab = "recipes" }: { initialTab?: "reci
           />
         ) : null}
 
-        {planner.tab === "tracker" ? <TrackerTab weeklyStats={planner.weeklyStats} /> : null}
+        {planner.tab === "tracker" ? <TrackerTab weeklyStats={planner.weeklyStats} dailyTargets={plannerTargets} /> : null}
       </div>
 
       {planner.selectedRecipe ? <RecipeModal recipe={planner.selectedRecipe} onClose={() => planner.setSelectedRecipe(null)} /> : null}

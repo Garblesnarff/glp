@@ -42,4 +42,23 @@ describe("notification scheduling", () => {
     expect(jobs[0]?.channel).toBe("in_app");
     expect(jobs[0]?.fallbackReason).toContain("Email transport");
   });
+
+  test("moves reminders out of quiet hours when the preferred window falls inside them", () => {
+    const profile: UserProfile = {
+      ...defaultUserProfile,
+      reminderPreferences: {
+        ...defaultUserProfile.reminderPreferences,
+        deliveryWindow: "evening",
+        quietHoursStart: "17:00",
+        quietHoursEnd: "08:30",
+      },
+    };
+    const log = createDefaultDailyLog("2026-03-08");
+    log.hydrationOz = 12;
+
+    const jobs = buildScheduledNotificationJobs(profile, log, [], [], new Date("2026-03-08T08:00:00"));
+
+    expect(jobs[0]?.sendAt.includes("T08:30:00")).toBe(true);
+    expect(jobs[0]?.sendAt.startsWith("2026-03-09")).toBe(true);
+  });
 });

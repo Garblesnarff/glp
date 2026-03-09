@@ -9,6 +9,7 @@ import type { ReminderPreferences } from "../../domain/types";
 import { getRefillSummary } from "./refill";
 import { useNotificationQueue } from "../notifications/hooks/useNotificationQueue";
 import { getNotificationChannelPlan } from "../notifications/channels";
+import { getLocalIsoDate } from "../../lib/dates";
 
 const shotDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const injectionSites = ["Left abdomen", "Right abdomen", "Left thigh", "Right thigh", "Left arm", "Right arm"];
@@ -32,7 +33,7 @@ export function MedicationTimelinePage() {
     dose: "",
     shotDay: profile.shotDay,
     injectionSite: injectionSites[0],
-    date: new Date().toISOString().slice(0, 10),
+    date: getLocalIsoDate(),
     status: "completed" as const,
     isDoseIncrease: false,
     notes: "",
@@ -51,6 +52,15 @@ export function MedicationTimelinePage() {
   useEffect(() => {
     setPreferenceDraft(profile.reminderPreferences);
   }, [profile.reminderPreferences]);
+
+  useEffect(() => {
+    setDraft((current) => ({
+      ...current,
+      medication: profile.medicationName,
+      shotDay: profile.shotDay,
+      date: current.date || getLocalIsoDate(),
+    }));
+  }, [profile.medicationName, profile.shotDay]);
 
   if (isLoading) {
     return <div style={{ padding: 24, fontFamily: sans }}>Loading medication timeline...</div>;
@@ -74,7 +84,7 @@ export function MedicationTimelinePage() {
     setDraft((current) => ({
       ...current,
       dose: "",
-      date: new Date().toISOString().slice(0, 10),
+      date: getLocalIsoDate(),
       status: "completed",
       isDoseIncrease: false,
       notes: "",
