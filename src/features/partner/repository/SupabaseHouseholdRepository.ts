@@ -8,15 +8,29 @@ export class SupabaseHouseholdRepository implements HouseholdRepository {
   constructor(private readonly client: SupabaseClient) {}
 
   async loadLinkedPrimaryContext(input: { prepPartnerEmail: string; date: string; days: number }): Promise<LinkedPrimaryContext | null> {
-    const { prepPartnerEmail, date, days } = input;
+    const { date, days } = input;
+
+    const { data: membershipRow, error: membershipError } = await this.client
+      .from("account_members")
+      .select("account_id, role")
+      .limit(1)
+      .maybeSingle();
+
+    if (membershipError) {
+      throw membershipError;
+    }
+
+    if (!membershipRow?.account_id) {
+      return null;
+    }
 
     const { data: profileRow, error: profileError } = await this.client
       .from("user_profiles")
       .select(
         "user_id, name, role, current_weight, goal_weight, protein_target_min, protein_target_max, fiber_target, hydration_goal, dietary_restrictions, medication_name, medication_start_date, shot_day, prep_partner_email",
       )
+      .eq("account_id", membershipRow.account_id)
       .eq("role", "primary")
-      .eq("prep_partner_email", prepPartnerEmail)
       .maybeSingle();
 
     if (profileError) {

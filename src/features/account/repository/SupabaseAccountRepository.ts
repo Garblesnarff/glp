@@ -31,33 +31,24 @@ export class SupabaseAccountRepository implements AccountRepository {
   }
 
   async ensurePrimaryAccount(profile: UserProfile): Promise<AccountMembership | null> {
-    const existing = await this.loadMembership();
-    if (existing || profile.role !== "primary") {
-      return existing;
+    if (profile.role !== "primary") {
+      return this.loadMembership();
     }
 
-    const { data: accountData, error: accountError } = await this.client.from("accounts").insert({}).select("id").single();
-    if (accountError) {
-      throw accountError;
+    const { data, error } = await this.client.rpc("ensure_primary_account_for_current_user");
+
+    if (error) {
+      throw error;
     }
 
-    const accountId = accountData.id as string;
-
-    const { error: membershipError } = await this.client.from("account_members").insert({
-      account_id: accountId,
-      user_id: this.userId,
-      role: "primary",
-    });
-
-    if (membershipError) {
-      throw membershipError;
+    const row = Array.isArray(data) ? data[0] : data;
+    if (!row) {
+      return null;
     }
-
-    await this.upsertOwnProfileLink(accountId, "primary");
 
     return {
-      accountId,
-      role: "primary",
+      accountId: row.account_id,
+      role: row.role,
     };
   }
 
@@ -83,50 +74,29 @@ export class SupabaseAccountRepository implements AccountRepository {
   }
 
   async acceptPartnerInvite(inviteId: string): Promise<AccountMembership | null> {
-    const { data: inviteRow, error: inviteError } = await this.client
-      .from("partner_invites")
-      .select("id, account_id, invited_email, status")
-      .eq("id", inviteId)
-      .eq("status", "pending")
-      .maybeSingle();
+    const { data, error } = await this.client.rpc("accept_partner_invite_for_current_user", {
+      invite_id: inviteId,
+    });
 
-    if (inviteError) {
-      throw inviteError;
+    if (error) {
+      throw error;
     }
 
-    if (!inviteRow) {
-      return this.loadMembership();
-    }
-
-    const { error: membershipError } = await this.client.from("account_members").upsert(
-      {
-        account_id: inviteRow.account_id,
-        user_id: this.userId,
-        role: "prep_partner",
-      },
-      { onConflict: "account_id,user_id" },
-    );
-
-    if (membershipError) {
-      throw membershipError;
-    }
-
-    await this.upsertOwnProfileLink(inviteRow.account_id, "prep_partner");
-
-    const { error: inviteUpdateError } = await this.client.from("partner_invites").update({ status: "accepted" }).eq("id", inviteId);
-
-    if (inviteUpdateError) {
-      throw inviteUpdateError;
+    const row = Array.isArray(data) ? data[0] : data;
+    if (!row) {
+      return null;
     }
 
     return {
-      accountId: inviteRow.account_id,
-      role: "prep_partner",
+      accountId: row.account_id,
+      role: row.role,
     };
   }
 
   async declinePartnerInvite(inviteId: string): Promise<void> {
-    const { error } = await this.client.from("partner_invites").update({ status: "revoked" }).eq("id", inviteId).eq("status", "pending");
+    const { error } = await this.client.rpc("decline_partner_invite_for_current_user", {
+      invite_id: inviteId,
+    });
 
     if (error) {
       throw error;
@@ -134,55 +104,7 @@ export class SupabaseAccountRepository implements AccountRepository {
   }
 
   async leaveHousehold(): Promise<void> {
-    const membership = await this.loadMembership();
-    if (!membership || membership.role !== "prep_partner") {
-      return;
-    }
-
-    const { error: membershipError } = await this.client
-      .from("account_members")
-      .delete()
-      .eq("account_id", membership.accountId)
-      .eq("user_id", this.userId);
-
-    if (membershipError) {
-      throw membershipError;
-    }
-
-    const { error: profileError } = await this.client
-      .from("user_profiles")
-      .update({ account_id: null })
-      .eq("user_id", this.userId);
-
-    if (profileError) {
-      throw profileError;
-    }
-  }
-
-  private async upsertOwnProfileLink(accountId: string, role: "primary" | "prep_partner") {
-    const { data: existingProfile, error: existingError } = await this.client
-      .from("user_profiles")
-      .select("user_id")
-      .eq("user_id", this.userId)
-      .maybeSingle();
-
-    if (existingError) {
-      throw existingError;
-    }
-
-    if (existingProfile) {
-      const { error } = await this.client.from("user_profiles").update({ account_id: accountId, role }).eq("user_id", this.userId);
-      if (error) {
-        throw error;
-      }
-      return;
-    }
-
-    const { error } = await this.client.from("user_profiles").insert({
-      user_id: this.userId,
-      account_id: accountId,
-      role,
-    });
+    const { error } = await this.client.rpc("leave_household_for_current_user");
 
     if (error) {
       throw error;

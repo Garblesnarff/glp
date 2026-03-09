@@ -2,6 +2,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseBrowserConfig } from "./config";
 
 let supabaseClient: SupabaseClient | null = null;
+let currentAccessTokenGetter: (() => Promise<string | null>) | null = null;
 
 export function createSupabaseBrowserClient(getAccessToken: () => Promise<string | null>) {
   const config = getSupabaseBrowserConfig();
@@ -9,6 +10,8 @@ export function createSupabaseBrowserClient(getAccessToken: () => Promise<string
   if (!config.isConfigured) {
     return null;
   }
+
+  currentAccessTokenGetter = getAccessToken;
 
   if (supabaseClient) {
     return supabaseClient;
@@ -20,7 +23,7 @@ export function createSupabaseBrowserClient(getAccessToken: () => Promise<string
       persistSession: false,
       detectSessionInUrl: false,
     },
-    accessToken: getAccessToken,
+    accessToken: async () => currentAccessTokenGetter?.() ?? null,
   });
 
   return supabaseClient;

@@ -143,17 +143,15 @@ export class SupabaseProfileRepository implements ProfileRepository {
   }
 
   async saveMedicationLogs(logs: MedicationLog[]): Promise<void> {
-    const { error: deleteError } = await this.client.from("medication_logs").delete().eq("user_id", this.userId);
-
-    if (deleteError) {
-      throw deleteError;
-    }
-
     if (logs.length === 0) {
+      const { error } = await this.client.from("medication_logs").delete().eq("user_id", this.userId);
+      if (error) {
+        throw error;
+      }
       return;
     }
 
-    const { error } = await this.client.from("medication_logs").insert(
+    const { error: upsertError } = await this.client.from("medication_logs").upsert(
       logs.map((log) => ({
         id: log.id,
         user_id: this.userId,
@@ -166,10 +164,22 @@ export class SupabaseProfileRepository implements ProfileRepository {
         is_dose_increase: log.isDoseIncrease ?? false,
         notes: log.notes ?? null,
       })),
+      { onConflict: "id" },
     );
 
-    if (error) {
-      throw error;
+    if (upsertError) {
+      throw upsertError;
+    }
+
+    const staleIds = await this.findStaleIds("medication_logs", logs.map((log) => log.id));
+    if (staleIds.length === 0) {
+      return;
+    }
+
+    const { error: deleteError } = await this.client.from("medication_logs").delete().eq("user_id", this.userId).in("id", staleIds);
+
+    if (deleteError) {
+      throw deleteError;
     }
   }
 
@@ -191,17 +201,15 @@ export class SupabaseProfileRepository implements ProfileRepository {
   }
 
   async saveWeightLogs(logs: WeightLog[]): Promise<void> {
-    const { error: deleteError } = await this.client.from("weight_logs").delete().eq("user_id", this.userId);
-
-    if (deleteError) {
-      throw deleteError;
-    }
-
     if (logs.length === 0) {
+      const { error } = await this.client.from("weight_logs").delete().eq("user_id", this.userId);
+      if (error) {
+        throw error;
+      }
       return;
     }
 
-    const { error } = await this.client.from("weight_logs").insert(
+    const { error: upsertError } = await this.client.from("weight_logs").upsert(
       logs.map((log) => ({
         id: log.id,
         user_id: this.userId,
@@ -211,10 +219,33 @@ export class SupabaseProfileRepository implements ProfileRepository {
         clothes_fit: log.clothesFit ?? null,
         note: log.note ?? null,
       })),
+      { onConflict: "id" },
     );
+
+    if (upsertError) {
+      throw upsertError;
+    }
+
+    const staleIds = await this.findStaleIds("weight_logs", logs.map((log) => log.id));
+    if (staleIds.length === 0) {
+      return;
+    }
+
+    const { error: deleteError } = await this.client.from("weight_logs").delete().eq("user_id", this.userId).in("id", staleIds);
+
+    if (deleteError) {
+      throw deleteError;
+    }
+  }
+
+  private async findStaleIds(table: "medication_logs" | "weight_logs", keepIds: string[]) {
+    const { data, error } = await this.client.from(table).select("id").eq("user_id", this.userId);
 
     if (error) {
       throw error;
     }
+
+    const keepSet = new Set(keepIds);
+    return (data ?? []).map((row) => String(row.id)).filter((id) => !keepSet.has(id));
   }
 }

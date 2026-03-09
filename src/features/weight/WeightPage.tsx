@@ -85,7 +85,7 @@ export function WeightPage() {
                   setStatusMessage(null);
                   try {
                     await saveWeightLog({
-                      id: `weight:${getLocalIsoDate()}`,
+                      id: `weight:${getLocalIsoDate()}:${crypto.randomUUID()}`,
                       date: getLocalIsoDate(),
                       weight: parsedWeight,
                       waistInches: waist ? Number(waist) : undefined,

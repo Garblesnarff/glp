@@ -42,7 +42,7 @@ export type BristolStoolType = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 export type PortionSize = "mini" | "half" | "full";
 export type MealTolerance = "easy" | "okay" | "rough";
-export type PartnerInviteStatus = "pending" | "accepted" | "revoked";
+export type PartnerInviteStatus = "pending" | "accepted" | "declined" | "revoked";
 export type SupportAlertStatus = "active" | "resolved";
 export type AccountMembership = {
   accountId: string;

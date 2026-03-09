@@ -31,17 +31,15 @@ export class SupabaseNotificationRepository implements NotificationRepository {
   }
 
   async saveNotificationJobs(jobs: NotificationJob[]): Promise<void> {
-    const { error: deleteError } = await this.client.from("notification_jobs").delete().eq("user_id", this.userId);
-
-    if (deleteError) {
-      throw deleteError;
-    }
-
     if (jobs.length === 0) {
+      const { error } = await this.client.from("notification_jobs").delete().eq("user_id", this.userId);
+      if (error) {
+        throw error;
+      }
       return;
     }
 
-    const { error } = await this.client.from("notification_jobs").insert(
+    const { error: upsertError } = await this.client.from("notification_jobs").upsert(
       jobs.map((job) => ({
         id: job.id,
         user_id: this.userId,
@@ -55,10 +53,28 @@ export class SupabaseNotificationRepository implements NotificationRepository {
         status: job.status,
         fallback_reason: job.fallbackReason ?? null,
       })),
+      { onConflict: "id" },
     );
 
-    if (error) {
-      throw error;
+    if (upsertError) {
+      throw upsertError;
+    }
+
+    const { data: existingJobs, error: existingJobsError } = await this.client.from("notification_jobs").select("id").eq("user_id", this.userId);
+
+    if (existingJobsError) {
+      throw existingJobsError;
+    }
+
+    const staleIds = (existingJobs ?? []).map((row) => String(row.id)).filter((id) => !new Set(jobs.map((job) => job.id)).has(id));
+    if (staleIds.length === 0) {
+      return;
+    }
+
+    const { error: deleteError } = await this.client.from("notification_jobs").delete().eq("user_id", this.userId).in("id", staleIds);
+
+    if (deleteError) {
+      throw deleteError;
     }
   }
 
@@ -105,20 +121,7 @@ export class SupabaseNotificationRepository implements NotificationRepository {
       return [];
     }
 
-    const dueIds = dueJobs.map((job) => job.id);
-    const { data: sentJobs, error: sendError } = await this.client
-      .from("notification_jobs")
-      .update({ status: "sent" })
-      .eq("user_id", this.userId)
-      .eq("status", "scheduled")
-      .in("id", dueIds)
-      .select("*");
-
-    if (sendError) {
-      throw sendError;
-    }
-
-    const deliveries = (sentJobs ?? []).map((row) =>
+    const deliveries = dueJobs.map((row) =>
       buildNotificationDelivery(
         {
           id: row.id,
@@ -159,6 +162,18 @@ export class SupabaseNotificationRepository implements NotificationRepository {
 
     if (deliveryError) {
       throw deliveryError;
+    }
+
+    const dueIds = dueJobs.map((job) => job.id);
+    const { error: sendError } = await this.client
+      .from("notification_jobs")
+      .update({ status: "sent" })
+      .eq("user_id", this.userId)
+      .eq("status", "scheduled")
+      .in("id", dueIds);
+
+    if (sendError) {
+      throw sendError;
     }
 
     return deliveries;

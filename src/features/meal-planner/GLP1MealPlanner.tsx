@@ -13,6 +13,10 @@ export function GLP1MealPlanner({ initialTab = "recipes" }: { initialTab?: "reci
   const planner = useMealPlanner(initialTab);
   const { profile } = useProfile();
   const fiberRamp = getFiberRampTarget(profile.fiberTarget, profile.medicationStartDate);
+  const restrictionSummary =
+    profile.dietaryRestrictions.length > 0
+      ? profile.dietaryRestrictions.map((item) => item.replace(/\b\w/g, (char) => char.toUpperCase())).join(" · ")
+      : "Add dietary restrictions in onboarding";
   const plannerTargets = {
     protein: profile.proteinTarget.min,
     fiber: fiberRamp.currentTarget,
@@ -41,7 +45,7 @@ export function GLP1MealPlanner({ initialTab = "recipes" }: { initialTab?: "reci
           Daily targets: {profile.proteinTarget.min}-{profile.proteinTarget.max}g protein · {fiberRamp.currentTarget}g fiber · ~{plannerTargets.calories} cal
         </div>
         <div style={{ fontSize: 11, fontFamily: sans, opacity: 0.6, marginTop: 2 }}>
-          Egg-free · Gluten-free · No seafood · No sausage
+          {restrictionSummary}
         </div>
         <div style={{ fontSize: 11, fontFamily: sans, opacity: 0.78, marginTop: 6 }}>
           {planner.scopeLabel}

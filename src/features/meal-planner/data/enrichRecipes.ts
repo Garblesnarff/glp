@@ -17,7 +17,7 @@ function deriveGlp1Profile(recipe: RecipeSeed): RecipeGlp1Profile {
   const constipationSupport =
     recipe.fiber >= 12 ? "high" : recipe.fiber >= 8 ? "medium" : recipe.fiber >= 4 ? "low" : "none";
   const appetiteLevel: RecipeAppetiteLevel[] =
-    includesAny(text, ["smoothie", "soup", "mousse"])
+    includesAny(text, ["smoothie", "soup", "mousse", "yogurt", "cottage", "oats", "chia", "pudding", "parfait"])
       ? ["none", "low", "normal"]
       : shotDayFriendly
         ? ["low", "normal"]

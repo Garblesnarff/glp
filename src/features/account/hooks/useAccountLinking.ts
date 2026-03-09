@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useAppAuth } from "../../../app/providers/app-auth-context";
 import { useAppServices } from "../../../app/providers/AppServices";
-import type { AccountMembership } from "../../../domain/types";
+import type { AccountMembership, PartnerInviteStatus } from "../../../domain/types";
 
 type IncomingInvite = {
   id: string;
   invitedEmail: string;
-  status: "pending" | "accepted" | "revoked";
+  status: PartnerInviteStatus;
   createdAt: string;
   accountId?: string;
 };

@@ -24,6 +24,21 @@ export function OnboardingPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!draft.name.trim()) {
+      setStatusTone("error");
+      setStatusMessage("Enter your name before saving.");
+      return;
+    }
+    if (!draft.medicationName.trim()) {
+      setStatusTone("error");
+      setStatusMessage("Enter a medication name before saving.");
+      return;
+    }
+    if (!draft.medicationStartDate) {
+      setStatusTone("error");
+      setStatusMessage("Choose a medication start date before saving.");
+      return;
+    }
     setIsSaving(true);
     setStatusMessage(null);
     try {

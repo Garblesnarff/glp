@@ -1,4 +1,4 @@
-import { createContext, createElement, useContext, useEffect, useMemo, useState, type PropsWithChildren } from "react";
+import { createContext, createElement, useContext, useEffect, useMemo, useRef, useState, type MutableRefObject, type PropsWithChildren } from "react";
 import { createDefaultDailyLog, defaultUserProfile } from "../../../domain/defaults";
 import { isProfileComplete, normalizeUserProfileTargets } from "../../../domain/utils";
 import type { AppetiteLevel, BristolStoolType, DailyLog, DailyLogMealEntry, FoodMood, MedicationLog, Severity, SymptomType, UserProfile, WeightLog } from "../../../domain/types";
@@ -13,6 +13,35 @@ function useProfileState() {
   const [medicationLogs, setMedicationLogs] = useState<MedicationLog[]>([]);
   const [weightLogs, setWeightLogs] = useState<WeightLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const profileRef = useRef<UserProfile | null>(null);
+  const todayLogRef = useRef<DailyLog | null>(null);
+  const recentLogsRef = useRef<DailyLog[]>([]);
+  const medicationLogsRef = useRef<MedicationLog[]>([]);
+  const weightLogsRef = useRef<WeightLog[]>([]);
+  const profileSaveQueueRef = useRef(Promise.resolve());
+  const todayLogSaveQueueRef = useRef(Promise.resolve());
+  const medicationSaveQueueRef = useRef(Promise.resolve());
+  const weightSaveQueueRef = useRef(Promise.resolve());
+
+  useEffect(() => {
+    profileRef.current = profile;
+  }, [profile]);
+
+  useEffect(() => {
+    todayLogRef.current = todayLog;
+  }, [todayLog]);
+
+  useEffect(() => {
+    recentLogsRef.current = recentLogs;
+  }, [recentLogs]);
+
+  useEffect(() => {
+    medicationLogsRef.current = medicationLogs;
+  }, [medicationLogs]);
+
+  useEffect(() => {
+    weightLogsRef.current = weightLogs;
+  }, [weightLogs]);
 
   useEffect(() => {
     void (async () => {
@@ -37,19 +66,46 @@ function useProfileState() {
 
   async function saveProfile(input: UserProfile) {
     const normalizedProfile = normalizeUserProfileTargets(input);
+    const previousProfile = profileRef.current;
 
+    profileRef.current = normalizedProfile;
     setProfile(normalizedProfile);
-    await profileRepository.saveUserProfile(normalizedProfile);
-    await accountRepository.ensurePrimaryAccount(normalizedProfile);
+    try {
+      await enqueue(profileSaveQueueRef, async () => {
+        await profileRepository.saveUserProfile(normalizedProfile);
+        await accountRepository.ensurePrimaryAccount(normalizedProfile);
+      });
+    } catch (error) {
+      if (profileRef.current === normalizedProfile) {
+        profileRef.current = previousProfile;
+        setProfile(previousProfile);
+      }
+      throw error;
+    }
   }
 
   async function saveTodayLog(log: DailyLog) {
+    const previousTodayLog = todayLogRef.current;
+    const previousRecentLogs = recentLogsRef.current;
+    const nextRecentLogs = [log, ...previousRecentLogs.filter((item) => item.date !== log.date)]
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, 7);
+
+    todayLogRef.current = log;
+    recentLogsRef.current = nextRecentLogs;
     setTodayLog(log);
-    setRecentLogs((current) => {
-      const next = [log, ...current.filter((item) => item.date !== log.date)];
-      return next.sort((a, b) => b.date.localeCompare(a.date)).slice(0, 7);
-    });
-    await profileRepository.saveTodayLog(log);
+    setRecentLogs(nextRecentLogs);
+    try {
+      await enqueue(todayLogSaveQueueRef, () => profileRepository.saveTodayLog(log));
+    } catch (error) {
+      if (todayLogRef.current === log) {
+        todayLogRef.current = previousTodayLog;
+        recentLogsRef.current = previousRecentLogs;
+        setTodayLog(previousTodayLog);
+        setRecentLogs(previousRecentLogs);
+      }
+      throw error;
+    }
   }
 
   async function setHydration(amount: number) {
@@ -130,24 +186,55 @@ function useProfileState() {
   }
 
   async function saveMedicationLog(log: MedicationLog) {
-    const nextLogs = [log, ...medicationLogs.filter((item) => item.id !== log.id)].sort((a, b) => b.date.localeCompare(a.date));
+    const previousLogs = medicationLogsRef.current;
+    const nextLogs = [log, ...previousLogs.filter((item) => item.id !== log.id)].sort((a, b) => b.date.localeCompare(a.date));
+    medicationLogsRef.current = nextLogs;
     setMedicationLogs(nextLogs);
-    await profileRepository.saveMedicationLogs(nextLogs);
+    try {
+      await enqueue(medicationSaveQueueRef, () => profileRepository.saveMedicationLogs(nextLogs));
+    } catch (error) {
+      if (medicationLogsRef.current === nextLogs) {
+        medicationLogsRef.current = previousLogs;
+        setMedicationLogs(previousLogs);
+      }
+      throw error;
+    }
   }
 
   async function saveWeightLog(log: WeightLog) {
-    const nextLogs = [log, ...weightLogs.filter((item) => item.id !== log.id)].sort((a, b) => b.date.localeCompare(a.date));
+    const previousLogs = weightLogsRef.current;
+    const previousProfile = profileRef.current;
+    const nextLogs = [log, ...previousLogs.filter((item) => item.id !== log.id)].sort((a, b) => b.date.localeCompare(a.date));
+    weightLogsRef.current = nextLogs;
     setWeightLogs(nextLogs);
-    await profileRepository.saveWeightLogs(nextLogs);
-
-    if (log.weight !== profile?.currentWeight) {
-      const currentProfile = profile ?? defaultUserProfile;
-      const nextProfile = normalizeUserProfileTargets({
+    let nextProfile: UserProfile | null = null;
+    if (log.weight !== profileRef.current?.currentWeight) {
+      const currentProfile = profileRef.current ?? defaultUserProfile;
+      nextProfile = normalizeUserProfileTargets({
         ...currentProfile,
         currentWeight: log.weight,
       });
+      profileRef.current = nextProfile;
       setProfile(nextProfile);
-      await profileRepository.saveUserProfile(nextProfile);
+    }
+
+    try {
+      await enqueue(weightSaveQueueRef, async () => {
+        await profileRepository.saveWeightLogs(nextLogs);
+        if (nextProfile) {
+          await profileRepository.saveUserProfile(nextProfile);
+        }
+      });
+    } catch (error) {
+      if (weightLogsRef.current === nextLogs) {
+        weightLogsRef.current = previousLogs;
+        setWeightLogs(previousLogs);
+      }
+      if (nextProfile && profileRef.current === nextProfile) {
+        profileRef.current = previousProfile;
+        setProfile(previousProfile);
+      }
+      throw error;
     }
   }
 
@@ -219,6 +306,12 @@ function useProfileState() {
     toggleMovementActivity,
     toggleSupplement,
   };
+}
+
+function enqueue(queueRef: MutableRefObject<Promise<void>>, operation: () => Promise<void>) {
+  const nextRun = queueRef.current.then(operation, operation);
+  queueRef.current = nextRun.catch(() => undefined);
+  return nextRun;
 }
 
 type ProfileState = ReturnType<typeof useProfileState>;

@@ -1,5 +1,5 @@
 import type { AccountRepository } from "./AccountRepository";
-import type { AccountMembership, UserProfile } from "../../../domain/types";
+import type { AccountMembership, PartnerInviteStatus, UserProfile } from "../../../domain/types";
 
 export class LocalAccountRepository implements AccountRepository {
   async loadMembership(): Promise<AccountMembership | null> {
@@ -11,7 +11,7 @@ export class LocalAccountRepository implements AccountRepository {
     return null;
   }
 
-  async loadIncomingPartnerInvites(): Promise<Array<{ id: string; invitedEmail: string; status: "pending" | "accepted" | "revoked"; createdAt: string }>> {
+  async loadIncomingPartnerInvites(): Promise<Array<{ id: string; invitedEmail: string; status: PartnerInviteStatus; createdAt: string }>> {
     return [];
   }
 

@@ -25,14 +25,14 @@ export function buildScheduledNotificationJobs(
     body: reminder.body,
     linkTo: reminder.link?.to,
     requestedChannel: channelPlan.requestedChannel,
-    sendAt: getScheduledTime(profile, referenceDate),
+    sendAt: getScheduledTime(profile, reminder.id, referenceDate),
     channel: channelPlan.deliveryChannel,
     status: "scheduled",
     fallbackReason: channelPlan.fallbackReason,
   })) satisfies NotificationJob[];
 }
 
-function getScheduledTime(profile: UserProfile, referenceDate: Date) {
+function getScheduledTime(profile: UserProfile, reminderId: string, referenceDate: Date) {
   const scheduled = new Date(referenceDate);
   scheduled.setHours(windowHours[profile.reminderPreferences.deliveryWindow], 0, 0, 0);
 
@@ -64,5 +64,18 @@ function getScheduledTime(profile: UserProfile, referenceDate: Date) {
     scheduled.setHours(quietEndHour, quietEndMinute, 0, 0);
   }
 
+  const jitterMinutes = getReminderJitterMinutes(reminderId);
+  scheduled.setMinutes(scheduled.getMinutes() + jitterMinutes);
+
   return scheduled.toISOString();
+}
+
+function getReminderJitterMinutes(reminderId: string) {
+  let hash = 0;
+
+  for (let index = 0; index < reminderId.length; index += 1) {
+    hash = (hash * 31 + reminderId.charCodeAt(index)) % 10000;
+  }
+
+  return (hash % 15) + 1;
 }
