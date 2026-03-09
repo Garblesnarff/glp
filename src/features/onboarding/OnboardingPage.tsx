@@ -4,6 +4,8 @@ import { font, palette, sans } from "../meal-planner/constants";
 import { useProfile } from "../profile/hooks/useProfile";
 import type { UserProfile } from "../../domain/types";
 import { calculateProteinTargetRange, getFiberRampTarget } from "../../domain/utils";
+import { StatusNotice } from "../../components/ui/StatusNotice";
+import { inputStyle, primaryButtonStyle, secondaryLinkStyle } from "../../components/ui/styles";
 
 const restrictionOptions = ["egg-free", "gluten-free", "dairy-free", "no seafood", "no sausage"];
 const shotDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -187,27 +189,6 @@ export function OnboardingPage() {
   );
 }
 
-function StatusNotice({ tone, children }: { tone: "success" | "error"; children: ReactNode }) {
-  return (
-    <div
-      role="status"
-      aria-live="polite"
-      style={{
-        borderRadius: 14,
-        padding: "12px 14px",
-        fontFamily: sans,
-        fontSize: 13,
-        lineHeight: 1.6,
-        background: tone === "success" ? "#f4fbf6" : "#fff4f5",
-        border: `1px solid ${tone === "success" ? palette.accentLight : "#f4c2c7"}`,
-        color: tone === "success" ? palette.text : palette.danger,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section style={{ background: "#ffffffd9", border: `1px solid ${palette.border}`, borderRadius: 18, padding: 20 }}>
@@ -255,41 +236,9 @@ function RoleButton({
   );
 }
 
-const inputStyle: CSSProperties = {
-  padding: "12px 14px",
-  borderRadius: 12,
-  border: `1px solid ${palette.border}`,
-  fontFamily: sans,
-  fontSize: 14,
-  background: "#fff",
-};
-
 const supportTextStyle: CSSProperties = {
   fontFamily: sans,
   fontSize: 13,
   color: palette.textMuted,
   lineHeight: 1.6,
-};
-
-const primaryButtonStyle: CSSProperties = {
-  background: palette.accent,
-  color: "#fff",
-  border: "none",
-  borderRadius: 999,
-  padding: "12px 18px",
-  fontFamily: sans,
-  fontWeight: 700,
-  cursor: "pointer",
-};
-
-const secondaryLinkStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  border: `1px solid ${palette.border}`,
-  borderRadius: 999,
-  padding: "12px 18px",
-  fontFamily: sans,
-  color: palette.text,
-  textDecoration: "none",
 };

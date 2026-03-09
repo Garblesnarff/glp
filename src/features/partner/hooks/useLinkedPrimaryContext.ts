@@ -6,10 +6,6 @@ import { useAppServices } from "../../../app/providers/AppServices";
 import type { LinkedPrimaryContext } from "../repository/HouseholdRepository";
 import { getLocalIsoDate } from "../../../lib/dates";
 
-function todayIsoDate() {
-  return getLocalIsoDate();
-}
-
 export function useLinkedPrimaryContext(enabled: boolean) {
   const auth = useAppAuth();
   const { householdRepository } = useAppServices();
@@ -29,7 +25,7 @@ export function useLinkedPrimaryContext(enabled: boolean) {
     void (async () => {
       const next = await householdRepository.loadLinkedPrimaryContext({
         prepPartnerEmail: email,
-        date: todayIsoDate(),
+        date: getLocalIsoDate(),
         days: 7,
       });
       setLinkedContext(next);
@@ -40,7 +36,7 @@ export function useLinkedPrimaryContext(enabled: boolean) {
   return {
     linkedContext,
     isLoading,
-    linkedTodayLog: linkedContext?.todayLog ?? createDefaultDailyLog(todayIsoDate()),
+    linkedTodayLog: linkedContext?.todayLog ?? createDefaultDailyLog(getLocalIsoDate()),
     linkedRecentLogs: linkedContext?.recentLogs ?? ([] as DailyLog[]),
   };
 }

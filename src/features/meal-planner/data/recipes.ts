@@ -1,5 +1,5 @@
 import { enrichRecipe } from "./enrichRecipes";
-import type { DailyTargets, Recipe, RecipeSeed } from "../types";
+import type { Recipe, RecipeSeed } from "../types";
 
 const RECIPE_SEEDS: RecipeSeed[] = [
   {
@@ -1715,8 +1715,6 @@ export const RECIPES: Recipe[] = RECIPE_SEEDS.map(enrichRecipe);
 export const MEAL_TYPES = ["breakfast", "lunch", "dinner", "snack"] as const;
 
 export const ALL_TAGS = [...new Set(RECIPES.flatMap((recipe) => recipe.tags))].sort();
-
-export const DAILY_TARGETS: DailyTargets = { protein: 130, fiber: 28, calories: 1600 };
 
 export const EMPTY_WEEK_PLAN = {
   Mon: { breakfast: null, lunch: null, dinner: null, snack: null },

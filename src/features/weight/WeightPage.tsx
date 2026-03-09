@@ -8,10 +8,8 @@ import { useProfile } from "../profile/hooks/useProfile";
 import { getWeightChartSeries, getWeightTrendSummary } from "./weight";
 import type { WeightLog } from "../../domain/types";
 import { getLocalIsoDate } from "../../lib/dates";
-
-function todayIsoDate() {
-  return getLocalIsoDate();
-}
+import { StatusNotice } from "../../components/ui/StatusNotice";
+import { inputStyle, primaryButtonStyle, secondaryLinkStyle } from "../../components/ui/styles";
 
 export function WeightPage() {
   const { profile, recentLogs, weightLogs, saveWeightLog, isLoading } = useProfile();
@@ -87,8 +85,8 @@ export function WeightPage() {
                   setStatusMessage(null);
                   try {
                     await saveWeightLog({
-                      id: `weight:${todayIsoDate()}`,
-                      date: todayIsoDate(),
+                      id: `weight:${getLocalIsoDate()}`,
+                      date: getLocalIsoDate(),
                       weight: parsedWeight,
                       waistInches: waist ? Number(waist) : undefined,
                       clothesFit,
@@ -109,7 +107,7 @@ export function WeightPage() {
             >
               {isSaving ? "Saving weigh-in..." : "Save weigh-in"}
             </button>
-            {statusMessage ? <InlineNotice tone={statusTone}>{statusMessage}</InlineNotice> : null}
+            {statusMessage ? <StatusNotice tone={statusTone}>{statusMessage}</StatusNotice> : null}
           </div>
         </DashboardPanel>
 
@@ -172,26 +170,6 @@ export function WeightPage() {
   );
 }
 
-function InlineNotice({ tone, children }: { tone: "success" | "error"; children: React.ReactNode }) {
-  return (
-    <div
-      role="status"
-      aria-live="polite"
-      style={{
-        borderRadius: 12,
-        padding: "10px 12px",
-        background: tone === "success" ? "#f4fbf6" : "#fff4f5",
-        border: `1px solid ${tone === "success" ? palette.accentLight : "#f4c2c7"}`,
-        color: tone === "success" ? palette.text : palette.danger,
-        fontFamily: sans,
-        fontSize: 13,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label style={{ display: "grid", gap: 6 }}>
@@ -224,40 +202,6 @@ function capitalize(value: string) {
   return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
 }
 
-const inputStyle: CSSProperties = {
-  width: "100%",
-  boxSizing: "border-box",
-  borderRadius: 12,
-  border: `1px solid ${palette.border}`,
-  padding: "10px 12px",
-  fontFamily: sans,
-  fontSize: 14,
-  background: "#fff",
-};
-
-const primaryButtonStyle: CSSProperties = {
-  border: "none",
-  borderRadius: 999,
-  padding: "12px 16px",
-  background: palette.accent,
-  color: "#fff",
-  fontFamily: sans,
-  fontWeight: 700,
-  cursor: "pointer",
-};
-
-const secondaryLinkStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  borderRadius: 999,
-  border: `1px solid ${palette.border}`,
-  color: palette.text,
-  textDecoration: "none",
-  padding: "11px 16px",
-  fontFamily: sans,
-  fontWeight: 600,
-};
 
 const contextBoxStyle: CSSProperties = {
   borderRadius: 14,

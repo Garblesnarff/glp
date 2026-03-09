@@ -5,10 +5,6 @@ import type { AppetiteLevel, BristolStoolType, DailyLog, DailyLogMealEntry, Food
 import { useAppServices } from "../../../app/providers/AppServices";
 import { getLocalIsoDate } from "../../../lib/dates";
 
-function todayIsoDate() {
-  return getLocalIsoDate();
-}
-
 function useProfileState() {
   const { profileRepository, accountRepository } = useAppServices();
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -22,14 +18,14 @@ function useProfileState() {
     void (async () => {
       const [loadedProfile, loadedTodayLog, loadedRecentLogs, loadedMedicationLogs, loadedWeightLogs] = await Promise.all([
         profileRepository.loadUserProfile(),
-        profileRepository.loadTodayLog(todayIsoDate()),
+        profileRepository.loadTodayLog(getLocalIsoDate()),
         profileRepository.loadRecentDailyLogs(7),
         profileRepository.loadMedicationLogs(),
         profileRepository.loadWeightLogs(),
       ]);
 
       setProfile(loadedProfile ? normalizeUserProfileTargets(loadedProfile) : null);
-      setTodayLog(loadedTodayLog ?? createDefaultDailyLog(todayIsoDate()));
+      setTodayLog(loadedTodayLog ?? createDefaultDailyLog(getLocalIsoDate()));
       setRecentLogs(loadedRecentLogs);
       setMedicationLogs(loadedMedicationLogs);
       setWeightLogs(loadedWeightLogs);
@@ -58,7 +54,7 @@ function useProfileState() {
 
   async function setHydration(amount: number) {
     const nextLog = {
-      ...(todayLog ?? createDefaultDailyLog(todayIsoDate())),
+      ...(todayLog ?? createDefaultDailyLog(getLocalIsoDate())),
       hydrationOz: Math.max(0, amount),
     };
 
@@ -66,13 +62,13 @@ function useProfileState() {
   }
 
   async function addHydration(amount: number) {
-    const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
+    const currentLog = todayLog ?? createDefaultDailyLog(getLocalIsoDate());
     await setHydration(currentLog.hydrationOz + amount);
   }
 
   async function setAppetiteLevel(appetiteLevel: AppetiteLevel) {
     const nextLog = {
-      ...(todayLog ?? createDefaultDailyLog(todayIsoDate())),
+      ...(todayLog ?? createDefaultDailyLog(getLocalIsoDate())),
       appetiteLevel,
     };
 
@@ -80,7 +76,7 @@ function useProfileState() {
   }
 
   async function setSymptomSeverity(symptom: SymptomType, severity: Severity) {
-    const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
+    const currentLog = todayLog ?? createDefaultDailyLog(getLocalIsoDate());
     await saveTodayLog({
       ...currentLog,
       symptoms: {
@@ -91,7 +87,7 @@ function useProfileState() {
   }
 
   async function setFoodNoiseLevel(foodNoiseLevel: number) {
-    const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
+    const currentLog = todayLog ?? createDefaultDailyLog(getLocalIsoDate());
     await saveTodayLog({
       ...currentLog,
       foodNoiseLevel,
@@ -99,7 +95,7 @@ function useProfileState() {
   }
 
   async function setFoodMood(foodMood: FoodMood) {
-    const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
+    const currentLog = todayLog ?? createDefaultDailyLog(getLocalIsoDate());
     await saveTodayLog({
       ...currentLog,
       foodMood,
@@ -107,7 +103,7 @@ function useProfileState() {
   }
 
   async function saveMealEntry(entry: DailyLogMealEntry) {
-    const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
+    const currentLog = todayLog ?? createDefaultDailyLog(getLocalIsoDate());
     const existingIndex = currentLog.mealsConsumed.findIndex(
       (meal) => meal.recipeId === entry.recipeId && meal.mealType === entry.mealType,
     );
@@ -123,7 +119,7 @@ function useProfileState() {
   }
 
   async function removeMealEntry(entry: Pick<DailyLogMealEntry, "recipeId" | "mealType">) {
-    const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
+    const currentLog = todayLog ?? createDefaultDailyLog(getLocalIsoDate());
 
     await saveTodayLog({
       ...currentLog,
@@ -156,7 +152,7 @@ function useProfileState() {
   }
 
   async function setBowelMovement(hasBowelMovement: boolean) {
-    const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
+    const currentLog = todayLog ?? createDefaultDailyLog(getLocalIsoDate());
     await saveTodayLog({
       ...currentLog,
       bowelMovement: hasBowelMovement,
@@ -165,7 +161,7 @@ function useProfileState() {
   }
 
   async function setBristolStoolType(bristolStoolType: BristolStoolType | undefined) {
-    const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
+    const currentLog = todayLog ?? createDefaultDailyLog(getLocalIsoDate());
     await saveTodayLog({
       ...currentLog,
       bowelMovement: bristolStoolType ? true : currentLog.bowelMovement,
@@ -174,7 +170,7 @@ function useProfileState() {
   }
 
   async function toggleMovementActivity(activity: string) {
-    const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
+    const currentLog = todayLog ?? createDefaultDailyLog(getLocalIsoDate());
     const nextMovement = currentLog.movement.includes(activity)
       ? currentLog.movement.filter((item) => item !== activity)
       : [...currentLog.movement, activity];
@@ -186,7 +182,7 @@ function useProfileState() {
   }
 
   async function toggleSupplement(name: string) {
-    const currentLog = todayLog ?? createDefaultDailyLog(todayIsoDate());
+    const currentLog = todayLog ?? createDefaultDailyLog(getLocalIsoDate());
     const nextSupplements = currentLog.supplements.includes(name)
       ? currentLog.supplements.filter((item) => item !== name)
       : [...currentLog.supplements, name];
@@ -202,7 +198,7 @@ function useProfileState() {
     profile: profile ?? defaultUserProfile,
     hasPersistedProfile: Boolean(profile),
     profileReady,
-    todayLog: todayLog ?? createDefaultDailyLog(todayIsoDate()),
+    todayLog: todayLog ?? createDefaultDailyLog(getLocalIsoDate()),
     recentLogs,
     medicationLogs,
     weightLogs,

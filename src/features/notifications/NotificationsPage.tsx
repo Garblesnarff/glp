@@ -1,6 +1,8 @@
 import { useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { useAppServices } from "../../app/providers/AppServices";
+import { StatusNotice } from "../../components/ui/StatusNotice";
+import { primaryButtonStyle, secondaryLinkStyle } from "../../components/ui/styles";
 import { DashboardPanel } from "../dashboard/components/DashboardPanel";
 import { font, palette, sans } from "../meal-planner/constants";
 import { getAppNotificationTransportStatuses } from "./transports";
@@ -35,7 +37,7 @@ export function NotificationsPage() {
 
   return (
     <div style={{ maxWidth: 920, margin: "0 auto", padding: "24px 16px 80px" }}>
-      {statusMessage ? <StatusBanner tone={statusTone}>{statusMessage}</StatusBanner> : null}
+      {statusMessage ? <StatusNotice tone={statusTone} marginBottom={16}>{statusMessage}</StatusNotice> : null}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap" }}>
         <div>
           <div style={{ fontFamily: sans, fontSize: 11, textTransform: "uppercase", letterSpacing: 2, color: palette.accent }}>
@@ -147,28 +149,6 @@ export function NotificationsPage() {
   );
 }
 
-function StatusBanner({ tone, children }: { tone: "success" | "error"; children: React.ReactNode }) {
-  return (
-    <div
-      role="status"
-      aria-live="polite"
-      style={{
-        marginBottom: 16,
-        borderRadius: 14,
-        padding: "12px 14px",
-        background: tone === "success" ? "#f4fbf6" : "#fff4f5",
-        border: `1px solid ${tone === "success" ? palette.accentLight : "#f4c2c7"}`,
-        color: tone === "success" ? palette.text : palette.danger,
-        fontFamily: sans,
-        fontSize: 13,
-        lineHeight: 1.6,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
 function SummaryCard({ label, value, detail }: { label: string; value: string; detail: string }) {
   return (
     <div style={{ borderRadius: 14, border: `1px solid ${palette.border}`, background: "#fff", padding: "12px 14px" }}>
@@ -250,17 +230,6 @@ function transportBadgeStyle(available: boolean): CSSProperties {
   };
 }
 
-const primaryButtonStyle: CSSProperties = {
-  background: palette.accent,
-  color: "#fff",
-  border: "none",
-  borderRadius: 999,
-  padding: "12px 18px",
-  fontFamily: sans,
-  fontWeight: 700,
-  cursor: "pointer",
-};
-
 const secondaryButtonStyle: CSSProperties = {
   background: "#fff",
   color: palette.text,
@@ -270,19 +239,6 @@ const secondaryButtonStyle: CSSProperties = {
   fontFamily: sans,
   fontWeight: 600,
   cursor: "pointer",
-};
-
-const secondaryLinkStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  borderRadius: 999,
-  border: `1px solid ${palette.border}`,
-  color: palette.text,
-  textDecoration: "none",
-  padding: "11px 16px",
-  fontFamily: sans,
-  fontWeight: 600,
 };
 
 const fallbackNoteStyle: CSSProperties = {
