@@ -47,7 +47,14 @@ function AppServicesProvider({ children }: PropsWithChildren) {
     return createAppServices({
       env: appEnv,
       envReadiness,
-      accountRepository: supabaseClient && auth.user ? new SupabaseAccountRepository(supabaseClient, auth.user.id) : localAccountRepository,
+      accountRepository:
+        supabaseClient && auth.user
+          ? new SupabaseAccountRepository(
+              supabaseClient,
+              auth.user.id,
+              auth.user.email ?? "",
+            )
+          : localAccountRepository,
       mealPlanRepository:
         supabaseClient && auth.user
           ? new SupabaseMealPlanRepository(supabaseClient, auth.user.id)
@@ -64,9 +71,13 @@ function AppServicesProvider({ children }: PropsWithChildren) {
         supabaseClient && auth.user
           ? new SupabasePartnerInviteRepository(supabaseClient, auth.user.id)
           : localPartnerInviteRepository,
-      householdRepository: supabaseClient ? new SupabaseHouseholdRepository(supabaseClient) : localHouseholdRepository,
+      householdRepository: supabaseClient
+        ? new SupabaseHouseholdRepository(supabaseClient)
+        : localHouseholdRepository,
       supportAlertRepository:
-        supabaseClient && auth.user ? new SupabaseSupportAlertRepository(supabaseClient, auth.user.id) : localSupportAlertRepository,
+        supabaseClient && auth.user
+          ? new SupabaseSupportAlertRepository(supabaseClient, auth.user.id)
+          : localSupportAlertRepository,
     });
   }, [auth.getAccessToken, auth.mode, auth.user]);
 

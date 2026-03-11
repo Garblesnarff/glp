@@ -6,6 +6,7 @@ export class SupabaseAccountRepository implements AccountRepository {
   constructor(
     private readonly client: SupabaseClient,
     private readonly userId: string,
+    private readonly userEmail: string,
   ) {}
 
   async loadMembership(): Promise<AccountMembership | null> {
@@ -30,12 +31,17 @@ export class SupabaseAccountRepository implements AccountRepository {
     };
   }
 
-  async ensurePrimaryAccount(profile: UserProfile): Promise<AccountMembership | null> {
+  async ensurePrimaryAccount(
+    profile: UserProfile,
+  ): Promise<AccountMembership | null> {
     if (profile.role !== "primary") {
       return this.loadMembership();
     }
 
-    const { data, error } = await this.client.rpc("ensure_primary_account_for_current_user");
+    const { data, error } = await this.client.rpc(
+      "ensure_primary_account_for_current_user",
+      { p_user_id: this.userId },
+    );
 
     if (error) {
       throw error;
@@ -73,10 +79,13 @@ export class SupabaseAccountRepository implements AccountRepository {
     }));
   }
 
-  async acceptPartnerInvite(inviteId: string): Promise<AccountMembership | null> {
-    const { data, error } = await this.client.rpc("accept_partner_invite_for_current_user", {
-      invite_id: inviteId,
-    });
+  async acceptPartnerInvite(
+    inviteId: string,
+  ): Promise<AccountMembership | null> {
+    const { data, error } = await this.client.rpc(
+      "accept_partner_invite_for_current_user",
+      { invite_id: inviteId, p_user_id: this.userId, p_email: this.userEmail },
+    );
 
     if (error) {
       throw error;
@@ -94,9 +103,10 @@ export class SupabaseAccountRepository implements AccountRepository {
   }
 
   async declinePartnerInvite(inviteId: string): Promise<void> {
-    const { error } = await this.client.rpc("decline_partner_invite_for_current_user", {
-      invite_id: inviteId,
-    });
+    const { error } = await this.client.rpc(
+      "decline_partner_invite_for_current_user",
+      { invite_id: inviteId, p_email: this.userEmail },
+    );
 
     if (error) {
       throw error;
@@ -104,7 +114,13 @@ export class SupabaseAccountRepository implements AccountRepository {
   }
 
   async leaveHousehold(): Promise<void> {
-    const { error } = await this.client.rpc("leave_household_for_current_user");
+    const { error } = await this.client.rpc(
+      "leave_household_for_current_user",
+      {
+        p_user_id: this.userId,
+        p_email: this.userEmail,
+      },
+    );
 
     if (error) {
       throw error;

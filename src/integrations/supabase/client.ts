@@ -4,7 +4,9 @@ import { getSupabaseBrowserConfig } from "./config";
 let supabaseClient: SupabaseClient | null = null;
 let currentAccessTokenGetter: (() => Promise<string | null>) | null = null;
 
-export function createSupabaseBrowserClient(getAccessToken: () => Promise<string | null>) {
+export function createSupabaseBrowserClient(
+  getAccessToken: () => Promise<string | null>,
+) {
   const config = getSupabaseBrowserConfig();
 
   if (!config.isConfigured) {
@@ -23,7 +25,7 @@ export function createSupabaseBrowserClient(getAccessToken: () => Promise<string
       persistSession: false,
       detectSessionInUrl: false,
     },
-    accessToken: async () => currentAccessTokenGetter?.() ?? null,
+    // No accessToken — anon key used for all requests
   });
 
   return supabaseClient;

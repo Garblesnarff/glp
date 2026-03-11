@@ -1,12 +1,27 @@
 import { AuthKitProvider, useAuth } from "@workos-inc/authkit-react";
 import { useEffect, useMemo, type PropsWithChildren } from "react";
+import { useNavigate } from "react-router-dom";
 import { appEnv, envReadiness } from "../../config/env";
-import { AppAuthContext, localAuthState, type AppAuthState } from "./app-auth-context";
+import {
+  AppAuthContext,
+  localAuthState,
+  type AppAuthState,
+} from "./app-auth-context";
 
 export function AppAuthProvider({ children }: PropsWithChildren) {
   if (!envReadiness.authReady) {
-    return <AppAuthContext.Provider value={localAuthState}>{children}</AppAuthContext.Provider>;
+    return (
+      <AppAuthContext.Provider value={localAuthState}>
+        {children}
+      </AppAuthContext.Provider>
+    );
   }
+
+  return <AuthKitInner>{children}</AuthKitInner>;
+}
+
+function AuthKitInner({ children }: PropsWithChildren) {
+  const navigate = useNavigate();
 
   return (
     <AuthKitProvider
@@ -14,14 +29,11 @@ export function AppAuthProvider({ children }: PropsWithChildren) {
       apiHostname={appEnv.workos.apiHostname}
       redirectUri={appEnv.workos.redirectUri}
       onRedirectCallback={({ state }) => {
-        if (state?.returnTo && typeof state.returnTo === "string") {
-          window.history.replaceState({}, "", state.returnTo);
-          return;
-        }
-
-        if (window.location.pathname === "/auth/callback") {
-          window.history.replaceState({}, "", "/");
-        }
+        const to =
+          state?.returnTo && typeof state.returnTo === "string"
+            ? state.returnTo
+            : "/";
+        navigate(to, { replace: true });
       }}
     >
       <WorkOSAuthBridge>{children}</WorkOSAuthBridge>
@@ -30,7 +42,8 @@ export function AppAuthProvider({ children }: PropsWithChildren) {
 }
 
 function WorkOSAuthBridge({ children }: PropsWithChildren) {
-  const { user, isLoading, getAccessToken, signIn, signUp, signOut } = useAuth();
+  const { user, isLoading, getAccessToken, signIn, signUp, signOut } =
+    useAuth();
 
   useEffect(() => {
     if (window.location.pathname !== "/login") {
@@ -70,11 +83,13 @@ function WorkOSAuthBridge({ children }: PropsWithChildren) {
         });
       },
       signOut: async () => {
-        await signOut();
+        await signOut({ returnTo: appEnv.appUrl });
       },
     }),
     [getAccessToken, isLoading, signIn, signOut, signUp, user],
   );
 
-  return <AppAuthContext.Provider value={value}>{children}</AppAuthContext.Provider>;
+  return (
+    <AppAuthContext.Provider value={value}>{children}</AppAuthContext.Provider>
+  );
 }
