@@ -38,6 +38,9 @@ const WeightPage = lazy(() =>
 const RedFlagPage = lazy(() =>
   import("../../features/safety/RedFlagPage").then((module) => ({ default: module.RedFlagPage })),
 );
+const FoodDiaryPage = lazy(() =>
+  import("../../features/food-diary/FoodDiaryPage").then((module) => ({ default: module.FoodDiaryPage })),
+);
 
 export function AppRoutes() {
   return (
@@ -56,6 +59,7 @@ export function AppRoutes() {
         <Route path="/grocery" element={<GLP1MealPlanner initialTab="grocery" />} />
         <Route path="/tracker" element={<GLP1MealPlanner initialTab="tracker" />} />
         <Route path="/recipes" element={<GLP1MealPlanner initialTab="recipes" />} />
+        <Route path="/food-diary" element={<FoodDiaryPage />} />
         <Route path="/red-flags" element={<RedFlagPage />} />
         <Route
           path="/login"
