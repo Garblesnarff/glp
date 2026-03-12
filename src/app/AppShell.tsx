@@ -55,6 +55,7 @@ export function AppShell({ children }: PropsWithChildren) {
               <TopNavLink to="/planner">Planner</TopNavLink>
               <TopNavLink to="/grocery">Grocery</TopNavLink>
               <TopNavLink to="/tracker">Tracker</TopNavLink>
+              <TopNavLink to="/food-diary">Food Diary</TopNavLink>
               <TopNavLink to="/onboarding">Profile</TopNavLink>
             </nav>
           </div>
