@@ -13,6 +13,7 @@ const nutritionLinks = [
   { to: "/planner", label: "Meal Planner", icon: "▤" },
   { to: "/grocery", label: "Grocery List", icon: "✓" },
   { to: "/tracker", label: "Tracker", icon: "◧" },
+  { to: "/food-diary", label: "Food Diary", icon: "☰" },
   { to: "/recipes", label: "Recipes", icon: "♨" },
 ];
 
