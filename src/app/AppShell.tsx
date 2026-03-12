@@ -1,13 +1,19 @@
 import type { PropsWithChildren } from "react";
-import { NavLink } from "react-router-dom";
 import { envReadiness } from "../config/env";
-import { palette, sans } from "../features/meal-planner/constants";
-import { useProfile } from "../features/profile/hooks/useProfile";
+import { palette, sans } from "../lib/design-tokens";
 import { useAppAuth } from "./providers/app-auth-context";
+import { useMediaQuery } from "../lib/useMediaQuery";
+import { NavSidebar } from "./components/NavSidebar";
+import { NavBottomBar } from "./components/NavBottomBar";
 
 export function AppShell({ children }: PropsWithChildren) {
   const auth = useAppAuth();
-  const { profile } = useProfile();
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
+  // Unauthenticated: passthrough — the landing page owns its own nav
+  if (!auth.user) {
+    return <>{children}</>;
+  }
 
   return (
     <>
@@ -20,79 +26,22 @@ export function AppShell({ children }: PropsWithChildren) {
             padding: "10px 16px",
             fontFamily: sans,
             fontSize: 12,
+            ...(isMobile ? {} : { marginLeft: 240 }),
           }}
         >
           Running in local scaffold mode. Add WorkOS and Supabase env vars to enable hosted auth and cloud persistence.
         </div>
       ) : null}
-      {auth.user ? (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 16,
-            padding: "10px 16px",
-            background: "#ffffffbf",
-            borderBottom: `1px solid ${palette.border}`,
-            backdropFilter: "blur(12px)",
-            fontFamily: sans,
-            fontSize: 12,
-            flexWrap: "wrap",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-            <span>
-              Signed in as <strong>{auth.user.email}</strong>
-            </span>
-            <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <TopNavLink to="/">Dashboard</TopNavLink>
-              <TopNavLink to="/partner">{profile.role === "prep_partner" ? "Prep View" : "Partner"}</TopNavLink>
-              <TopNavLink to="/medication">Medication</TopNavLink>
-              <TopNavLink to="/notifications">Inbox</TopNavLink>
-              <TopNavLink to="/weight">Weight</TopNavLink>
-              <TopNavLink to="/social-eating">Social</TopNavLink>
-              <TopNavLink to="/planner">Planner</TopNavLink>
-              <TopNavLink to="/grocery">Grocery</TopNavLink>
-              <TopNavLink to="/tracker">Tracker</TopNavLink>
-              <TopNavLink to="/food-diary">Food Diary</TopNavLink>
-              <TopNavLink to="/onboarding">Profile</TopNavLink>
-            </nav>
-          </div>
-          <button
-            onClick={() => void auth.signOut()}
-            style={{
-              background: "none",
-              border: `1px solid ${palette.border}`,
-              borderRadius: 999,
-              padding: "6px 12px",
-              fontFamily: sans,
-              cursor: "pointer",
-            }}
-          >
-            Sign out
-          </button>
-        </div>
-      ) : null}
-      {children}
+      {isMobile ? <NavBottomBar /> : <NavSidebar />}
+      <main
+        style={{
+          marginLeft: isMobile ? 0 : 240,
+          paddingBottom: isMobile ? 72 : 0,
+          minHeight: "100vh",
+        }}
+      >
+        {children}
+      </main>
     </>
-  );
-}
-
-function TopNavLink({ to, children }: { to: string; children: React.ReactNode }) {
-  return (
-    <NavLink
-      to={to}
-      style={({ isActive }) => ({
-        textDecoration: "none",
-        padding: "6px 12px",
-        borderRadius: 999,
-        color: isActive ? palette.accent : palette.textMuted,
-        background: isActive ? palette.accentSoft : "transparent",
-        border: `1px solid ${isActive ? palette.accentLight : palette.border}`,
-      })}
-    >
-      {children}
-    </NavLink>
   );
 }

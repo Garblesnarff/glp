@@ -1,4 +1,5 @@
-import { palette, sans } from "../../meal-planner/constants";
+import { Button } from "../../../components/ui/Button";
+import { palette, sans } from "../../../lib/design-tokens";
 
 const increments = [8, 12, 16];
 
@@ -23,23 +24,9 @@ export function HydrationCard({
       </div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         {increments.map((ounces) => (
-          <button
-            key={ounces}
-            type="button"
-            onClick={() => onAddWater(ounces)}
-            style={{
-              borderRadius: 999,
-              padding: "10px 14px",
-              border: `1px solid ${palette.border}`,
-              background: "#fff",
-              color: palette.text,
-              fontFamily: sans,
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
-          >
+          <Button key={ounces} variant="secondary" onClick={() => onAddWater(ounces)} style={{ padding: "10px 14px" }}>
             +{ounces} oz
-          </button>
+          </Button>
         ))}
       </div>
     </div>

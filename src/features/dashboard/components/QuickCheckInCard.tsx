@@ -1,4 +1,4 @@
-import { palette, sans } from "../../meal-planner/constants";
+import { palette, sans } from "../../../lib/design-tokens";
 import { appetiteLabel } from "../support";
 import type { AppetiteLevel, DailyLog, FoodMood, Severity, SymptomType } from "../../../domain/types";
 

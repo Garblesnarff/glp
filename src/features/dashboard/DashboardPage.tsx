@@ -1,8 +1,12 @@
 import { useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { secondaryLinkStyle } from "../../components/ui/styles";
+import { Badge } from "../../components/ui/Badge";
+import { Button } from "../../components/ui/Button";
+import { Container } from "../../components/ui/Container";
+import { SectionLabel } from "../../components/ui/SectionLabel";
 import { getDaysSince, getFiberRampTarget, getNextShotLabel } from "../../domain/utils";
-import { palette, sans, font } from "../meal-planner/constants";
+import { palette, sans, font, typography, spacing } from "../../lib/design-tokens";
 import { RecipeCard } from "../meal-planner/components/RecipeCard";
 import { RecipeModal } from "../meal-planner/components/RecipeModal";
 import type { Recipe } from "../meal-planner/types";
@@ -72,13 +76,11 @@ export function DashboardPage() {
   }
 
   return (
-    <div style={{ maxWidth: 960, margin: "0 auto", padding: "24px 16px 80px" }}>
+    <Container>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap" }}>
         <div>
-          <div style={{ fontFamily: sans, fontSize: 11, textTransform: "uppercase", letterSpacing: 2, color: palette.accent }}>
-            Daily Support
-          </div>
-          <h1 style={{ fontFamily: font, fontSize: 42, margin: "8px 0 8px", lineHeight: 1.02 }}>
+          <SectionLabel>Daily Support</SectionLabel>
+          <h1 style={{ fontFamily: font, fontSize: typography.display.size, margin: "8px 0 8px", lineHeight: typography.display.lineHeight }}>
             {profileReady ? `Good to see you, ${profile.name}.` : "Welcome to your GLP-1 companion."}
           </h1>
           <p style={{ fontFamily: sans, fontSize: 15, color: palette.textMuted, maxWidth: 620, lineHeight: 1.6, margin: 0 }}>
@@ -88,13 +90,13 @@ export function DashboardPage() {
           </p>
         </div>
         {!profileReady ? (
-          <Link to="/onboarding" style={ctaLinkStyle}>
-            Finish setup
+          <Link to="/onboarding" style={{ textDecoration: "none" }}>
+            <Button>Finish setup</Button>
           </Link>
         ) : null}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14, marginTop: 24 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: spacing.xl, marginTop: spacing.xl }}>
         <DashboardMetricCard title="Shot status" value={`${daysSinceStart} days in`} detail={`Next shot: ${nextShot}`} />
         <DashboardMetricCard title="Hydration" value={`${todayLog.hydrationOz} oz`} detail={`Goal: ${profile.hydrationGoal} oz`} progress={hydrationPct} />
         <DashboardMetricCard title="Protein" value={`${proteinTotal} g`} detail={`Target: ${profile.proteinTarget.min}-${profile.proteinTarget.max} g`} progress={proteinPct} />
@@ -103,7 +105,7 @@ export function DashboardPage() {
         <DashboardMetricCard title="Food noise" value={`${todayLog.foodNoiseLevel}/5`} detail={todayLog.foodMood} />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 16, marginTop: 18 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: spacing.xl, marginTop: spacing.xl }}>
         <DashboardPanel title="Quick check-in">
           <QuickCheckInCard
             log={todayLog}
@@ -113,21 +115,11 @@ export function DashboardPage() {
             onSetFoodMood={(value) => void setFoodMood(value)}
           />
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
-            <Link to="/today" style={secondaryLinkStyle}>
-              Open full daily log
-            </Link>
-            <Link to="/partner" style={secondaryLinkStyle}>
-              {profile.role === "prep_partner" ? "Open prep view" : "Partner workspace"}
-            </Link>
-            <Link to="/medication" style={secondaryLinkStyle}>
-              Medication timeline
-            </Link>
-            <Link to="/weight" style={secondaryLinkStyle}>
-              Weight context
-            </Link>
-            <Link to="/social-eating" style={secondaryLinkStyle}>
-              Social eating
-            </Link>
+            <Link to="/today" style={secondaryLinkStyle}>Open full daily log</Link>
+            <Link to="/partner" style={secondaryLinkStyle}>{profile.role === "prep_partner" ? "Open prep view" : "Partner workspace"}</Link>
+            <Link to="/medication" style={secondaryLinkStyle}>Medication timeline</Link>
+            <Link to="/weight" style={secondaryLinkStyle}>Weight context</Link>
+            <Link to="/social-eating" style={secondaryLinkStyle}>Social eating</Link>
           </div>
         </DashboardPanel>
 
@@ -139,23 +131,21 @@ export function DashboardPage() {
             onAddWater={(ounces) => void addHydration(ounces)}
           />
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
-            <Link to="/today" style={secondaryLinkStyle}>
-              Open hydration log
-            </Link>
+            <Link to="/today" style={secondaryLinkStyle}>Open hydration log</Link>
           </div>
         </DashboardPanel>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 16, marginTop: 18 }}>
-        <DashboardPanel title="Today’s context">
+      <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: spacing.xl, marginTop: spacing.xl }}>
+        <DashboardPanel title="Today's context">
           <div style={{ display: "grid", gap: 10 }}>
             {shotDayActive ? <div style={noticeStyle}>Shot-day mode is active. Favor gentle foods, slower eating, and smaller portions.</div> : null}
             {activeSymptoms.length > 0 ? (
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 {activeSymptoms.map(([symptom, severity]) => (
-                  <span key={symptom} style={symptomBadgeStyle(severity)}>
+                  <Badge key={symptom} tone={severity === "severe" ? "danger" : severity === "moderate" ? "warning" : "default"}>
                     {symptom} · {severity}
-                  </span>
+                  </Badge>
                 ))}
               </div>
             ) : (
@@ -187,33 +177,29 @@ export function DashboardPage() {
         </DashboardPanel>
       </div>
 
-      <div style={{ marginTop: 18 }}>
+      <div style={{ marginTop: spacing.xl }}>
         <DashboardPanel title="Companion reminders">
           <CompanionRemindersPanel reminders={reminders} />
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
-            <Link to="/notifications" style={secondaryLinkStyle}>
-              Open notification inbox
-            </Link>
-            <Link to="/medication" style={secondaryLinkStyle}>
-              Manage reminder settings
-            </Link>
+            <Link to="/notifications" style={secondaryLinkStyle}>Open notification inbox</Link>
+            <Link to="/medication" style={secondaryLinkStyle}>Manage reminder settings</Link>
           </div>
         </DashboardPanel>
       </div>
 
-      <div style={{ marginTop: 18 }}>
+      <div style={{ marginTop: spacing.xl }}>
         <DashboardPanel title="Protein + movement support">
           <div style={{ display: "grid", gap: 10 }}>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <span style={supportBadgeStyle(supportHabits.proteinSupplementLogged)}>
+              <Badge tone={supportHabits.proteinSupplementLogged ? "success" : "warning"}>
                 {supportHabits.proteinSupplementLogged ? "Protein support logged" : "Protein support open"}
-              </span>
-              <span style={supportBadgeStyle(supportHabits.strengthLoggedToday)}>
+              </Badge>
+              <Badge tone={supportHabits.strengthLoggedToday ? "success" : "warning"}>
                 {supportHabits.strengthLoggedToday ? "Strength logged today" : `${supportHabits.recentStrengthDays}/7 strength days`}
-              </span>
-              <span style={supportBadgeStyle(supportHabits.recentMovementDays >= 3)}>
+              </Badge>
+              <Badge tone={supportHabits.recentMovementDays >= 3 ? "success" : "warning"}>
                 {supportHabits.recentMovementDays}/7 movement days
-              </span>
+              </Badge>
             </div>
             <ul style={{ margin: 0, paddingLeft: 18, fontFamily: sans, color: palette.textMuted, lineHeight: 1.8, fontSize: 14 }}>
               {supportHabits.messages.map((message) => (
@@ -221,25 +207,21 @@ export function DashboardPage() {
               ))}
             </ul>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <Link to="/today" style={secondaryLinkStyle}>
-                Open checklist
-              </Link>
-              <Link to="/history" style={secondaryLinkStyle}>
-                Review habit trend
-              </Link>
+              <Link to="/today" style={secondaryLinkStyle}>Open checklist</Link>
+              <Link to="/history" style={secondaryLinkStyle}>Review habit trend</Link>
             </div>
           </div>
         </DashboardPanel>
       </div>
 
-      <div style={{ marginTop: 18 }}>
+      <div style={{ marginTop: spacing.xl }}>
         <DashboardPanel title="Consistency wins">
           <div style={{ display: "grid", gap: 10 }}>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <span style={supportBadgeStyle(consistency.hydrationStreak >= 3)}>{consistency.hydrationStreak} hydration days</span>
-              <span style={supportBadgeStyle(consistency.proteinStreak >= 3)}>{consistency.proteinStreak} protein days</span>
-              <span style={supportBadgeStyle(consistency.movementStreak >= 2)}>{consistency.movementStreak} movement days</span>
-              <span style={supportBadgeStyle(consistency.loggingStreak >= 3)}>{consistency.loggingStreak} logging days</span>
+              <Badge tone={consistency.hydrationStreak >= 3 ? "success" : "warning"}>{consistency.hydrationStreak} hydration days</Badge>
+              <Badge tone={consistency.proteinStreak >= 3 ? "success" : "warning"}>{consistency.proteinStreak} protein days</Badge>
+              <Badge tone={consistency.movementStreak >= 2 ? "success" : "warning"}>{consistency.movementStreak} movement days</Badge>
+              <Badge tone={consistency.loggingStreak >= 3 ? "success" : "warning"}>{consistency.loggingStreak} logging days</Badge>
             </div>
             <ul style={{ margin: 0, paddingLeft: 18, fontFamily: sans, color: palette.textMuted, lineHeight: 1.8, fontSize: 14 }}>
               {consistency.wins.map((message) => (
@@ -247,26 +229,22 @@ export function DashboardPage() {
               ))}
             </ul>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <Link to="/weight" style={secondaryLinkStyle}>
-                See weight in context
-              </Link>
-              <Link to="/history" style={secondaryLinkStyle}>
-                Review recent trend
-              </Link>
+              <Link to="/weight" style={secondaryLinkStyle}>See weight in context</Link>
+              <Link to="/history" style={secondaryLinkStyle}>Review recent trend</Link>
             </div>
           </div>
         </DashboardPanel>
       </div>
 
-      <div style={{ marginTop: 18 }}>
+      <div style={{ marginTop: spacing.xl }}>
         <DashboardPanel title="Food relationship support">
           <div style={{ display: "grid", gap: 10 }}>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <span style={supportBadgeStyle(todayLog.foodNoiseLevel <= 2)}>Food noise {todayLog.foodNoiseLevel}/5</span>
-              <span style={supportBadgeStyle(todayLog.foodMood === "neutral" || todayLog.foodMood === "excited")}>{todayLog.foodMood}</span>
-              <span style={supportBadgeStyle(foodRelationshipSupport.previousAverageNoise >= todayLog.foodNoiseLevel)}>
+              <Badge tone={todayLog.foodNoiseLevel <= 2 ? "success" : "warning"}>Food noise {todayLog.foodNoiseLevel}/5</Badge>
+              <Badge tone={todayLog.foodMood === "neutral" || todayLog.foodMood === "excited" ? "success" : "warning"}>{todayLog.foodMood}</Badge>
+              <Badge tone={foodRelationshipSupport.previousAverageNoise >= todayLog.foodNoiseLevel ? "success" : "warning"}>
                 Recent avg {foodRelationshipSupport.previousAverageNoise}/5
-              </span>
+              </Badge>
             </div>
             <ul style={{ margin: 0, paddingLeft: 18, fontFamily: sans, color: palette.textMuted, lineHeight: 1.8, fontSize: 14 }}>
               {foodRelationshipSupport.messages.map((message) => (
@@ -274,18 +252,14 @@ export function DashboardPage() {
               ))}
             </ul>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <Link to="/social-eating" style={secondaryLinkStyle}>
-                Open social eating playbook
-              </Link>
-              <Link to="/today" style={secondaryLinkStyle}>
-                Update food check-in
-              </Link>
+              <Link to="/social-eating" style={secondaryLinkStyle}>Open social eating playbook</Link>
+              <Link to="/today" style={secondaryLinkStyle}>Update food check-in</Link>
             </div>
           </div>
         </DashboardPanel>
       </div>
 
-      <div style={{ marginTop: 18 }}>
+      <div style={{ marginTop: spacing.xl }}>
         <DashboardPanel title="Recommended meals for today">
           <p style={{ margin: "0 0 12px", fontFamily: sans, color: palette.textMuted, lineHeight: 1.6 }}>
             These suggestions now react to shot-day support, symptoms, and the enriched GLP-1 recipe profile. Open a recipe to see the support fit in more detail.
@@ -302,53 +276,21 @@ export function DashboardPage() {
             ))}
           </div>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 12 }}>
-            <Link to="/planner" style={secondaryLinkStyle}>
-              Open planner
-            </Link>
-            <Link to="/history" style={secondaryLinkStyle}>
-              View recent history
-            </Link>
-            <Link to="/onboarding" style={secondaryLinkStyle}>
-              Edit profile
-            </Link>
+            <Link to="/planner" style={secondaryLinkStyle}>Open planner</Link>
+            <Link to="/history" style={secondaryLinkStyle}>View recent history</Link>
+            <Link to="/onboarding" style={secondaryLinkStyle}>Edit profile</Link>
           </div>
         </DashboardPanel>
       </div>
 
       {selectedRecipe ? <RecipeModal recipe={selectedRecipe} onClose={() => setSelectedRecipe(null)} /> : null}
-    </div>
+    </Container>
   );
 }
 
 function buildRoughDayAlertNote(symptoms: string[], appetiteLevel: string) {
   const symptomLabel = symptoms.length > 0 ? symptoms.slice(0, 3).join(", ") : "symptoms not specified";
   return `Rough day support requested. Appetite: ${appetiteLevel}. Symptoms: ${symptomLabel}.`;
-}
-
-const ctaLinkStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  borderRadius: 999,
-  background: palette.accent,
-  color: "#fff",
-  textDecoration: "none",
-  padding: "12px 18px",
-  fontFamily: sans,
-  fontWeight: 700,
-};
-
-function supportBadgeStyle(complete: boolean): CSSProperties {
-  return {
-    borderRadius: 999,
-    padding: "6px 10px",
-    border: `1px solid ${complete ? palette.accentLight : "#f1dfb8"}`,
-    background: complete ? palette.accentSoft : "#fffaf1",
-    color: complete ? palette.accent : palette.text,
-    fontFamily: sans,
-    fontSize: 12,
-    fontWeight: 700,
-  };
 }
 
 const noticeStyle: CSSProperties = {
@@ -360,19 +302,3 @@ const noticeStyle: CSSProperties = {
   color: palette.accent,
   fontSize: 13,
 };
-
-function symptomBadgeStyle(severity: string): CSSProperties {
-  const isSevere = severity === "severe";
-  const isModerate = severity === "moderate";
-
-  return {
-    borderRadius: 999,
-    padding: "6px 10px",
-    background: isSevere ? "#fff4f5" : isModerate ? "#fff8ec" : "#f7faf7",
-    border: `1px solid ${isSevere ? "#f4c2c7" : isModerate ? "#f1dfb8" : palette.border}`,
-    color: isSevere ? palette.danger : palette.text,
-    fontFamily: sans,
-    fontSize: 12,
-    textTransform: "capitalize",
-  };
-}

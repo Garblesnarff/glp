@@ -1,7 +1,11 @@
 import { Suspense, lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { font, palette, sans } from "../../features/meal-planner/constants";
+import { font, palette, sans } from "../../lib/design-tokens";
+import { ProtectedRoute } from "../auth/ProtectedRoute";
 
+const LandingPage = lazy(() =>
+  import("../../features/landing/LandingPage").then((module) => ({ default: module.LandingPage })),
+);
 const AuthStatusPage = lazy(() =>
   import("./AuthStatusPage").then((module) => ({ default: module.AuthStatusPage })),
 );
@@ -46,21 +50,8 @@ export function AppRoutes() {
   return (
     <Suspense fallback={<RouteLoadingScreen />}>
       <Routes>
-        <Route path="/" element={<DashboardPage />} />
-        <Route path="/today" element={<DailyLogPage />} />
-        <Route path="/history" element={<HistoryPage />} />
-        <Route path="/medication" element={<MedicationTimelinePage />} />
-        <Route path="/notifications" element={<NotificationsPage />} />
-        <Route path="/onboarding" element={<OnboardingPage />} />
-        <Route path="/partner" element={<PartnerWorkspacePage />} />
-        <Route path="/social-eating" element={<SocialEatingPage />} />
-        <Route path="/weight" element={<WeightPage />} />
-        <Route path="/planner" element={<GLP1MealPlanner initialTab="planner" />} />
-        <Route path="/grocery" element={<GLP1MealPlanner initialTab="grocery" />} />
-        <Route path="/tracker" element={<GLP1MealPlanner initialTab="tracker" />} />
-        <Route path="/recipes" element={<GLP1MealPlanner initialTab="recipes" />} />
-        <Route path="/food-diary" element={<FoodDiaryPage />} />
-        <Route path="/red-flags" element={<RedFlagPage />} />
+        {/* Public routes */}
+        <Route path="/" element={<LandingPage />} />
         <Route
           path="/login"
           element={<AuthStatusPage title="Starting sign-in" body="Redirecting to WorkOS so your session can be established." />}
@@ -69,6 +60,23 @@ export function AppRoutes() {
           path="/auth/callback"
           element={<AuthStatusPage title="Finishing sign-in" body="Completing the WorkOS callback and returning you to the app." />}
         />
+
+        {/* Protected routes */}
+        <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+        <Route path="/today" element={<ProtectedRoute><DailyLogPage /></ProtectedRoute>} />
+        <Route path="/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
+        <Route path="/medication" element={<ProtectedRoute><MedicationTimelinePage /></ProtectedRoute>} />
+        <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+        <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
+        <Route path="/partner" element={<ProtectedRoute><PartnerWorkspacePage /></ProtectedRoute>} />
+        <Route path="/social-eating" element={<ProtectedRoute><SocialEatingPage /></ProtectedRoute>} />
+        <Route path="/weight" element={<ProtectedRoute><WeightPage /></ProtectedRoute>} />
+        <Route path="/planner" element={<ProtectedRoute><GLP1MealPlanner initialTab="planner" /></ProtectedRoute>} />
+        <Route path="/grocery" element={<ProtectedRoute><GLP1MealPlanner initialTab="grocery" /></ProtectedRoute>} />
+        <Route path="/tracker" element={<ProtectedRoute><GLP1MealPlanner initialTab="tracker" /></ProtectedRoute>} />
+        <Route path="/recipes" element={<ProtectedRoute><GLP1MealPlanner initialTab="recipes" /></ProtectedRoute>} />
+        <Route path="/food-diary" element={<ProtectedRoute><FoodDiaryPage /></ProtectedRoute>} />
+        <Route path="/red-flags" element={<ProtectedRoute><RedFlagPage /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>

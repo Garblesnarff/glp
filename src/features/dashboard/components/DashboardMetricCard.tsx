@@ -1,5 +1,6 @@
-import type { CSSProperties } from "react";
-import { font, palette, sans } from "../../meal-planner/constants";
+import { Card } from "../../../components/ui/Card";
+import { ProgressBar } from "../../../components/ui/ProgressBar";
+import { font, palette, sans } from "../../../lib/design-tokens";
 
 export function DashboardMetricCard({
   title,
@@ -13,22 +14,17 @@ export function DashboardMetricCard({
   progress?: number;
 }) {
   return (
-    <div style={cardStyle}>
+    <Card
+      variant="elevated"
+      padding={18}
+      style={{ borderTop: `3px solid ${palette.accentLight}` }}
+    >
       <div style={{ fontFamily: sans, fontSize: 11, textTransform: "uppercase", letterSpacing: 1.5, color: palette.textMuted }}>{title}</div>
       <div style={{ fontFamily: font, fontSize: 30, margin: "8px 0 6px" }}>{value}</div>
       <div style={{ fontFamily: sans, fontSize: 13, color: palette.textMuted }}>{detail}</div>
       {typeof progress === "number" ? (
-        <div style={{ marginTop: 14, height: 8, borderRadius: 999, background: palette.border, overflow: "hidden" }}>
-          <div style={{ width: `${progress}%`, height: "100%", background: palette.accent, borderRadius: 999 }} />
-        </div>
+        <ProgressBar value={progress} style={{ marginTop: 14 }} />
       ) : null}
-    </div>
+    </Card>
   );
 }
-
-const cardStyle: CSSProperties = {
-  background: "#ffffffdb",
-  border: `1px solid ${palette.border}`,
-  borderRadius: 18,
-  padding: 18,
-};
