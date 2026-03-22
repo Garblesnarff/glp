@@ -21,12 +21,13 @@ export function getCompanionReminders(profile: UserProfile, log: DailyLog, recen
   }
 
   const reminders: CompanionReminder[] = [];
+  const referenceDate = new Date(`${log.date}T12:00:00`);
   const latestMedicationLog = medicationLogs[0] ?? null;
-  const shotTomorrow = getDaysUntilShot(profile.shotDay) === 1;
+  const shotTomorrow = getDaysUntilShot(profile.shotDay, referenceDate) === 1;
   const daysSinceBowelMovement = getDaysSinceLastBowelMovement(log, recentLogs);
   const hydrationRemaining = Math.max(0, profile.hydrationGoal - log.hydrationOz);
   const latestDoseIncrease = medicationLogs.find((entry) => entry.isDoseIncrease);
-  const doseIncreaseRecent = latestDoseIncrease ? daysSinceDate(latestDoseIncrease.date) <= 7 : false;
+  const doseIncreaseRecent = latestDoseIncrease ? daysSinceDate(latestDoseIncrease.date, referenceDate) <= 7 : false;
   const proteinToday = log.mealsConsumed.reduce((sum, meal) => sum + meal.actualProtein, 0);
   const recentStrengthDays = recentLogs.filter((entry) => entry.movement.includes("Strength session")).length;
   const refill = getRefillSummary(profile);
@@ -70,7 +71,7 @@ export function getCompanionReminders(profile: UserProfile, log: DailyLog, recen
     });
   }
 
-  if ((hydrationRemaining >= 24 || isShotDaySupportActive(profile)) && profile.reminderPreferences.hydration) {
+  if ((hydrationRemaining >= 24 || isShotDaySupportActive(profile, referenceDate)) && profile.reminderPreferences.hydration) {
     reminders.push({
       id: "hydration-nudge",
       title: "Keep hydration moving",

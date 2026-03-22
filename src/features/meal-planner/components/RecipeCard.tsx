@@ -50,7 +50,7 @@ export function RecipeCard({
             {recipe.name}
           </div>
           <div style={{ fontSize: 11, color: palette.textMuted, fontFamily: sans, marginTop: 4 }}>
-            {formatDuration(recipe.time)} · {recipe.servings} serving{recipe.servings > 1 ? "s" : ""}
+            {formatDuration(recipe.time)} · Makes {recipe.servings} serving{recipe.servings > 1 ? "s" : ""}
           </div>
         </div>
         {onAssign ? (
@@ -81,6 +81,7 @@ export function RecipeCard({
         <span style={{ color: palette.warm, fontWeight: 700 }}>{recipe.fiber}g fiber</span>
         <span style={{ color: palette.textMuted }}>{recipe.calories} cal</span>
       </div>
+      <div style={{ marginTop: 6, fontSize: 11, color: palette.textMuted, fontFamily: sans }}>Estimated nutrition per serving</div>
       {contextBadges.length > 0 ? (
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
           {contextBadges.map((badge) => (

@@ -54,6 +54,9 @@ export function RecipeModal({ recipe, onClose }: { recipe: Recipe; onClose: () =
             {recipe.calories} cal · {formatDuration(recipe.time)}
           </span>
         </div>
+        <div style={{ marginTop: -4, marginBottom: 16, fontFamily: sans, fontSize: 12, color: palette.textMuted }}>
+          Makes {recipe.servings} serving{recipe.servings > 1 ? "s" : ""}. Nutrition is estimated per serving and can vary by brand or topping choices.
+        </div>
 
         {recipe.notes ? (
           <div

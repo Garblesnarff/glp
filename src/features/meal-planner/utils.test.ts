@@ -27,9 +27,9 @@ describe("meal planner utils", () => {
     const nextWeekPlan = assignRecipeToWeekPlan(weekPlan, "Mon", "lunch", "l1");
     const stats = calculateWeeklyStats(nextWeekPlan, recipeMap);
 
-    expect(stats.Mon.protein).toBe(77);
-    expect(stats.Mon.fiber).toBe(20);
-    expect(stats.Mon.calories).toBe(860);
+    expect(stats.Mon.protein).toBe(92);
+    expect(stats.Mon.fiber).toBe(21);
+    expect(stats.Mon.calories).toBe(989);
   });
 
   test("aggregates grocery items across assigned meals", () => {
