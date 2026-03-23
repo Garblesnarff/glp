@@ -25,6 +25,16 @@ function ingredientHasExplicitQuantity(ingredient: string) {
 }
 
 describe("recipe nutrition QA", () => {
+  test("defines an explicit serving size for every recipe card", () => {
+    const vagueServingSizes = RECIPES.flatMap((recipe) =>
+      /^\s*(about\s+\d|\d)/i.test(recipe.servingSize) ? [] : [`${recipe.id}: ${recipe.servingSize}`],
+    );
+
+    expect(vagueServingSizes).toEqual([]);
+    expect(RECIPES.find((recipe) => recipe.id === "d1")?.servingSize).toBe("2 tacos + 1/2 cup black beans");
+    expect(RECIPES.find((recipe) => recipe.id === "d4")?.servingSize).toBe("about 1 1/2 cups, including 1/2 cup rice");
+  });
+
   test("keeps ingredient lines explicit enough for a human cook to shop from them", () => {
     const vagueIngredients = RECIPE_SEEDS.flatMap((recipe) =>
       recipe.ingredients

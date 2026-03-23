@@ -1,4 +1,5 @@
 import type { Recipe, RecipeAppetiteLevel, RecipeGlp1Profile, RecipePortion, RecipeSeed } from "../types";
+import { SERVING_SIZE_BY_RECIPE_ID } from "./servingSizes";
 
 function includesAny(haystack: string, needles: string[]) {
   return needles.some((needle) => haystack.includes(needle));
@@ -71,9 +72,15 @@ function deriveAllergens(recipe: RecipeSeed) {
 
 export function enrichRecipe(recipe: RecipeSeed): Recipe {
   const glp1 = deriveGlp1Profile(recipe);
+  const servingSize = SERVING_SIZE_BY_RECIPE_ID[recipe.id];
+
+  if (!servingSize) {
+    throw new Error(`Missing serving size for recipe ${recipe.id}`);
+  }
 
   return {
     ...recipe,
+    servingSize,
     glp1,
     allergens: deriveAllergens(recipe),
     freezesWell: recipe.tags.includes("freezer-friendly") || recipe.tags.includes("meal-prep"),

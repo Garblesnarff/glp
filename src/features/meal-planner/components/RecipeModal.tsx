@@ -55,7 +55,7 @@ export function RecipeModal({ recipe, onClose }: { recipe: Recipe; onClose: () =
           </span>
         </div>
         <div style={{ marginTop: -4, marginBottom: 16, fontFamily: sans, fontSize: 12, color: palette.textMuted }}>
-          Makes {recipe.servings} serving{recipe.servings > 1 ? "s" : ""}. Nutrition is estimated per serving and can vary by brand or topping choices.
+          Makes {recipe.servings} serving{recipe.servings > 1 ? "s" : ""}. One serving is {recipe.servingSize}. Nutrition is estimated per serving and can vary by brand or topping choices.
         </div>
 
         {recipe.notes ? (
@@ -105,6 +105,7 @@ export function RecipeModal({ recipe, onClose }: { recipe: Recipe; onClose: () =
               gap: 10,
             }}
           >
+            <SupportStat label="Serving size" value={recipe.servingSize} />
             <SupportStat label="Recommended portion" value={capitalize(recipe.recommendedPortion)} />
             <SupportStat label="Texture" value={recipe.glp1.texture.map(capitalize).join(", ")} />
             <SupportStat label="Constipation support" value={capitalize(recipe.glp1.constipationSupport)} />

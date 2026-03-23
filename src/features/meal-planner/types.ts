@@ -24,6 +24,7 @@ export type Recipe = {
   meal: MealType;
   time: number;
   servings: number;
+  servingSize: string;
   protein: number;
   fiber: number;
   calories: number;
@@ -41,7 +42,7 @@ export type Recipe = {
 
 export type RecipeSeed = Omit<
   Recipe,
-  "glp1" | "allergens" | "freezesWell" | "leftoverDays" | "canBlendOrSip" | "recommendedPortion"
+  "glp1" | "allergens" | "freezesWell" | "leftoverDays" | "canBlendOrSip" | "recommendedPortion" | "servingSize"
 >;
 
 export type DayPlan = Record<MealType, string | null>;

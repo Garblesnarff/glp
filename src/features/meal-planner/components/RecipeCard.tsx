@@ -52,6 +52,9 @@ export function RecipeCard({
           <div style={{ fontSize: 11, color: palette.textMuted, fontFamily: sans, marginTop: 4 }}>
             {formatDuration(recipe.time)} · Makes {recipe.servings} serving{recipe.servings > 1 ? "s" : ""}
           </div>
+          <div style={{ fontSize: 11, color: palette.textMuted, fontFamily: sans, marginTop: 2 }}>
+            Serving: {recipe.servingSize}
+          </div>
         </div>
         {onAssign ? (
           <button
