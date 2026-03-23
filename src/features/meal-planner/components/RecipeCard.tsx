@@ -77,9 +77,9 @@ export function RecipeCard({
         ) : null}
       </div>
       <div style={{ display: "flex", gap: 12, marginTop: compact ? 8 : 10, fontSize: 12, fontFamily: sans }}>
-        <span style={{ color: palette.accent, fontWeight: 700 }}>{recipe.protein}g protein</span>
-        <span style={{ color: palette.warm, fontWeight: 700 }}>{recipe.fiber}g fiber</span>
-        <span style={{ color: palette.textMuted }}>{recipe.calories} cal</span>
+        <span style={{ color: palette.accent, fontWeight: 700 }}>{recipe.protein}g protein/serving</span>
+        <span style={{ color: palette.warm, fontWeight: 700 }}>{recipe.fiber}g fiber/serving</span>
+        <span style={{ color: palette.textMuted }}>{recipe.calories} cal/serving</span>
       </div>
       <div style={{ marginTop: 6, fontSize: 11, color: palette.textMuted, fontFamily: sans }}>Estimated nutrition per serving</div>
       {contextBadges.length > 0 ? (

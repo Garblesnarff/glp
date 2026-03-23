@@ -45,13 +45,13 @@ export function RecipeModal({ recipe, onClose }: { recipe: Recipe; onClose: () =
         </div>
         <div style={{ display: "flex", gap: 16, margin: "12px 0", fontFamily: sans, fontSize: 13, flexWrap: "wrap" }}>
           <span style={{ background: palette.accentSoft, color: palette.accent, padding: "4px 12px", borderRadius: 10, fontWeight: 600 }}>
-            {recipe.protein}g protein
+            {recipe.protein}g protein/serving
           </span>
           <span style={{ background: "#fde8e0", color: palette.warm, padding: "4px 12px", borderRadius: 10, fontWeight: 600 }}>
-            {recipe.fiber}g fiber
+            {recipe.fiber}g fiber/serving
           </span>
           <span style={{ color: palette.textMuted }}>
-            {recipe.calories} cal · {formatDuration(recipe.time)}
+            {recipe.calories} cal/serving · {formatDuration(recipe.time)}
           </span>
         </div>
         <div style={{ marginTop: -4, marginBottom: 16, fontFamily: sans, fontSize: 12, color: palette.textMuted }}>

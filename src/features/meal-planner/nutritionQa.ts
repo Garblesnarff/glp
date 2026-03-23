@@ -115,6 +115,11 @@ const RULES: Rule[] = [
     units: { cup: { calories: 180, protein: 24, fiber: 0 } },
   },
   {
+    pattern: /\beggs?\b/,
+    defaultUnit: "item",
+    units: { item: { calories: 72, protein: 6, fiber: 0 } },
+  },
+  {
     pattern: /almond milk/,
     defaultUnit: "cup",
     units: { cup: { calories: 30, protein: 1, fiber: 0.5 } },
